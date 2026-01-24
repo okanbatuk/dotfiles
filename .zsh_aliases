@@ -1,0 +1,21 @@
+alias windsurf='windsurf --ozone-platform=wayland'
+alias code='code --ozone-platform=wayland'
+alias upfull="$HOME/Desktop/.update.sh --full"
+alias up="$HOME/Desktop/.update.sh --light"
+alias cam-off='sudo usbguard block-device id 04f2:b5a7'
+alias cam-on='sudo usbguard allow-device id 04f2:b5a7'
+alias shut="$HOME/Desktop/.shutdown.sh"
+alias diskmount="$HOME/Desktop/.mount.sh"
+alias getinfo='echo "OS: $(grep PRETTY_NAME /etc/os-release | cut -d "\"" -f2)"; echo "Kernel: $(uname -r)"; echo "Architecture: $(uname -m | sed '\''s/x86_64/64-bit/'\'' | sed '\''s/i[36]86/32-bit/'\'' )"; echo "Desktop Environment: $XDG_CURRENT_DESKTOP"'
+
+# 🎨 Colorful aliases for common commands
+# alias ls='ls --color=auto'
+alias cat='bat --paging=never'
+alias less='bat'
+alias ls='eza --group-directories-first --icons=auto'
+alias ll='eza -al --icons=auto --git'
+alias tree='eza --tree --level=2 --icons=auto'
+alias grep='grep --colour=auto'
+alias egrep='egrep --colour=auto'
+alias fgrep='fgrep --colour=auto'
+

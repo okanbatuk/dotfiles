@@ -1,0 +1,9 @@
+[user]
+	name = myrn
+	email = okanbatuk@protonmail.com
+[init]
+	defaultBranch = main
+[safe]
+	directory = *
+[pull]
+	rebase = false

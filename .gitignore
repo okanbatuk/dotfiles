@@ -1,0 +1,20 @@
+# System & editor
+.DS_Store
+Thumbs.db
+
+# Shell history
+.zsh_history
+.bash_history
+
+# Backups
+*.bak
+
+# VS Code cache (just in case)
+config/Code/User/workspaceStorage/
+config/Code/User/globalStorage/
+config/Code/User/logs/
+config/Code/User/*.log
+config/Code/User/cachedExtensions/
+
+# External repos (like Zed)
+external/

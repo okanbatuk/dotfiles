@@ -1,0 +1,378 @@
+# espanso match file
+
+# For a complete introduction, visit the official docs at: https://espanso.org/docs/
+
+# You can use this file to define the base matches (aka snippets)
+# that will be available in every application when using espanso.
+
+# Matches are substitution rules: when you type the "trigger" string
+# it gets replaced by the "replace" string.
+
+# yaml-language-server: $schema=https://raw.githubusercontent.com/espanso/espanso/dev/schemas/match.schema.json
+
+matches:
+  # Simple text replacement
+  - trigger: ":espanso"
+    replace: "Hi there!"
+
+  - trigger: ":hi"
+    replace: "Hi!"
+
+  # NOTE: espanso uses YAML to define matches, so pay attention to the indentation!
+
+  # But matches can also be dynamic:
+
+  # Print the output of a shell command
+  - trigger: ":shell"
+    replace: "{{output}}"
+    vars:
+      - name: output
+        type: shell
+        params:
+          cmd: "echo 'Hello from your shell'"
+
+  - trigger: ":upd"
+    replace: "updateall"
+
+  - trigger: ":inf"
+    replace: "getinfo"
+
+  - trigger: ":go"
+    replace: "google.com"
+
+  - trigger: ":op"
+    replace: "xdg-open "
+
+  - trigger: ":zed"
+    replace: "zeditor "
+
+  - trigger: ":wind"
+    replace: "windsurf "
+
+# --- PATH ----------------------------------------------------------
+
+  - trigger: ":proj"
+    replace: "~/Desktop/Projects/"
+
+  - trigger: ":priv"
+    replace: "~/Desktop/Private/"
+
+# --- GIT ----------------------------------------------------------
+# 1) commit
+  - trigger: ":gc"
+    replace: 'git commit -m "'
+
+  # 2) commit -a
+  - trigger: ":gca"
+    replace: 'git commit -ma "'
+
+  # 3) branch list
+  - trigger: ":gbr"
+    replace: "git branch"
+
+  # 4) new branch
+  - trigger: ":gbc"
+    replace: 'git checkout -b "'
+
+  # 5) switch branch
+  - trigger: ":gco"
+    replace: 'git checkout "'
+
+  # 6) push
+  - trigger: ":gpush"
+    replace: "git push"
+
+  # 7) pull
+  - trigger: ":gpull"
+    replace: "git pull"
+
+  # 8) pull current branch from origin
+  - trigger: ":gporig"
+    replace: "git pull origin $(git branch --show-current)"
+
+  # 9) push --force-with-lease
+  - trigger: ":gpf"
+    replace: "git push --force-with-lease"
+
+  # 10) status
+  - trigger: ":gstat"
+    replace: "git status"
+
+  # 11) log (last 10)
+  - trigger: ":glog"
+    replace: "git log --oneline -10"
+
+  # 12) diff
+  - trigger: ":gdiff"
+    replace: "git diff"
+
+  # 13) diff --cached
+  - trigger: ":gdc"
+    replace: "git diff --cached"
+
+  # 14) stash with message
+  - trigger: ":gst"
+    replace: 'git stash push -m "'
+
+  # 15) stash pop
+  - trigger: ":gsp"
+    replace: "git stash pop"
+
+  # 16) tag
+  - trigger: ":gtag"
+    replace: 'git tag "'
+
+  # 17) fetch & prune
+  - trigger: ":gfetch"
+    replace: "git fetch --prune"
+
+  # 18) short HEAD hash
+  - trigger: ":gh"
+    replace: "{{output}}"
+    vars:
+      - name: output
+        type: shell
+        params:
+          cmd: "git rev-parse --short HEAD 2>/dev/null || echo no-repo"
+
+# --- Git (additional) --------------------------------------------------
+  - trigger: ":gamend"
+    replace: "git commit --amend -m \""
+
+  - trigger: ":grebase"
+    replace: "git rebase -i HEAD~"
+
+  - trigger: ":gign"
+    replace: "curl -s https://www.toptal.com/developers/gitignore/api/"
+
+# --- Docker --------------------------------------------------------
+  - trigger: ":drun"
+    replace: "docker run "
+
+  - trigger: ":dps"
+    replace: "docker ps"
+
+  - trigger: ":dstop"
+    replace: "docker stop "
+
+  - trigger: ":dlog"
+    replace: "docker logs -f "
+
+  - trigger: ":dbuild"
+    replace: "docker build -t "
+
+  - trigger: ":dcomp"
+    replace: "docker-compose "
+
+# --- K8s -----------------------------------------------------------
+  - trigger: ":kaf"
+    replace: "kubectl apply -f "
+
+  - trigger: ":kgs"
+    replace: "kubectl get svc"
+
+  - trigger: ":kgp"
+    replace: "kubectl get pods"
+
+  - trigger: ":kdp"
+    replace: "kubectl describe pod "
+
+  - trigger: ":kl"
+    replace: "kubectl logs -f "
+
+# --- Node / npm / bun ----------------------------------------------------
+  - trigger: ":nrun"
+    replace: "npm run "
+
+  - trigger: ":brun"
+    replace: "bun run "
+
+  - trigger: ":ninst"
+    replace: "npm install"
+
+  - trigger: ":badd"
+    replace: "bun add "
+
+  - trigger: ":nid"
+    replace: "npm install -D "
+
+  - trigger: ":nig"
+    replace: "npm install -g "
+
+# --- Python --------------------------------------------------------
+
+  - trigger: ":pyt"
+    replace: "python3 "
+
+  - trigger: ":pyserv"
+    replace: "python3 -m http.server 8000"
+
+  - trigger: ":pyvers"
+    replace: "python3 --version"
+
+  - trigger: ":pipins"
+    replace: "pip install "
+
+  - trigger: ":pifreeze"
+    replace: "pip freeze > requirements.txt"
+#
+  - trigger: ":venv"
+    replace: "python3 -m venv venv && source venv/bin/activate"
+
+  - trigger: ":activate"
+    replace: "source venv/bin/activate"
+
+# --- Security ----------------------------------------------------
+  - trigger: ":ufwstat"
+    replace: "sudo ufw status"
+
+  - trigger: ":ufwenb"
+    replace: "sudo ufw enable"
+
+  - trigger: ":ufwdis"
+    replace: "sudo ufw disable"
+
+  - trigger: ":ufwallow"
+    replace: "sudo ufw allow "
+
+  - trigger: ":failban"
+    replace: "sudo fail2ban-client status"
+
+# --- File && Permission -----------------------------------------------
+  - trigger: ":chmodx"
+    replace: "chmod +x "
+
+  - trigger: ":tree"
+    replace: "tree -L 2 "
+
+  - trigger: ":findf"
+    replace: "find . -type f -name '*"
+
+  - trigger: ":findd"
+    replace: "find . -type d -name '*"
+
+# --- Compression --------------------------------------------------
+  - trigger: ":tar"
+    replace: "tar -czvf "
+
+  - trigger: ":untar"
+    replace: "tar -xzvf "
+
+  - trigger: ":zip"
+    replace: "zip -r "
+
+  - trigger: ":unzip"
+    replace: "unzip "
+
+# --- Network ---------------------------------------------------------
+  - trigger: ":myip"
+    replace: "curl -s https://ipinfo.io/ip"
+
+  - trigger: ":pingg"
+    replace: "ping 8.8.8.8"
+
+  - trigger: ":port"
+    replace: "sudo lsof -i :"
+
+  - trigger: ":http"
+    replace: "python3 -m http.server 8000"
+
+# --- Disk & Mem ----------------------------------------------
+  - trigger: ":disk"
+    replace: "df -h"
+
+  - trigger: ":mem"
+    replace: "free -h"
+
+  - trigger: ":top"
+    replace: "htop"
+
+# --- Package Manager ------------------------------------------
+  - trigger: ":pac"
+    replace: "sudo pacman -Syu"
+
+  - trigger: ":search"
+    replace: "pacman -Ss "
+
+  - trigger: ":orphan"
+    replace: "pacman -Qdt"
+
+
+# --- Date & Time ----------------------------------------------
+  - trigger: ":date"
+    replace: "{{out}}"
+    vars:
+      - name: fmt
+        type: choice
+        params:
+          values: ["%b %-d, %Y", "%Y-%m-%d", "%d/%m/%Y"]
+      - name: out
+        type: date
+        params:
+          format: "{{fmt}}"
+
+  - trigger: ":time"
+    replace: "{{time}}"
+    vars:
+      - name: time
+        type: shell
+        params:
+          cmd: "date +%T"
+
+  - trigger: ":hm"
+    replace: "{{hm}}"
+    vars:
+      - name: hm
+        type: shell
+        params:
+          cmd: "date +%H:%M"
+
+  - trigger: ":iso"
+    replace: "{{iso}}"
+    vars:
+      - name: iso
+        type: shell
+        params:
+          cmd: "date -Iseconds"
+
+  - trigger: ":cdir"
+    replace: "cd ~/Desktop/{{path}}"
+    vars:
+      - name: path
+        type: form
+        params:
+          layout: horizontal
+          label: "Path under ~/Desktop"
+
+# --- systemd -----------------------------------------------------
+  - trigger: ":svcstat"
+    replace: "systemctl status "
+
+  - trigger: ":svcstart"
+    replace: "sudo systemctl start "
+
+  - trigger: ":svcstop"
+    replace: "sudo systemctl stop "
+
+  - trigger: ":svcres"
+    replace: "sudo systemctl restart "
+
+  - trigger: ":svclog"
+    replace: "sudo journalctl -u "
+
+# --- System --------------------------------------------------------
+  - trigger: ":ports"
+    replace: "sudo lsof -i :"
+
+  - trigger: ":size"
+    replace: "du -sh "
+
+  - trigger: ":curlj"
+    replace: "curl -s "
+
+  - trigger: ":usblist"
+    replace: "sudo usbguard list-devices"
+
+  - trigger: ":usballow"
+    replace: "sudo usbguard allow-device "
+  # And much more! For more information, visit the docs: https://espanso.org/docs/

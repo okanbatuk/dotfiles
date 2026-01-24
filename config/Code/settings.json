@@ -1,0 +1,129 @@
+{
+  /* ---------- EDITOR ---------- */
+  "editor.tabSize": 2,
+  "editor.lineNumbers": "relative",
+  "editor.wordWrap": "on",
+  "editor.fontLigatures": false,
+  "editor.formatOnSave": false,
+  "editor.formatOnPaste": false,
+  "editor.formatOnType": false,
+  "editor.stickyScroll.enabled": false,
+  "editor.linkedEditing": true,
+  "editor.renderWhitespace": "none",
+  "editor.semanticHighlighting.enabled": false,
+  "editor.minimap.autohide": true,
+  "editor.guides.bracketPairs": true,
+  "editor.guides.bracketPairsHorizontal": true,
+  "search.searchOnType": false,
+  /* ---------- LANG / FORMATTER ---------- */
+  "[css]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[html]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[javascriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "vscode.json-language-features"
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "vscode.json-language-features"
+  },
+  "[python]": {
+    "editor.formatOnType": true
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  /* ---------- EMMET ---------- */
+  "emmet.includeLanguages": {
+    "javascript": "javascriptreact",
+    "razor": "html",
+    "plaintext": "pug"
+  },
+  "emmet.showSuggestionsAsSnippets": true,
+  /* ---------- EXPLORER ---------- */
+  "explorer.confirmDelete": false,
+  "explorer.confirmDragAndDrop": false,
+  "explorer.compactFolders": false,
+  "files.exclude": {
+    "**/.git": false
+  },
+  "files.watcherExclude": {
+    "**/.git/objects/**": true,
+    "**/node_modules/**": true,
+    "**/build/**": true,
+    "**/dist/**": true
+  },
+  /* ---------- GIT ---------- */
+  "git.autofetch": true,
+  "git.confirmSync": false,
+  /* ---------- WINDOW / UI ---------- */
+  "window.title": "${rootPath}",
+  "window.titleBarStyle": "custom",
+  "window.menuBarVisibility": "toggle",
+  "workbench.colorTheme": "Monokai",
+  "workbench.editor.highlightModifiedTabs": true,
+  "workbench.editor.empty.hint": "hidden",
+  "workbench.settings.applyToAllProfiles": [],
+  /* ---------- TERMINAL ---------- */
+  "terminal.integrated.cursorStyle": "underline",
+  /* ---------- MISC ---------- */
+  "better-comments.highlightPlainText": true,
+  "javascript.updateImportsOnFileMove.enabled": "always",
+  "security.workspace.trust.untrustedFiles": "open",
+  "vsicons.dontShowNewVersionMessage": true,
+  "cSpell.userWords": [
+    "dtos",
+    "nestjs",
+    "typeorm"
+  ],
+  /* ---------- VIM EXTENSION ---------- */
+  "vim.normalModeKeyBindings": [
+    {
+      "before": [
+        "g",
+        "o"
+      ],
+      "after": [
+        "o",
+        "<Esc>"
+      ]
+    },
+    {
+      "before": [
+        "g",
+        "O"
+      ],
+      "after": [
+        "O",
+        "<Esc>"
+      ]
+    }
+  ],
+  "vim.timeout": 200,
+  /* ---------- JEST ---------- */
+  "jest.autoRun": {
+    "watch": false,
+    "onSave": "test-only"
+  },
+  /* ---------- OTHER EXTENSIONS ---------- */
+  "clock.dateFormat": "HH:MM",
+  "database-client.autoSync": true,
+  "redhat.telemetry.enabled": false,
+  /* ---------- KUBERNETES ---------- */
+  "vs-kubernetes": {
+    "vscode-kubernetes.helm-path.linux": "/home/myrn/.local/state/vs-kubernetes/tools/helm/linux-amd64/helm",
+    "vscode-kubernetes.kubectl-path.linux": "/home/myrn/.local/state/vs-kubernetes/tools/kubectl/kubectl",
+    "vscode-kubernetes.minikube-path.linux": "/home/myrn/.local/state/vs-kubernetes/tools/minikube/linux-amd64/minikube"
+  },
+  "workbench.iconTheme": "vscode-icons"
+}

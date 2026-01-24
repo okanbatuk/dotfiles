@@ -1,0 +1,65 @@
+{
+	// Place your snippets for javascript here. Each snippet is defined under a snippet name and has a prefix, body and 
+	// description. The prefix is what is used to trigger the snippet and the body will be expanded and inserted. Possible variables are:
+	// $1, $2 for tab stops, $0 for the final cursor position, and ${1:label}, ${2:another} for placeholders. Placeholders with the 
+	// same ids are connected.
+	// Example:
+	// "Print to console": {
+	// 	"prefix": "log",
+	// 	"body": [
+	// 		"console.log('$1');",
+	// 		"$2"
+	// 	],
+	// 	"description": "Log output to console"
+	// }
+	"arrow function": {
+		"body": "const ${1:name} = (${2:params}) => {\n\t${0}\n};",
+		"description": "Arrow function defining.",
+		"prefix": "_afd"
+	},
+	"arrow function:async": {
+		"body": "const ${1:name} = async (${2:params}) => {\n\t${0}\n};",
+		"description": "Async Arrow function defining.",
+		"prefix": "_afda"
+	},
+	"console.log": {
+		"body": "console.log($0);",
+		"description": "displays the specified in the console",
+		"prefix": "_clg"
+	},
+	"console.time&timeEnd ": {
+		"body": "console.time(${1:label});\n${0}\nconsole.timeEnd(${1:label})",
+		"description": "displays the passing time during operation in the console",
+		"prefix": "_clt"
+	},
+	"expect.any": {
+		"body": "expect.any($0),",
+		"description": "expect the prop to be of the specified data type",
+		"prefix": "_expan"
+	},
+	"expect.any with prop": {
+		"body": "${1:prop}: expect.any(${2:type}),$0",
+		"description": "expect the prop to be of the specified data type",
+		"prefix": "_prexpan"
+	},
+	"expect.arrayContaining": {
+		"body": "expect.arrayContaining([$0])",
+		"description": "expects the array contains the array (===)",
+		"prefix": "_eac"
+	},
+	"expect.objectContaining": {
+		"body": "expect.objectContaining({\n\t$0\n})",
+		"description": "expects the obj contains the obj (===)",
+		"prefix": "_eoc"
+	},
+	"for in loop": {
+		"body": "for (let ${1:key} in ${2:object}) {\n\t${0}\n};",
+		"description": "For in loop defining.",
+		"prefix": "_forin"
+	},
+	"for of loop": {
+		"body": "for (let ${1:element} of ${2:iterable}) {\n\t${0}\n};",
+		"description": "For of loop defining.",
+		"prefix": "_forof"
+	},
+}
