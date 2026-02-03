@@ -1,10 +1,12 @@
 #!/bin/bash
 
-# --- Fonksiyonlar ---
+set -e
+
+# --- Functions ---
 shutdown_now() {
   echo -e "\n✅ Cleanup complete. Shutting down in 5 seconds..."
   sleep 5
-  systemctl poweroff
+  sudo systemctl poweroff
 }
 
 stay_on() {
@@ -41,27 +43,46 @@ sudo journalctl --vacuum-time=2d
 
 # CLEAN TEMP FILES
 echo "🧹 Cleaning /tmp and /var/tmp..."
-sudo rm -rf /tmp/* /var/tmp/*
+sudo rm -rf /tmp/* /var/tmp/* 2>/dev/null || true
 
 # CLEAR USER CACHE (again, in case something re-added)
 echo "🧹 Clearing user cache again..."
-rm -rf ~/.cache/*
+rm -rf ~/.cache/* 2>/dev/null || true
+
+# CLEAN GNOME THUMBNAIL CACHE
+echo "🖼️  Cleaning GNOME thumbnail cache..."
+rm -rf ~/.cache/thumbnails/* 2>/dev/null || true
 
 # REMOVE OLD PACKAGE CACHE
 echo "📦 Removing old package cache (keep none)..."
-sudo paccache -ruk0
+sudo paccache -ruk0 2>/dev/null || true
 
-# CLEAN SNAP
-echo "📦 Cleaning Snap cache..."
-sudo rm -rf /var/lib/snapd/cache/*
+# CLEAN AUR HELPER CACHE (yay / paru)
+echo "📦 Cleaning AUR helper cache..."
+rm -rf ~/.cache/yay 2>/dev/null || true
+rm -rf ~/.cache/paru 2>/dev/null || true
+
+# CLEAN DEV TOOL CACHES (npm / yarn / bun / pnpm)
+echo "🧰 Cleaning dev tool caches..."
+rm -rf ~/.npm 2>/dev/null || true
+rm -rf ~/.cache/yarn 2>/dev/null || true
+rm -rf ~/.pnpm-store 2>/dev/null || true
+rm -rf ~/.bun/install/cache 2>/dev/null || true
+rm -rf ~/.bun/cache 2>/dev/null || true
+rm -rf ~/.cache/bun 2>/dev/null || true
+
+# CLEAN FLATPAK ORPHAN PACKAGE
+echo "📦 Cleaning unused Flatpak runtimes..."
+flatpak uninstall --unused -y
+
+# CLEAN FLATPAK CACHE
+echo "📦 Cleaning Flatpak cache..."
+rm -rf ~/.var/app/*/cache 2>/dev/null || true
+sudo rm -rf /var/tmp/flatpak-cache/* 2>/dev/null || true
 
 # DELETE OLD LOG FILES
 echo "🗃️  Removing shutdown logs older than 30 days..."
 find "$LOG_DIR" -type f -name "*.log" -mtime +30 -print -exec rm -f {} \;
-
-# REPORT DISK USAGE
-echo "📊 Disk usage before shutdown:"
-df -h /
 
 # DECIDE TO SHUTDOWN OR NOT
 if [[ "$choice" =~ ^[Yy]$ ]]; then

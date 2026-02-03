@@ -9,6 +9,8 @@
 # it gets replaced by the "replace" string.
 
 # yaml-language-server: $schema=https://raw.githubusercontent.com/espanso/espanso/dev/schemas/match.schema.json
+#
+backend: Clipboard
 
 matches:
   # Simple text replacement
@@ -16,7 +18,10 @@ matches:
     replace: "Hi there!"
 
   - trigger: ":hi"
-    replace: "Hi!"
+    replace: "Hi Okan!"
+
+  - trigger: ":git"
+    replace: "https://github.com/okanbatuk"
 
   # NOTE: espanso uses YAML to define matches, so pay attention to the indentation!
 
@@ -34,7 +39,7 @@ matches:
   - trigger: ":upd"
     replace: "updateall"
 
-  - trigger: ":inf"
+  - trigger: ":info"
     replace: "getinfo"
 
   - trigger: ":go"
@@ -251,6 +256,20 @@ matches:
   - trigger: ":findd"
     replace: "find . -type d -name '*"
 
+# --- File && Size --------------------------------------------------
+
+  - trigger: ":big10"
+    replace: "du -ah . | sort -rh | head -n 10"
+
+  - trigger: ":dirsize"
+    replace: "du -sh */ | sort -rh"
+
+  - trigger: ":ds"
+    replace: "dust -d 1 "
+
+  - trigger: ":ds2"
+    replace: "dust -d 2 "
+
 # --- Compression --------------------------------------------------
   - trigger: ":tar"
     replace: "tar -czvf "
@@ -366,6 +385,9 @@ matches:
 
   - trigger: ":size"
     replace: "du -sh "
+
+  - trigger: ":logsize"
+    replace: "journalctl --disk-usage"
 
   - trigger: ":curlj"
     replace: "curl -s "
