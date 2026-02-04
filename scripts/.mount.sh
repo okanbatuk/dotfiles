@@ -14,7 +14,7 @@ else
   echo "📦 Volume not mounted. Attempting to mount..."
   sudo mkdir -p "$MOUNT_POINT"
 
-  if sudo mount "$DEVICE"; then
+  if sudo mount "$DEVICE" "$MOUNT_POINT"; then
     echo "✅ Successfully mounted $DEVICE to $MOUNT_POINT"
   else
     echo "❌ Failed to mount $DEVICE"

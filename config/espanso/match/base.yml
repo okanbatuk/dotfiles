@@ -43,7 +43,7 @@ matches:
     replace: "google.com"
 
   - trigger: ":op"
-    replace: "xdg-open "
+    replace: "xdg-open ."
 
   - trigger: ":zed"
     replace: "zeditor "
@@ -51,7 +51,10 @@ matches:
   - trigger: ":wind"
     replace: "windsurf "
 
-# --- PATH ----------------------------------------------------------
+  - trigger: ":alsa"
+    replace: "alsamixer"
+
+  # --- PATH ----------------------------------------------------------
 
   - trigger: ":proj"
     replace: "~/Desktop/Projects/"
@@ -59,8 +62,11 @@ matches:
   - trigger: ":priv"
     replace: "~/Desktop/Private/"
 
-# --- GIT ----------------------------------------------------------
-# 1) commit
+  - trigger: ":conf"
+    replace: "~/.config"
+
+  # --- GIT ----------------------------------------------------------
+  # 1) commit
   - trigger: ":gc"
     replace: 'git commit -m "'
 
@@ -137,9 +143,9 @@ matches:
         params:
           cmd: "git rev-parse --short HEAD 2>/dev/null || echo no-repo"
 
-# --- Git (additional) --------------------------------------------------
+  # --- Git (additional) --------------------------------------------------
   - trigger: ":gamend"
-    replace: "git commit --amend -m \""
+    replace: 'git commit --amend -m "'
 
   - trigger: ":grebase"
     replace: "git rebase -i HEAD~"
@@ -147,7 +153,7 @@ matches:
   - trigger: ":gign"
     replace: "curl -s https://www.toptal.com/developers/gitignore/api/"
 
-# --- Docker --------------------------------------------------------
+  # --- Docker --------------------------------------------------------
   - trigger: ":drun"
     replace: "docker run "
 
@@ -166,7 +172,7 @@ matches:
   - trigger: ":dcomp"
     replace: "docker-compose "
 
-# --- K8s -----------------------------------------------------------
+  # --- K8s -----------------------------------------------------------
   - trigger: ":kaf"
     replace: "kubectl apply -f "
 
@@ -182,15 +188,18 @@ matches:
   - trigger: ":kl"
     replace: "kubectl logs -f "
 
-# --- Node / npm / bun ----------------------------------------------------
+  # --- Node / npm / bun ----------------------------------------------------
   - trigger: ":nrun"
     replace: "npm run "
 
   - trigger: ":brun"
     replace: "bun run "
 
-  - trigger: ":ninst"
-    replace: "npm install"
+  - trigger: ":nins"
+    replace: "npm install "
+
+  - trigger: ":bins"
+    replace: "bun install"
 
   - trigger: ":badd"
     replace: "bun add "
@@ -201,7 +210,7 @@ matches:
   - trigger: ":nig"
     replace: "npm install -g "
 
-# --- Python --------------------------------------------------------
+  # --- Python --------------------------------------------------------
 
   - trigger: ":pyt"
     replace: "python3 "
@@ -217,14 +226,14 @@ matches:
 
   - trigger: ":pifreeze"
     replace: "pip freeze > requirements.txt"
-#
+
   - trigger: ":venv"
     replace: "python3 -m venv venv && source venv/bin/activate"
 
   - trigger: ":activate"
     replace: "source venv/bin/activate"
 
-# --- Security ----------------------------------------------------
+  # --- Security ----------------------------------------------------
   - trigger: ":ufwstat"
     replace: "sudo ufw status"
 
@@ -240,7 +249,7 @@ matches:
   - trigger: ":failban"
     replace: "sudo fail2ban-client status"
 
-# --- File && Permission -----------------------------------------------
+  # --- File && Permission -----------------------------------------------
   - trigger: ":chmodx"
     replace: "chmod +x "
 
@@ -253,7 +262,7 @@ matches:
   - trigger: ":findd"
     replace: "find . -type d -name '*"
 
-# --- File && Size --------------------------------------------------
+  # --- File && Size --------------------------------------------------
 
   - trigger: ":big10"
     replace: "du -ah . | sort -rh | head -n 10"
@@ -267,7 +276,7 @@ matches:
   - trigger: ":ds2"
     replace: "dust -d 2 "
 
-# --- Compression --------------------------------------------------
+  # --- Compression --------------------------------------------------
   - trigger: ":tar"
     replace: "tar -czvf "
 
@@ -280,7 +289,7 @@ matches:
   - trigger: ":unzip"
     replace: "unzip "
 
-# --- Network ---------------------------------------------------------
+  # --- Network ---------------------------------------------------------
   - trigger: ":myip"
     replace: "curl -s https://ipinfo.io/ip"
 
@@ -293,7 +302,7 @@ matches:
   - trigger: ":http"
     replace: "python3 -m http.server 8000"
 
-# --- Disk & Mem ----------------------------------------------
+  # --- Disk & Mem ----------------------------------------------
   - trigger: ":disk"
     replace: "df -h"
 
@@ -303,7 +312,7 @@ matches:
   - trigger: ":top"
     replace: "htop"
 
-# --- Package Manager ------------------------------------------
+  # --- Package Manager ------------------------------------------
   - trigger: ":pac"
     replace: "sudo pacman -Syu"
 
@@ -313,8 +322,7 @@ matches:
   - trigger: ":orphan"
     replace: "pacman -Qdt"
 
-
-# --- Date & Time ----------------------------------------------
+  # --- Date & Time ----------------------------------------------
   - trigger: ":date"
     replace: "{{out}}"
     vars:
@@ -360,7 +368,7 @@ matches:
           layout: horizontal
           label: "Path under ~/Desktop"
 
-# --- systemd -----------------------------------------------------
+  # --- systemd -----------------------------------------------------
   - trigger: ":svcstat"
     replace: "systemctl status "
 
@@ -376,7 +384,7 @@ matches:
   - trigger: ":svclog"
     replace: "sudo journalctl -u "
 
-# --- System --------------------------------------------------------
+  # --- System --------------------------------------------------------
 
   - trigger: ":sinfo"
     replace: "inxi -Fxzc0"

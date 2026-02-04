@@ -19,7 +19,7 @@ dotfiles/
 │   ├── .disk-report.sh  # S.M.A.R.T. diagnostics & usage
 │   ├── .get-info.sh     # Dynamic system info aggregator
 │   └── ... (monitor, mount, and timer scripts)
-├── config/              # Biome, Code, and Espanso configs
+├── config/              # Biome, Code, Espanso, Alacritty, and Neovim configs
 ├── .zshrc               # Zsh configuration
 ├── .zsh_aliases         # Custom aliases (up, upfull, get-info)
 ├── setup.sh             # Bootstrap script to symlink everything
