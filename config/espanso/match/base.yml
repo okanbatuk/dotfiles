@@ -380,6 +380,10 @@ matches:
     replace: "sudo journalctl -u "
 
 # --- System --------------------------------------------------------
+
+  - trigger: ":sinfo"
+    replace: "inxi -Fxzc0"
+
   - trigger: ":ports"
     replace: "sudo lsof -i :"
 
