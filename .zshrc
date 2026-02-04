@@ -8,8 +8,9 @@ export PATH="$HOME/.cargo/bin:$HOME/.dotnet/tools:/opt/Windsurf:$HOME/.npm-globa
 [[ -f "$HOME/.cargo/env" ]] && source "$HOME/.cargo/env"
 [[ -s "$HOME/.bun/_bun" ]] && source "$HOME/.bun/_bun"
 
-# 🧠 Load Alias file
+# 🧠 Load Alias & Functions files
 [[ -f "$HOME/.zsh_aliases" ]] && source "$HOME/.zsh_aliases"
+[[ -f "$HOME/.zsh_functions" ]] && source "$HOME/.zsh_functions"
 
 # 🧩 Manjaro & FZF
 [[ -e /usr/share/zsh/manjaro-zsh-prompt ]] && source /usr/share/zsh/manjaro-zsh-prompt
@@ -47,6 +48,8 @@ bindkey '^J' down-line-or-beginning-search
 # Delete All Line / Delete Keyword (Ctrl+U / Ctrl+W)
 bindkey '^U' backward-kill-line
 bindkey '^W' backward-kill-word
+
+WORDCHARS='*?_-.[]~=&;!#$%^(){}<>'
 
 # 📁 Advanced Completion
 zstyle ':completion:*' menu select
