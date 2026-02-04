@@ -7,15 +7,7 @@ alias cam-on='sudo usbguard allow-device id 04f2:b5a7'
 alias shut="$HOME/dotfiles/scripts/.shutdown.sh"
 alias disk-mount="$HOME/dotfiles/scripts/.mount.sh"
 alias disk-report="$HOME/dotfiles/scripts/.disk-report.sh"
-alias get-info='echo "OS: $(grep PRETTY_NAME /etc/os-release | cut -d "\"" -f2)"; echo "Kernel: $(uname -r)"; echo "Architecture: $(uname -m | sed '\''s/x86_64/64-bit/'\'' | sed '\''s/i[36]86/32-bit/'\'' )"; echo "Desktop Environment: $XDG_CURRENT_DESKTOP"'
-alias full-info='echo "--- FULL SYSTEM INFO ---"; \
-echo "OS: $(grep PRETTY_NAME /etc/os-release | cut -d "\"" -f2)"; \
-echo "Kernel: $(uname -r)"; \
-echo "CPU: $(lscpu | grep "Model name" | cut -d ":" -f2 | xargs)"; \
-echo "RAM: $(free -h | awk "/^Mem:/ {print \$2}")"; \
-echo "Disk: $(lsblk -dnio SIZE,MODEL | head -n 1)"; \
-echo "GPU: $(lspci | grep -i vga | cut -d ":" -f3 | xargs)"; \
-echo "DE: $XDG_CURRENT_DESKTOP"'
+alias get-info='~/dotfiles/scripts/.get-info.sh'
 
 # 🎨 Colorful aliases for common commands
 # alias ls='ls --color=auto'

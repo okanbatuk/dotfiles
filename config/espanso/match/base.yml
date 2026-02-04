@@ -39,9 +39,6 @@ matches:
   - trigger: ":upd"
     replace: "updateall"
 
-  - trigger: ":info"
-    replace: "getinfo"
-
   - trigger: ":go"
     replace: "google.com"
 
@@ -383,6 +380,15 @@ matches:
 
   - trigger: ":sinfo"
     replace: "inxi -Fxzc0"
+
+  - trigger: ":finfo"
+    replace: "get-info --full"
+
+  - trigger: ":info"
+    replace: "get-info"
+
+  - trigger: ":linfo"
+    replace: "get-info --light"
 
   - trigger: ":ports"
     replace: "sudo lsof -i :"
