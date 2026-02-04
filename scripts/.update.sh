@@ -1,137 +1,121 @@
-#!/bin/sh
+#!/bin/bash
 
-# ----------------------------------------------------------
-#  Script for Manjaro Update + Security
-# ----------------------------------------------------------
-#
-# CLEAR ALL LINES
 clear
 
-# === Enable logging to a file ===
-LOG_DIR=~/Desktop/.update-logs
-mkdir -p "$LOG_DIR"
-LOG_FILE="$LOG_DIR/update-$(date +%Y-%m-%d).log"
-exec > >(tee -a "$LOG_FILE") 2>&1
-echo -e "\n\n===== UPDATE STARTED AT $(date) =====\n"
+# 0) HANDLE FLAGS
+MODE="light"
+INFO_MODE="--light"
+[[ "$1" == "--full" ]] && INFO_MODE="--full" && MODE="full"
 
-# ----------------------------------------------------------
+# === Enable logging ===
+LOG_DIR="$HOME/dotfiles/logs/updates"
+mkdir -p "$LOG_DIR"
+LOG_FILE="$LOG_DIR/update-$(date +%Y-%m-%d)-$MODE.log"
+exec > >(tee -a "$LOG_FILE") 2>&1
+
+echo -e "\n===== UPDATE STARTED AT $(date) [Mode: $MODE] ====="
+
 # 1) SYSTEM UPDATE
-# ----------------------------------------------------------
-echo -e "\n>>> Updating mirrors and system packages..."
-sudo pacman-mirrors --fasttrack 10
+if [[ "$INFO_MODE" == "--full" ]]; then
+    echo -e "\n\033[1;34m>>> [$MODE] Deep maintenance in progress...\033[0m"
+
+    # Mirror & Database Sync
+    sudo pacman-mirrors --fasttrack 10
+fi
+
+echo -e "\n\033[1;32m>>> Updating system packages (Pacman & Yay)...\033[0m"
 sudo pacman -Syyu --noconfirm
 command -v yay >/dev/null 2>&1 && yay -Syu --noconfirm
 
-# Flatpak & Snap
-echo -e "\n>>> Updating Flatpak & Snap packages..."
+echo -e "\n\033[1;32m>>> Updating Flatpak...\033[0m"
 flatpak update -y
-command -v snap >/dev/null 2>&1 && sudo snap refresh
 
-# ----------------------------------------------------------
-# 2) JS / .NET TOOLING
-# ----------------------------------------------------------
-echo -e "\n>>> Installed .NET SDK versions:"
-dotnet --list-sdks 2>/dev/null || echo "  .NET SDK not found"
+# 2) TOOLING (Bun & Rust)
+echo -e "\n\033[1;32m>>> Updating Bun...\033[0m"
+command -v bun >/dev/null 2>&1 && bun upgrade
 
-echo -e "\n>>> Updating global bun..."
-command -v bun >/dev/null 2>&1 && sudo bun upgrade
-
-# ---------- user-global npm tooling ----------
-if command -v npm >/dev/null 2>&1; then
-  echo -e "\n>>> Updating user-global npm packages..."
-  npm update -g
-  npm cache clean --force --silent
-
-  echo -e "\n>>> Checking for outdated user-global npm packages..."
-  outdated=$(npm outdated -g --depth=0 | tail -n +2)
-  if [ -n "$outdated" ]; then
-    echo -e "\n\033[1;33m⚠️  Outdated user-global npm packages:\033[0m"
-    echo "$outdated" | awk '{print "• " $1 " (Current: " $2 ", Latest: " $4 ")"}'
-    echo -e "\n\033[1;36mTo update individually, run:\033[0m"
-    echo "$outdated" | awk '{print "  npm install -g " $1"@"$4}'
-  else
-    echo -e "\033[1;32m✅ All user-global npm packages are up to date.\033[0m"
-  fi
-fi
-# ----------------------------------------------------------
-# 2-a) RUST TOOLING
-# ----------------------------------------------------------
-echo -e "\n>>> Updating rustup & Rust toolchain..."
+echo -e "\n\033[1;32m>>> Updating Rustup & Toolchain...\033[0m"
 if command -v rustup >/dev/null 2>&1; then
-  rustup self update
-  rustup update stable 2>&1 | tee -a "$LOG_FILE"
-  rustup default stable
-  echo -e "  \033[1;32m✅ Rust/Cargo versions:\033[0m $(rustc --version)  |  $(cargo --version)"
-else
-  echo -e "  \033[1;33m⚠️  rustup not found – skipping Rust update\033[0m"
+    rustup self update
+    rustup update stable
+    rustup default stable
+    echo -e "  \033[1;32m✅ Rust updated.\033[0m"
 fi
 
-# ----------------------------------------------------------
+if command -v npm >/dev/null 2>&1; then
+    echo -e "\n\033[1;32m>>> Updating user-global npm packages...\033[0m"
+    npm cache clean --force --silent
+    npm update -g
+fi
+
 # 3) CLEANUP
-# ----------------------------------------------------------
-echo -e "\n>>> Cleaning ~/.cache..."
-du -sh ~/.cache 2>/dev/null || echo "0    ~/.cache"
-rm -rf ~/.cache/*
-sudo paccache -ruk0
-flatpak uninstall --unused -y 2>/dev/null
+if [[ "$INFO_MODE" == "--full" ]]; then
+    echo -e "\n\033[1;34m>>> [$MODE] Deep cleanup (~/.cache, flatpak, node_modules) in progress...\033[0m"
 
-# Projects node_modules
-PROJECTS_DIR="$HOME/Desktop/Projects"
-echo -e "\n>>> Removing all node_modules inside $PROJECTS_DIR (following symlinks)..."
+    # 1. Package Cache Cleanup
+    echo -e "\n\033[1;36m>>> Cleaning package cache...\033[0m"
+    du -sh ~/.cache 2>/dev/null || echo "0    ~/.cache"
+    rm -rf ~/.cache/*
+    sudo paccache -rk 2
 
-time find -L "$HOME/Desktop/Projects" -type d -name node_modules -exec rm -rf {} + 2>/dev/null
-echo -e "\033[1;32m🗑️  All node_modules under $PROJECTS_DIR have been removed.\033[0m"
+    # 2. Unused Flatpaks
+    echo -e "\n\033[1;36m>>> Removing unused Flatpak runtimes...\033[0m"
+    flatpak uninstall --unused -y 2>/dev/null
 
+    # 3. Heavy Dir Cleanup (node_modules)
+    echo -e "\n\033[1;36m>>> Removing node_modules...\033[0m"
+    if command -v fd >/dev/null 2>&1; then
+        fd -H -t d node_modules "$HOME/Desktop/Projects" -x rm -rf
+    else
+        find "$HOME/Desktop/Projects" -name "node_modules" -type d -prune -exec rm -rf {} + 2>/dev/null
+    fi
+
+    # 4. Failed Services check
+    echo -e "\n\033[1;36m>>> Checking for failed system services...\033[0m"
+    systemctl --failed --no-legend
+
+    echo -e "\n\033[1;32m🗑️  Deep cleanup completed.\033[0m"
+else
+    echo -e "\n\033[1;32m>>> [LIGHT] Skipping deep cleanup.\033[0m"
+fi
+
+# Orphaned Packages Check
 orphans=$(pacman -Qdtq)
 if [[ -n "$orphans" ]]; then
   echo -e "\n\033[1;33m⚠️  Orphaned packages detected:\033[0m"
   pacman -Qdt
-  echo -e "\n\033[1;37mRemove them? [Y/n]\033[0m"
+  echo -e "\n\033[1;36mRemove them? [Y/n]\033[0m"
   read -r ans
   [[ $ans != "n" && $ans != "N" ]] && sudo pacman -Rs $orphans
 fi
 
-# ----------------------------------------------------------
 # 4) SECURITY CONTROLS
-# ----------------------------------------------------------
 echo -e "\n\033[1;36m>>> Security Checks\033[0m"
 
-# AppArmor (soft check)
+# AppArmor
 if command -v aa-status >/dev/null 2>&1; then
-  enforce=$(aa-status 2>/dev/null | grep -c enforce || true)
-  enforce=$(( enforce + 0 ))               # boşsa 0 yap
-  [ "$enforce" -gt 0 ] && echo "  ✅ AppArmor enforce count: $enforce" || echo "  ⚠️  AppArmor no enforce profile"
+    enforce=$(aa-status 2>/dev/null | grep -c enforce || true)
+    enforce=${enforce:-0}
+    [ "$enforce" -gt 0 ] && echo "  ✅ AppArmor enforce count: $enforce" || echo "  ⚠️  AppArmor no enforce profile"
 else
-  echo "  ⚠️  AppArmor tools not found"
+    echo "  ⚠️  AppArmor tools not found"
 fi
 
-# UFW
+# UFW & USBGuard
 systemctl is-active -q ufw && echo "  ✅ UFW active" || echo "  ⚠️  UFW not active"
-
-# USBGuard
 systemctl is-active -q usbguard && echo "  ✅ USBGuard active" || echo "  ⚠️  USBGuard not active"
 
-# SSH (should be masked)
-if systemctl is-enabled sshd 2>/dev/null | grep -q masked; then
-  echo "  ✅ SSH service masked"
-else
-  echo "  ⚠️  SSH service NOT masked"
-fi
-
-# ----------------------------------------------------------
-# 5) ENDING
-# ----------------------------------------------------------
-echo -e "\n\033[1;36m>>> Disk usage summary after cleanup:\033[0m"
-df -h /
+# SSH
+systemctl is-enabled sshd 2>/dev/null | grep -q masked && echo "  ✅ SSH service masked" || echo "  ⚠️  SSH service NOT masked"
 
 # Get available space on root partition
 root_available=$(df -h / | awk 'NR==2 {print $4}')
 echo -e "\n\033[1;34m🗂️  Available space on '/' partition:\033[0m \033[1;32m$root_available\033[0m\n"
 
-echo -e "\033[1;37;44m🎉 Update and Cleanup Completed Successfully!\033[0m"
-
 # === End of log ===
-echo -e "\n===== UPDATE ENDED AT $(date) =====\n"
+echo -e "\n===== UPDATE ENDED AT $(date) ====="
+
+echo -e "\n\033[1;37;44m🎉 Update Process Completed! Logs: $LOG_FILE\033[0m\n"
 
 # === Delete log files older than 30 days ===
 find "$LOG_DIR" -type f -name "*.log" -mtime +30 -print -exec rm -f {} \;

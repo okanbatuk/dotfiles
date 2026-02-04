@@ -9,6 +9,9 @@ Thumbs.db
 # Backups
 *.bak
 
+# Logs
+logs/
+
 # VS Code cache (just in case)
 config/Code/User/workspaceStorage/
 config/Code/User/globalStorage/
@@ -18,3 +21,4 @@ config/Code/User/cachedExtensions/
 
 # External repos (like Zed)
 external/
+

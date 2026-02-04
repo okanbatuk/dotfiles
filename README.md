@@ -1,4 +1,4 @@
-# Dotfiles
+# 🐧 Dotfiles
 
 My personal dotfiles and automation scripts for a consistent, reproducible development environment across Linux machines.
 
@@ -9,20 +9,35 @@ My personal dotfiles and automation scripts for a consistent, reproducible devel
 
 ```bash
 dotfiles/
-├── .zshrc # Zsh configuration
-├── .zsh_aliases # Custom shell aliases
-├── .zshenv # Environment variables
-├── .gitconfig # Git user settings and aliases
-├── scripts/ # Custom Bash/Zsh utility scripts
-├── config/
-│ ├── espanso/ # Espanso text expansion config
-│ └── Code/ # VS Code settings & snippets (manual sync)
-├── external/ # External configs (e.g., Zed) – managed separately
-├── setup.sh # Bootstrap script to symlink configs
-└── README.md
+├── logs/                # Centralized logs for all automation
+│   ├── updates/         # System update history
+│   ├── maintenance/     # Shutdown & cleanup diagnostics
+│   └── storage/         # S.M.A.R.T. health & disk usage reports
+├── scripts/             # Internal automation (Hidden scripts)
+│   ├── .update.sh       # Smart update system (--light or --full)
+│   ├── .shutdown.sh     # Deep cache cleanup before exit
+│   ├── .disk-report.sh  # S.M.A.R.T. diagnostics & usage
+│   ├── .get-info.sh     # Dynamic system info aggregator
+│   └── ... (monitor, mount, and timer scripts)
+├── config/              # Biome, Code, and Espanso configs
+├── .zshrc               # Zsh configuration
+├── .zsh_aliases         # Custom aliases (up, upfull, get-info)
+├── setup.sh             # Bootstrap script to symlink everything
+└── README.md            # Documentation
 ```
 
+## 🚀 Key Automation Scripts
 
+I've implemented a robust maintenance system with automated logging and log rotation (7-30 days).
+
+| Command       | Script          | Mode    | Description                                                        |
+| ------------- | --------------- | ------- | ------------------------------------------------------------------ |
+| `up`          | .update.sh      | --light | Fast daily update: Pacman, Yay, Flatpak, Bun, Rust.                |
+| `upfull`      | .update.sh      | --full  | Deep maintenance: Mirror refresh, node_modules cleanup, deep info. |
+| `get-info`    | .get-info.sh    | Mixed   | Comprehensive system status (Light/Full modes).                    |
+| `disk-report` | .disk-report.sh | Manual  | S.M.A.R.T. disk health analysis & top directory usage.             |
+| `shut`        | .shutdown.sh    | Y/y     | Deep-cleans system caches (JS/AUR/Flatpak) before poweroff.        |
+| `shut`        | .shutdown.sh    | N/n     | ONLY deep-cleans system caches (JS/AUR/Flatpak).                   |
 
 ## ⚙️ Setup
 
@@ -35,12 +50,26 @@ cd ~/dotfiles
 ```
 
 This will:
-- Symlink shell and Git configs to your home directory  
-- Set up Espanso configuration  
-- Clone and link [Zed config](https://github.com/okanbatuk/zed-config) from its own repository  
+
+- Symlink shell and Git configs to your home directory
+- Set up Espanso configuration
+- Clone and link [Zed config](https://github.com/okanbatuk/zed-config) from its own repository
 - Link custom scripts to `~/scripts`
 
 > 💡 **VS Code**: Settings and snippets are stored under `config/Code/`. To apply them, manually copy the contents to `~/.config/Code/User/` as needed.
+
+## 🛠️ Prerequisites
+
+- `fd`: Required for high-performance file cleanup.
+- `smartmontools`: Required for disk health diagnostics.
+- `pacman-contrib`: Required for `paccache` management.
+
+## 📊 Logging & Maintenance
+
+All scripts automatically generate logs in the `~/dotfiles/logs/` directory.
+
+- **Auto-Rotation**: Maintenance scripts automatically use `fd` to remove logs older than 7 or 30 days to keep the repository slim.
+- **Colorized Output**: All scripts provide enhanced terminal feedback using ANSI color coding for critical warnings (S.M.A.R.T. errors, failed services).
 
 ## 🔒 Privacy
 
@@ -49,12 +78,13 @@ All sensitive information should be managed outside of version control (e.g., vi
 
 ## 🛠️ Tools Used
 
-- **Shell**: Zsh  
-- **OS**: Manjaro Linux  
-- **Editors**:  
-  - Primary: [Zed](https://zed.dev)  
-  - Legacy/snippets: Visual Studio Code  
+- **Shell**: Zsh
+- **OS**: Manjaro Linux
+- **Editors**:
+  - Primary: [Zed](https://zed.dev)
+  - Legacy/snippets: Visual Studio Code
 - **Automation**: Bash, symlinks
 
 ## 📜 License
+
 MIT — feel free to use, fork, or adapt.

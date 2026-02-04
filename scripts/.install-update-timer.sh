@@ -1,7 +1,7 @@
 #!/bin/bash
 
 SERVICE_DIR="$HOME/.config/systemd/user"
-SCRIPT_PATH="$HOME/Desktop/.update.sh"
+SCRIPT_PATH="$HOME/dotfiles/scripts/.update.sh"
 TIMER_NAME="update-script"
 
 mkdir -p "$SERVICE_DIR"
