@@ -20,7 +20,7 @@ require('packer').startup(function(use)
 end)
 
 -- send the replaced text to the black hole register to keep the clipboard clean.
-vim.keymap.set("v", "p", '"_dP', { noremap = true })
+vim.keymap.set("v", "p", '"_dP', { noremap = true, silent = true })
 
 -- Prevent single character deletions with 'x' from overwriting the clipboard
 vim.keymap.set("n", "x", '"_x', { noremap = true })

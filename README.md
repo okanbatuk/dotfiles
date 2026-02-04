@@ -22,6 +22,7 @@ dotfiles/
 ├── config/              # Biome, Code, Espanso, Alacritty, and Neovim configs
 ├── .zshrc               # Zsh configuration
 ├── .zsh_aliases         # Custom aliases (up, upfull, get-info)
+├── .zsh_functions       # Custom logic (Espanso search, etc.)
 ├── setup.sh             # Bootstrap script to symlink everything
 └── README.md            # Documentation
 ```
@@ -61,6 +62,7 @@ This will:
 ## 🛠️ Prerequisites
 
 - `fd`: Required for high-performance file cleanup.
+- `fzf`: Required for the advanced Espanso search function
 - `smartmontools`: Required for disk health diagnostics.
 - `pacman-contrib`: Required for `paccache` management.
 
@@ -78,11 +80,14 @@ All sensitive information should be managed outside of version control (e.g., vi
 
 ## 🛠️ Tools Used
 
-- **Shell**: Zsh
 - **OS**: Manjaro Linux
+- **Shell**: Zsh (with custom WORDCHARS for better path navigation)
+- **Terminal**: Alacritty (Configured with FiraCode Nerd Font)
 - **Editors**:
-  - Primary: [Zed](https://zed.dev)
+  - Primary: Neovim (Custom visual paste & system clipboard integration)
+  - Secondary: Zed
   - Legacy/snippets: Visual Studio Code
+- **Font**: FiraCode Nerd Font (Retina)
 - **Automation**: Bash, symlinks
 
 ## 📜 License
