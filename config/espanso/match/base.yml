@@ -67,7 +67,7 @@ matches:
 
   # --- GIT ----------------------------------------------------------
   # 1) commit
-  - trigger: ":gc"
+  - trigger: ":gcm"
     replace: 'git commit -m "'
 
   # 2) commit -a

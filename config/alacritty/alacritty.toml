@@ -51,17 +51,17 @@ bindings = [
 ]
 
 [colors.primary]
-background = "#000000"
-foreground = "#FFFFFF"
+background = "#1a1b26"
+foreground = "#a9b1d6"
 
 [colors.normal]
 black = "#181818"
 red = "#FF2F48"
 green = "#0AFF00"
 yellow = "#FFFF55"
-blue = "#0010FF"
+blue = "#7aa2f7"
 magenta = "#008787"
-cyan = "#A4D111"
+cyan = "#7dcfff"
 white = "#ffffff"
 
 [colors.bright]
@@ -69,7 +69,7 @@ black = "#6b6b6b"
 red = "#FF2F48"
 green = "#aac474"
 yellow = "#FFFF55"
-blue = "#00B4FF"
+blue = '#7aa2f7'
 magenta = "#008787"
-cyan = "#A4D111"
+cyan = '#7dcfff'
 white = "#ffffff"
