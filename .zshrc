@@ -22,6 +22,11 @@ source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
 source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=8'
 
+# Update terminal title for Pop Launcher integration
+preexec() { print -Pn "\e]0;$1\a" } # Set title to current cmd
+
+precmd() { print -Pn "\e]0;%n@%m: %~\a" } # Reset title to user@host:dir
+
 # 📁 History & Completion
 HISTFILE=~/.zsh_history
 HISTSIZE=10000

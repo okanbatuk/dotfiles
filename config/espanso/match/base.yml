@@ -119,7 +119,7 @@ matches:
     replace: "git diff --cached"
 
   # 14) stash with message
-  - trigger: ":gst"
+  - trigger: ":gstash"
     replace: 'git stash push -m "'
 
   # 15) stash pop
