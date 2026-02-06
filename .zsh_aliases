@@ -1,22 +1,51 @@
+# 🚀 App Launchers (Wayland Optimized)
 alias windsurf='windsurf --ozone-platform=wayland'
 alias code='code --ozone-platform=wayland'
-alias upfull="$HOME/dotfiles/scripts/.update.sh --full"
-alias up="$HOME/dotfiles/scripts/.update.sh --light"
+
+# 🔐 Security & Hardware Control
 alias cam-off='sudo usbguard block-device id 04f2:b5a7'
 alias cam-on='sudo usbguard allow-device id 04f2:b5a7'
+
+# ⚙️ Dotfiles & System Maintenance
+alias upfull="$HOME/dotfiles/scripts/.update.sh --full"
+alias up="$HOME/dotfiles/scripts/.update.sh --light"
 alias shut="$HOME/dotfiles/scripts/.shutdown.sh"
 alias disk-mount="$HOME/dotfiles/scripts/.mount.sh"
 alias disk-report="$HOME/dotfiles/scripts/.disk-report.sh"
-alias get-info='~/dotfiles/scripts/.get-info.sh'
+alias get-info="$HOME/dotfiles/scripts/.get-info.sh"
+alias reload='source ~/.zshrc'
 
-# 🎨 Colorful aliases for common commands
-# alias ls='ls --color=auto'
+# 🧩 GNOME & Pop Shell Fixes (Reset Tiling Mode)
+alias psr='gnome-extensions disable pop-shell@system76.com && gnome-extensions enable pop-shell@system76.com'
+
+# 🎨 Modern CLI Replacements (Eza & Bat)
 alias cat='bat --paging=never'
 alias less='bat'
 alias ls='eza --group-directories-first --icons=auto'
 alias ll='eza -al --icons=auto --git'
 alias tree='eza --tree --level=2 --icons=auto'
-alias grep='grep --colour=auto'
-alias egrep='egrep --colour=auto'
-alias fgrep='fgrep --colour=auto'
+alias free='free -m -h'
+alias df='duf'
 
+# 🔍 Grep Enhancements
+alias grep='grep --color=auto'
+alias egrep='egrep --color=auto'
+alias fgrep='fgrep --color=auto'
+
+# 🚀 Navigation
+alias ..='cd ..'
+alias ...='cd ../..'
+alias c='clear'
+
+# ⚙️ Fast Config Access
+alias zshconf="nvim ~/.zshrc"
+alias aliasconf="nvim ~/.zsh_aliases"
+
+# 🛠️ Git Quick Access
+alias gs='git status'
+alias gd='git diff'
+alias gl='git log --oneline --graph --all'
+alias gac='git add . && git commit -m'
+
+# 🌐 Network
+alias myip='curl ifconfig.me'
