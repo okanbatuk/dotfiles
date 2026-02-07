@@ -4,6 +4,9 @@
 export PATH="$HOME/.cargo/bin:$HOME/.dotnet/tools:/opt/Windsurf:$HOME/.npm-global/bin:$PATH"
 [[ ":$PATH:" != *":$PNPM_HOME:"* ]] && export PATH="$PNPM_HOME:$PATH"
 
+# ⚡ Initialize Completion System (Must load before custom functions for compdef)
+autoload -U compinit && compinit
+
 # 📦 Load Toolchains
 [[ -f "$HOME/.cargo/env" ]] && source "$HOME/.cargo/env"
 [[ -s "$HOME/.bun/_bun" ]] && source "$HOME/.bun/_bun"

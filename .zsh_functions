@@ -32,23 +32,39 @@ projtree() {
   local additional_ignore=""
   local OPTIND opt
 
+  # First pass to capture target_path for intelligent path stripping
+  while getopts "p:d:i:h" opt; do
+    case "$opt" in
+      p) target_path=$OPTARG ;;
+    esac
+  done
+
+  # Reset index for the second pass
+  OPTIND=1
+
   while getopts "p:d:i:h" opt; do
     case "$opt" in
       p) target_path=$OPTARG ;;
       d) depth=$OPTARG ;;
       i) 
-        # Eğer additional_ignore boş değilse araya | koyarak ekle
+        local clean_val=$OPTARG
+        local base_p=${target_path%/}
+
+        # Automatically strip the target path prefix and trailing slash for tab-completion compatibility
+        clean_val=${clean_val#$base_p/} 
+        clean_val=${clean_val%/}
+
         if [[ -z "$additional_ignore" ]]; then
-          additional_ignore="$OPTARG"
+          additional_ignore="$clean_val"
         else
-          additional_ignore="$additional_ignore|$OPTARG"
+          additional_ignore="$additional_ignore|$clean_val"
         fi
         ;;
       h) 
         echo "Usage: projtree [OPTIONS]"
         echo "  -p <path>   Target directory (default: .)"
         echo "  -d <depth>  Tree depth (default: 2)"
-        echo "  -i <glob>   Ignore pattern (can be used multiple times)"
+        echo "  -i <glob>   Ignore pattern (auto-strips path prefix, can be used multiple times)"
         echo "  -h          Show this help message"
         return 0
         ;;
@@ -72,22 +88,38 @@ fulltree() {
   local ignore_pattern=""
   local OPTIND opt
 
+  # First pass to capture target_path for intelligent path stripping
+  while getopts "p:d:i:h" opt; do
+    case "$opt" in
+      p) target_path=$OPTARG ;;
+    esac
+  done
+
+  # Reset index for the second pass
+  OPTIND=1
+
   while getopts "p:d:i:h" opt; do
     case "$opt" in
       p) target_path=$OPTARG ;;
       d) depth=$OPTARG ;;
       i) 
+        local clean_val=$OPTARG
+        local base_p=${target_path%/}
+        # Strip path prefix to ensure eza's ignore-glob matches correctly even with tab-completion
+        clean_val=${clean_val#$base_p/} 
+        clean_val=${clean_val%/}
+
         if [[ -z "$ignore_pattern" ]]; then
-          ignore_pattern="$OPTARG"
+          ignore_pattern="$clean_val"
         else
-          ignore_pattern="$ignore_pattern|$OPTARG"
+          ignore_pattern="$ignore_pattern|$clean_val"
         fi
         ;;
       h)
         echo "Usage: fulltree [OPTIONS]"
         echo "  -p <path>   Target directory (default: .)"
         echo "  -d <depth>  Tree depth (default: 2)"
-        echo "  -i <glob>   Ignore pattern (can be used multiple times)"
+        echo "  -i <glob>   Ignore pattern (auto-strips path prefix, can be used multiple times)"
         echo "  -h          Show this help message"
         return 0
         ;;

@@ -43,11 +43,11 @@ I've implemented a robust maintenance system with automated logging and log rota
 
 Modern CLI tools, custom functions, and quick-access configuration shortcuts.
 
-| Command    | Type     | Description                                                                                                                                                                                             |
-| ---------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `projtree` | Function | Modern tree view with auto-ignores (`node_modules`, `.git`, `dist`). Supports `-p` for **path**, `-d` for **depth**, `-i` for **ignore patterns** with interactive tab-completion (multi-flag support). |
-| `fulltree` | Function | Advanced tree view all files. Supports `-p` for **path**, `-d` for **depth**, `-i` for **ignore patterns** with interactive tab-completion (multi-flag support).                                        |
-| `matches`  | Function | Interactive Espanso trigger search using `fzf`.                                                                                                                                                         |
+| Command    | Type     | Description                                                                                                                                                                                                                       |
+| ---------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `projtree` | Function | Modern tree view with auto-ignores (`node_modules`, `.git`, `dist`). Supports `-p` for **path**, `-d` for **depth**, `-i` for **ignore patterns** with interactive tab-completion (multi-flag support & auto-strips path prefix). |
+| `fulltree` | Function | Advanced tree view all files. Supports `-p` for **path**, `-d` for **depth**, `-i` for **ignore patterns** with interactive tab-completion (multi-flag support & auto-strips path prefix).                                        |
+| `matches`  | Function | Interactive Espanso trigger search using `fzf`.                                                                                                                                                                                   |
 
 ## ⚙️ Setup
 

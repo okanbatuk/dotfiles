@@ -253,8 +253,11 @@ matches:
   - trigger: ":chmodx"
     replace: "chmod +x "
 
-  - trigger: ":tree"
-    replace: "tree -L 2 "
+  - trigger: ":ftree"
+    replace: "fulltree "
+
+  - trigger: ":ptree"
+    replace: "projtree "
 
   - trigger: ":findf"
     replace: "find . -type f -name '*"
