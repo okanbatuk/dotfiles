@@ -27,18 +27,27 @@ dotfiles/
 └── README.md            # Documentation
 ```
 
-## 🚀 Key Automation Scripts
+## 🚀 Maintenance & System Automation
 
 I've implemented a robust maintenance system with automated logging and log rotation (7-30 days).
 
-| Command       | Script          | Mode    | Description                                                        |
-| ------------- | --------------- | ------- | ------------------------------------------------------------------ |
-| `up`          | .update.sh      | --light | Fast daily update: Pacman, Yay, Flatpak, Bun, Rust.                |
-| `upfull`      | .update.sh      | --full  | Deep maintenance: Mirror refresh, node_modules cleanup, deep info. |
-| `get-info`    | .get-info.sh    | Mixed   | Comprehensive system status (Light/Full modes).                    |
-| `disk-report` | .disk-report.sh | Manual  | S.M.A.R.T. disk health analysis & top directory usage.             |
-| `shut`        | .shutdown.sh    | Y/y     | Deep-cleans system caches (JS/AUR/Flatpak) before poweroff.        |
-| `shut`        | .shutdown.sh    | N/n     | ONLY deep-cleans system caches (JS/AUR/Flatpak).                   |
+| Command       | Target Script   | Description                                                                             |
+| ------------- | --------------- | --------------------------------------------------------------------------------------- |
+| `up`          | .update.sh      | **Mode:** `--light` - Fast daily update: Pacman, Yay, Flatpak, Bun, Rust.               |
+| `upfull`      | .update.sh      | **Mode:** `--full` - Deep maintenance: Mirror refresh, node_modules cleanup, deep info. |
+| `get-info`    | .get-info.sh    | Comprehensive system status (Light/Full modes).                                         |
+| `disk-report` | .disk-report.sh | S.M.A.R.T. disk health analysis & top directory usage.                                  |
+| `shut`        | .shutdown.sh    | Deep-cleans system caches. Prompts `Y/y` for poweroff, `N/n` for cleanup only.          |
+
+## 🛠️ Navigation & Config Tools
+
+Modern CLI tools, custom functions, and quick-access configuration shortcuts.
+
+| Command    | Type     | Description                                                                                                                                                                                             |
+| ---------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `projtree` | Function | Modern tree view with auto-ignores (`node_modules`, `.git`, `dist`). Supports `-p` for **path**, `-d` for **depth**, `-i` for **ignore patterns** with interactive tab-completion (multi-flag support). |
+| `fulltree` | Function | Advanced tree view all files. Supports `-p` for **path**, `-d` for **depth**, `-i` for **ignore patterns** with interactive tab-completion (multi-flag support).                                        |
+| `matches`  | Function | Interactive Espanso trigger search using `fzf`.                                                                                                                                                         |
 
 ## ⚙️ Setup
 
@@ -61,6 +70,7 @@ This will:
 
 ## 🛠️ Prerequisites
 
+- `eza`: Required for `projtree` and `fulltree` (high-performance `tree` replacement).
 - `fd`: Required for high-performance file cleanup.
 - `fzf`: Required for the advanced Espanso search function
 - `smartmontools`: Required for disk health diagnostics.
