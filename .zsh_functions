@@ -1,16 +1,18 @@
 # ~/.zsh_functions
 
 # Advanced Espanso Search: Search in both triggers and replacements
+# Uses fzf to interactively find espanso triggers
 matches() {
     local MATCH_FILE="$HOME/dotfiles/config/espanso/match/base.yml"
     
     if [[ -f "$MATCH_FILE" ]]; then
-        # 1. Önce YAML dosyasını temiz bir listeye çeviriyoruz
-        # 2. fzf ile hem trigger hem replace içinde arama yapıyoruz
+        # 1. First, convert the YAML file into a clean list
+        # 2. Use fzf to search within both triggers and replacements
         grep -E 'trigger:|replace:' "$MATCH_FILE" | \
         sed 's/^[[:space:]]*//' | \
-        # Bu kısım trigger ve replace satırlarını yan yana getirir (paste komutu gibi)
+        # Join trigger and replace lines together (similar to paste command)
         sed 'N;s/\n/ /' | \
+        # Format the output for a cleaner look in fzf
         sed 's/trigger: ":/󱐋 /; s/replace: / ➔ /; s/"//g' | \
         fzf --height 40% \
             --reverse \
@@ -21,3 +23,94 @@ matches() {
         echo "Espanso base.yml not found at $MATCH_FILE"
     fi
 }
+
+# Project Tree: Modern listing with eza, ignoring common heavy directories
+# Usage: projtree [-p path] [-d depth] [-i ignore1] [-i ignore2] [-h]
+projtree() {
+  local target_path="."
+  local depth=2
+  local additional_ignore=""
+  local OPTIND opt
+
+  while getopts "p:d:i:h" opt; do
+    case "$opt" in
+      p) target_path=$OPTARG ;;
+      d) depth=$OPTARG ;;
+      i) 
+        # Eğer additional_ignore boş değilse araya | koyarak ekle
+        if [[ -z "$additional_ignore" ]]; then
+          additional_ignore="$OPTARG"
+        else
+          additional_ignore="$additional_ignore|$OPTARG"
+        fi
+        ;;
+      h) 
+        echo "Usage: projtree [OPTIONS]"
+        echo "  -p <path>   Target directory (default: .)"
+        echo "  -d <depth>  Tree depth (default: 2)"
+        echo "  -i <glob>   Ignore pattern (can be used multiple times)"
+        echo "  -h          Show this help message"
+        return 0
+        ;;
+      *) return 1 ;;
+    esac
+  done
+
+  local final_ignore="node_modules|dist|.git"
+  if [[ -n "$additional_ignore" ]]; then
+    final_ignore="$final_ignore|$additional_ignore"
+  fi
+
+  command eza --tree -a --level="$depth" --icons=auto --ignore-glob="$final_ignore" "$target_path"
+}
+
+# Full Tree: Modern listing with eza, showing everything with optional ignore
+# Usage: fulltree [-p path] [-d depth] [-i ignore1] [-i ignore2] [-h]
+fulltree() {
+  local target_path="."
+  local depth=2
+  local ignore_pattern=""
+  local OPTIND opt
+
+  while getopts "p:d:i:h" opt; do
+    case "$opt" in
+      p) target_path=$OPTARG ;;
+      d) depth=$OPTARG ;;
+      i) 
+        if [[ -z "$ignore_pattern" ]]; then
+          ignore_pattern="$OPTARG"
+        else
+          ignore_pattern="$ignore_pattern|$OPTARG"
+        fi
+        ;;
+      h)
+        echo "Usage: fulltree [OPTIONS]"
+        echo "  -p <path>   Target directory (default: .)"
+        echo "  -d <depth>  Tree depth (default: 2)"
+        echo "  -i <glob>   Ignore pattern (can be used multiple times)"
+        echo "  -h          Show this help message"
+        return 0
+        ;;
+      *) return 1 ;;
+    esac
+  done
+
+  if [[ -n "$ignore_pattern" ]]; then
+    command eza --tree -a --level="$depth" --icons=auto --ignore-glob="$ignore_pattern" "$target_path"
+  else
+    command eza --tree -a --level="$depth" --icons=auto "$target_path"
+  fi
+}
+
+# --- Zsh Completion Support ---
+# This ensures that 'Tab' key works for flags like -p and -i for both functions
+_tree_functions_completion() {
+    _arguments \
+        '-p[Target path]:directory:_files -/' \
+        '-d[Tree depth]:depth:' \
+        '-i[Ignore pattern]:ignore:_files' \
+        '-h[Show help]'
+}
+
+compdef _tree_functions_completion projtree
+compdef _tree_functions_completion fulltree
