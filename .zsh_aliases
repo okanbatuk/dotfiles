@@ -40,6 +40,7 @@ alias c='clear'
 alias zshconf="nvim ~/.zshrc"
 alias aliasconf="nvim ~/.zsh_aliases"
 alias funcconf="nvim ~/.zsh_functions"
+alias espconf="nvim ~/dotfiles/config/espanso/match/base.yml"
 
 # 🛠️ Git Quick Access
 alias gs='git status'

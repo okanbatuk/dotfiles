@@ -2,29 +2,37 @@
 
 My personal dotfiles and automation scripts for a consistent, reproducible development environment across Linux machines.
 
-> ✨ Includes Zsh, Git, Espanso, custom shell scripts, and Zed editor config (via external repo).  
+> ✨ Includes Zsh, Git, Espanso, Zathura, Mpv, custom shell scripts, and Zed editor config (via external repo).  
 > VS Code settings are stored directly in this repo for manual syncing.
 
 ## 🗂️ Structure
 
 ```bash
 dotfiles/
-├── logs/                # Centralized logs for all automation
-│   ├── updates/         # System update history
-│   ├── maintenance/     # Shutdown & cleanup diagnostics
-│   └── storage/         # S.M.A.R.T. health & disk usage reports
-├── scripts/             # Internal automation (Hidden scripts)
-│   ├── .update.sh       # Smart update system (--light or --full)
-│   ├── .shutdown.sh     # Deep cache cleanup before exit
-│   ├── .disk-report.sh  # S.M.A.R.T. diagnostics & usage
-│   ├── .get-info.sh     # Dynamic system info aggregator
+├── logs/                 # Centralized logs for all automation
+│   ├── updates/          # System update history
+│   ├── maintenance/      # Shutdown & cleanup diagnostics
+│   └── storage/          # S.M.A.R.T. health & disk usage reports
+├── config/               # App-specific configurations (Linked to ~/.config)
+│   ├── alacritty/        # GPU-accelerated terminal emulator settings
+│   ├── biome/            # Web toolchain (linting & formatting) configs
+│   ├── Code/             # VS Code keybindings, settings, and snippets
+│   ├── espanso/          # Text expander configuration and matches
+│   ├── mpv/              # Media player configs
+│   ├── nvim/             # Neovim (Lua/Vimrc) development environment
+│   └── zathura/          # Minimalist PDF viewer
+├── scripts/              # Internal automation (Hidden scripts)
+│   ├── .update.sh        # Smart update system (--light or --full)
+│   ├── .shutdown.sh      # Deep cache cleanup before exit
+│   ├── .disk-report.sh   # S.M.A.R.T. diagnostics & usage
+│   ├── .get-info.sh      # Dynamic system info aggregator
+│   ├── .camera-off/on.sh # Privacy & peripheral toggles
 │   └── ... (monitor, mount, and timer scripts)
-├── config/              # Biome, Code, Espanso, Alacritty, and Neovim configs
-├── .zshrc               # Zsh configuration
-├── .zsh_aliases         # Custom aliases (up, upfull, get-info)
-├── .zsh_functions       # Custom logic (Espanso search, etc.)
-├── setup.sh             # Bootstrap script to symlink everything
-└── README.md            # Documentation
+├── .zshrc                # Zsh configuration
+├── .zsh_aliases          # Custom aliases (up, upfull, get-info)
+├── .zsh_functions        # Custom logic (Espanso search, etc.)
+├── setup.sh              # Bootstrap script to symlink everything
+└── README.md             # Documentation
 ```
 
 ## 🚀 Maintenance & System Automation
@@ -48,6 +56,7 @@ Modern CLI tools, custom functions, and quick-access configuration shortcuts.
 | `projtree` | Function | Modern tree view with auto-ignores (`node_modules`, `.git`, `dist`). Supports `-p` for **path**, `-d` for **depth**, `-i` for **ignore patterns** with interactive tab-completion (multi-flag support & auto-strips path prefix). |
 | `fulltree` | Function | Advanced tree view all files. Supports `-p` for **path**, `-d` for **depth**, `-i` for **ignore patterns** with interactive tab-completion (multi-flag support & auto-strips path prefix).                                        |
 | `matches`  | Function | Interactive Espanso trigger search using `fzf`.                                                                                                                                                                                   |
+| `pdf`      | Function | Opens a PDF file using **Zathura** in the background. Redirects all output to `/dev/null` and uses `disown` to keep the process alive even after closing the terminal.                                                            |
 
 ## ⚙️ Setup
 
@@ -62,6 +71,7 @@ cd ~/dotfiles
 This will:
 
 - Symlink shell and Git configs to your home directory
+- Set up **Alacritty, Zathura, and MPV** configurations under `~/.config/`.
 - Set up Espanso configuration
 - Clone and link [Zed config](https://github.com/okanbatuk/zed-config) from its own repository
 - Link custom scripts to `~/scripts`
@@ -73,6 +83,8 @@ This will:
 - `eza`: Required for `projtree` and `fulltree` (high-performance `tree` replacement).
 - `fd`: Required for high-performance file cleanup.
 - `fzf`: Required for the advanced Espanso search function
+- `zathura` & `zathura-pdf-mupdf`: Required for the `pdf` function and minimalist document viewing.
+- `mpv` & `yt-dlp`: Required for terminal-based video streaming and YouTube playback.
 - `smartmontools`: Required for disk health diagnostics.
 - `pacman-contrib`: Required for `paccache` management.
 
@@ -91,14 +103,17 @@ All sensitive information should be managed outside of version control (e.g., vi
 ## 🛠️ Tools Used
 
 - **OS**: Manjaro Linux
-- **Shell**: Zsh (with custom WORDCHARS for better path navigation)
+- **Shell**: Zsh (with custom sources for aliases, functions, and env)
 - **Terminal**: Alacritty (Configured with FiraCode Nerd Font)
+- **Viewers & Players**:
+  - **Zathura**: Minimalist PDF viewer with Night-Owl theme and auto-fit logic.
+  - **MPV**: High-performance media player with `yt-dlp` integration.
 - **Editors**:
   - Primary: Neovim (Custom visual paste & system clipboard integration)
   - Secondary: Zed
   - Legacy/snippets: Visual Studio Code
+- **Automation**: Bash, symlinks, and Espanso for text expansion.
 - **Font**: FiraCode Nerd Font (Retina)
-- **Automation**: Bash, symlinks
 
 ## 📜 License
 

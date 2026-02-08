@@ -1,0 +1,17 @@
+# Temel Ayarlar
+set selection-clipboard clipboard
+set adjust-open "best-fit"
+set recolor "true"
+
+# Night-Owl / Göz Yormayan Renkler
+set completion-bg          "#1e1e2e"
+set completion-fg          "#cdd6f4"
+set statusbar-bg           "#1e1e2e"
+set statusbar-fg           "#cdd6f4"
+set recolor-lightcolor     "#1e1e2e"
+set recolor-darkcolor      "#cdd6f4"
+set highlight-color        "#f9e2af"
+set highlight-active-color "#fab387"
+
+# Akıcı Kaydırma
+set scroll-step 50

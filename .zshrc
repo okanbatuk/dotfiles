@@ -11,9 +11,10 @@ autoload -U compinit && compinit
 [[ -f "$HOME/.cargo/env" ]] && source "$HOME/.cargo/env"
 [[ -s "$HOME/.bun/_bun" ]] && source "$HOME/.bun/_bun"
 
-# 🧠 Load Alias & Functions files
+# 🧠 Load Alias & Functions & Env Variables files
 [[ -f "$HOME/.zsh_aliases" ]] && source "$HOME/.zsh_aliases"
 [[ -f "$HOME/.zsh_functions" ]] && source "$HOME/.zsh_functions"
+[[ -f "$HOME/.zshenv" ]] && source "$HOME/.zshenv"
 
 # 🧩 Manjaro & FZF
 [[ -e /usr/share/zsh/manjaro-zsh-prompt ]] && source /usr/share/zsh/manjaro-zsh-prompt
@@ -73,3 +74,6 @@ xhost +local:root > /dev/null 2>&1
 
 # OpenClaw Completion
 #source <(openclaw completion --shell zsh)
+
+# bun completions
+[ -s "/home/myrn/.bun/_bun" ] && source "/home/myrn/.bun/_bun"

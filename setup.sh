@@ -32,11 +32,11 @@ done
 echo -e "${BLUE}----------------------------------------${NC}"
 
 # ----------------------------
-# Config Directory Apps (Espanso, Alacritty, Neovim)
+# Config Directory Apps (Espanso, Alacritty, Neovim, Zathura)
 # ----------------------------
 echo -e "${YELLOW}⚙️  Linking App configurations...${NC}"
 mkdir -p "$HOME/.config"
-for app in espanso alacritty nvim; do
+for app in espanso alacritty nvim zathura mpv; do
   if [ -d "$DOTFILES_DIR/config/$app" ]; then
     if [ -e "$HOME/.config/$app" ] && [ ! -L "$HOME/.config/$app" ]; then
       echo -e "  🔄 Backing up existing config for $app"

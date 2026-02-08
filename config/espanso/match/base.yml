@@ -104,7 +104,7 @@ matches:
 
   # 10) status
   - trigger: ":gstat"
-    replace: "git status"
+    replace: "git status "
 
   # 11) log (last 10)
   - trigger: ":glog"
@@ -112,7 +112,7 @@ matches:
 
   # 12) diff
   - trigger: ":gdiff"
-    replace: "git diff"
+    replace: "git diff "
 
   # 13) diff --cached
   - trigger: ":gdc"
