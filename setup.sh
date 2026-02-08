@@ -68,6 +68,22 @@ fi
 echo -e "${BLUE}----------------------------------------${NC}"
 
 # ----------------------------
+# 4. Git Signing Recommendation
+# ----------------------------
+echo -e "${YELLOW}🔑 Checking GPG signing status...${NC}"
+if ! gpg --list-secret-keys > /dev/null 2>&1; then
+    echo -e "  ${CYAN}💡 Tip: No GPG keys found. For 'Verified' commits, consider creating one manually.${NC}"
+else
+    # Detect the first GPG key ID
+    GPG_KEY_ID=$(gpg --list-secret-keys --keyid-format=LONG | grep 'sec' | awk '{print $2}' | cut -d'/' -f2 | head -n 1)
+    echo -e "  ${GREEN}✅ GPG key detected: $GPG_KEY_ID${NC}"
+    echo -e "  ${YELLOW}👉 To enable signing, add these to your ~/.gitconfig.local:${NC}"
+    echo -e "     [user]\n       signingkey = $GPG_KEY_ID\n     [commit]\n       gpgsign = true"
+fi
+
+echo -e "${BLUE}----------------------------------------${NC}"
+
+# ----------------------------
 # 4. Zsh Source Check
 # ----------------------------
 echo -e "${YELLOW}🔗 Checking Zsh source links...${NC}"
