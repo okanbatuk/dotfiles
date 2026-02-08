@@ -60,6 +60,15 @@ Modern CLI tools, custom functions, and quick-access configuration shortcuts.
 
 ## ⚙️ Setup
 
+The `setup.sh` script follows a robust execution order to ensure system integrity:
+
+1. **Infrastructure**: Creates localized log directories.
+2. **Core Linking**: Symlinks shell (`.zshrc`) and Git configurations.
+3. **Git Privacy**: Interactive setup for `.gitconfig.local` (keeps your email/name private).
+4. **Validation**: Verifies Zsh sources and essential dependencies.
+5. **Clean Install**: Installs apps (Alacritty, MPV, etc.) and manages config backups.
+6. **Automation**: Links custom scripts and sets executable permissions.
+
 Clone and run the setup script:
 
 ```bash
@@ -95,10 +104,16 @@ All scripts automatically generate logs in the `~/dotfiles/logs/` directory.
 - **Auto-Rotation**: Maintenance scripts automatically use `fd` to remove logs older than 7 or 30 days to keep the repository slim.
 - **Colorized Output**: All scripts provide enhanced terminal feedback using ANSI color coding for critical warnings (S.M.A.R.T. errors, failed services).
 
-## 🔒 Privacy
+## 🔒 Privacy & Git Configuration
 
 No secrets, tokens, or private data are included in this repository.  
 All sensitive information should be managed outside of version control (e.g., via environment variables or local overrides).
+This repository uses a **Local Include** strategy for Git identity.
+
+- **`.gitconfig`**: Contains global aliases and UI settings (shared).
+- **`.gitconfig.local`**: Contains your personal `name` and `email` (local only).
+
+When you run `setup.sh`, it will check if `~/.gitconfig.local` exists. If not, it will prompt you for your details. This ensures your personal info is never committed to the repository history.
 
 ## 🛠️ Tools Used
 
@@ -106,7 +121,7 @@ All sensitive information should be managed outside of version control (e.g., vi
 - **Shell**: Zsh (with custom sources for aliases, functions, and env)
 - **Terminal**: Alacritty (Configured with FiraCode Nerd Font)
 - **Viewers & Players**:
-  - **Zathura**: Minimalist PDF viewer with Night-Owl theme and auto-fit logic.
+  - **Zathura**: Minimalist PDF viewer with auto-fit logic.
   - **MPV**: High-performance media player with `yt-dlp` integration.
 - **Editors**:
   - Primary: Neovim (Custom visual paste & system clipboard integration)

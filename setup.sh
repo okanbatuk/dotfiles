@@ -40,8 +40,35 @@ for file in .zshrc .zsh_aliases .zsh_functions .zshenv .gitconfig; do
   echo -e "  ${GREEN}✅ Linked $file${NC}"
 done
 
+echo -e "${BLUE}----------------------------------------${NC}"
+
 # ----------------------------
-# 3. Zsh Source Check
+# 3. Git Personal Configuration
+# ----------------------------
+echo -e "${YELLOW}👤 Checking Git local configuration...${NC}"
+
+GIT_LOCAL="$HOME/.gitconfig.local"
+
+# Ensures local user credentials exist without polluting the main repo
+if [ ! -f "$GIT_LOCAL" ]; then
+    echo -e "  ${CYAN}Setup: Personal Git details not found.${NC}"
+    read -p "  Enter your Git User Name: " git_name
+    read -p "  Enter your Git Email: " git_email
+
+    cat <<EOF > "$GIT_LOCAL"
+[user]
+    name = $git_name
+    email = $git_email
+EOF
+    echo -e "  ${GREEN}✅ Created $GIT_LOCAL with your credentials.${NC}"
+else
+    echo -e "  ${GREEN}✅ $GIT_LOCAL already exists.${NC}"
+fi
+
+echo -e "${BLUE}----------------------------------------${NC}"
+
+# ----------------------------
+# 4. Zsh Source Check
 # ----------------------------
 echo -e "${YELLOW}🔗 Checking Zsh source links...${NC}"
 ZSHRC="$HOME/.zshrc"
@@ -58,24 +85,6 @@ for file in "${!SOURCE_FILES[@]}"; do
     else
         echo -e "  ${GREEN}✅ $file is already sourced in .zshrc${NC}"
     fi
-done
-
-echo -e "${BLUE}----------------------------------------${NC}"
-
-# ----------------------------
-# 4. Scripts linking (Automation)
-# ----------------------------
-echo -e "${YELLOW}📜 Linking automation scripts...${NC}"
-mkdir -p "$HOME/scripts"
-
-# Links custom scripts to ~/scripts and ensures they are executable
-for script in "$DOTFILES_DIR/scripts"/*.sh; do
-  if [ -f "$script" ]; then
-    script_name=$(basename "$script")
-    ln -sf "$script" "$HOME/scripts/$script_name"
-    chmod +x "$script"
-    echo -e "  ${GREEN}✅ Linked and set executable: $script_name${NC}"
-  fi
 done
 
 echo -e "${BLUE}----------------------------------------${NC}"
@@ -124,7 +133,25 @@ done
 echo -e "${BLUE}----------------------------------------${NC}"
 
 # ----------------------------
-# 7. Zed config (external repo)
+# 7. Scripts linking (Automation)
+# ----------------------------
+echo -e "${YELLOW}📜 Linking automation scripts...${NC}"
+mkdir -p "$HOME/scripts"
+
+# Links custom scripts to ~/scripts and ensures they are executable
+for script in "$DOTFILES_DIR/scripts"/*.sh; do
+  if [ -f "$script" ]; then
+    script_name=$(basename "$script")
+    ln -sf "$script" "$HOME/scripts/$script_name"
+    chmod +x "$script"
+    echo -e "  ${GREEN}✅ Linked and set executable: $script_name${NC}"
+  fi
+done
+
+echo -e "${BLUE}----------------------------------------${NC}"
+
+# ----------------------------
+# 8. Zed config (external repo)
 # ----------------------------
 ZED_REPO_URL="https://github.com/okanbatuk/zed-config.git"
 ZED_TARGET="$DOTFILES_DIR/external/zed-config"
