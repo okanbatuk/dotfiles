@@ -2,7 +2,7 @@
 
 My personal dotfiles and automation scripts for a consistent, reproducible development environment across Linux machines.
 
-> ✨ Includes Zsh, Git, Espanso, Zathura, Mpv, custom shell scripts, and Zed editor config (via external repo).  
+> ✨ Includes Zsh, Git, Docker, Espanso, Zathura, Mpv, custom shell scripts, and Zed editor config (via external repo).  
 > VS Code settings are stored directly in this repo for manual syncing.
 
 ## 🗂️ Structure
@@ -13,26 +13,32 @@ dotfiles/
 │   ├── updates/          # System update history
 │   ├── maintenance/      # Shutdown & cleanup diagnostics
 │   └── storage/          # S.M.A.R.T. health & disk usage reports
+├── install/              # Modular Bootstrap Tasks (Orchestrated by setup.sh)
+│   ├── 00-core.sh        # Shared environment & global variables (Inherited)
+│   ├── 01-system.sh      # Dependencies, logs, and fonts
+│   ├── 02-links.sh       # Core dotfiles and .config/ app linking
+│   ├── 03-zsh-config.sh  # .zshrc sourcing logic & function loader
+│   ├── 04-git.sh         # Personal Git identity & GPG setup
+│   ├── 05-zed-conf.sh    # External Zed editor configuration
+│   └── 06-scripts.sh     # Automation scripts linking (~/scripts)
+├── functions/            # Modular Zsh Functions (Auto-loaded)
+│   ├── dckr              # Pro Docker manager
+│   ├── matches           # Espanso search
+│   ├── projtree          # Modern project tree
+│   └── ...               # (One file per function)
 ├── config/               # App-specific configurations (Linked to ~/.config)
-│   ├── alacritty/        # GPU-accelerated terminal emulator settings
-│   ├── biome/            # Web toolchain (linting & formatting) configs
-│   ├── Code/             # VS Code keybindings, settings, and snippets
-│   ├── espanso/          # Text expander configuration and matches
-│   ├── mpv/              # Media player configs
-│   ├── nvim/             # Neovim (Lua/Vimrc) development environment
-│   └── zathura/          # Minimalist PDF viewer
-├── scripts/              # Internal automation (Hidden scripts)
-│   ├── .update.sh        # Smart update system (--light or --full)
-│   ├── .shutdown.sh      # Deep cache cleanup before exit
-│   ├── .disk-report.sh   # S.M.A.R.T. diagnostics & usage
-│   ├── .get-info.sh      # Dynamic system info aggregator
-│   ├── .camera-off/on.sh # Privacy & peripheral toggles
-│   └── ... (monitor, mount, and timer scripts)
-├── .zshrc                # Zsh configuration
-├── .zsh_aliases          # Custom aliases (up, upfull, get-info)
-├── .zsh_functions        # Custom logic (Espanso search, etc.)
-├── setup.sh              # Bootstrap script to symlink everything
-└── README.md             # Documentation
+│   ├── alacritty/        # GPU terminal settings
+│   ├── nvim/             # Neovim environment
+│   └── ...               # (espanso, mpv, zathura, Code)
+├── scripts/              # Internal automation scripts
+│   ├── update.sh         # Smart update system
+│   └── ...               # (shutdown, disk-report, get-info)
+├── .zshrc                # Main Zsh entry point
+├── .zsh_aliases          # Custom aliases
+├── .zshenv               # Environment variables
+├── .gitconfig            # Global git settings (UI, aliases)
+├── setup.sh              # Main Orchestrator (Orchestrates /install scripts)
+└── README.md             # This documentation
 ```
 
 ## 🚀 Maintenance & System Automation
@@ -51,14 +57,15 @@ I've implemented a robust maintenance system with automated logging and log rota
 
 Modern CLI tools, custom functions, and quick-access configuration shortcuts.
 
-| Command    | Type     | Description                                                                                                                                                                                                                       |
-| ---------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `projtree` | Function | Modern tree view with auto-ignores (`node_modules`, `.git`, `dist`). Supports `-p` for **path**, `-d` for **depth**, `-i` for **ignore patterns** with interactive tab-completion (multi-flag support & auto-strips path prefix). |
-| `fulltree` | Function | Advanced tree view all files. Supports `-p` for **path**, `-d` for **depth**, `-i` for **ignore patterns** with interactive tab-completion (multi-flag support & auto-strips path prefix).                                        |
-| `matches`  | Function | Interactive Espanso trigger search using `fzf`.                                                                                                                                                                                   |
-| `pdf`      | Function | Opens a PDF file using **Zathura** in the background. Redirects all output to `/dev/null` and uses `disown` to keep the process alive even after closing the terminal.                                                            |
+| Command    | Type     | Description                                                                                                                                                                                                                               |
+| ---------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `dckr`     | Function | **Advanced Docker Management:** A modular CLI tool for rapid container workflows. Supports interactive image/container selection via `fzf`, automatic `.env` loading, port mapping, and `docker-compose` integration with smart defaults. |
+| `projtree` | Function | Modern tree view with auto-ignores (`node_modules`, `.git`, `dist`). Supports `-p` for **path**, `-d` for **depth**, `-i` for **ignore patterns** with interactive tab-completion (multi-flag support & auto-strips path prefix).         |
+| `fulltree` | Function | Advanced tree view all files. Supports `-p` for **path**, `-d` for **depth**, `-i` for **ignore patterns** with interactive tab-completion (multi-flag support & auto-strips path prefix).                                                |
+| `matches`  | Function | Interactive Espanso trigger search using `fzf`.                                                                                                                                                                                           |
+| `pdf`      | Function | Opens a PDF file using **Zathura** in the background. Redirects all output to `/dev/null` and uses `disown` to keep the process alive even after closing the terminal.                                                                    |
 
-## ⚙️ Setup
+## ⚙️ Modular Setup
 
 The `setup.sh` script follows a robust execution order to ensure system integrity:
 
@@ -69,12 +76,35 @@ The `setup.sh` script follows a robust execution order to ensure system integrit
 5. **Clean Install**: Installs apps (Alacritty, MPV, etc.) and manages config backups.
 6. **Automation**: Links custom scripts and sets executable permissions.
 
-Clone and run the setup script:
+Clone the repo:
 
 ```bash
 git clone https://github.com/okanbatuk/dotfiles.git ~/dotfiles
 cd ~/dotfiles
+```
+
+##### **1. Interactive Mode (Default)**
+
+Run the orchestrator to choose specific tasks or maintenance actions:
+
+```bash
 ./setup.sh
+```
+
+##### **2. Automatic Mode**
+
+For headless environments, use the `--auto` flag to bypass the menu:
+
+```bash
+./setup.sh --auto
+```
+
+##### **3. Standalone Execution**
+
+Every script in `install/` can be run independently for targeted updates:
+
+```bash
+bash install/01.system.sh
 ```
 
 This will:
@@ -89,13 +119,27 @@ This will:
 
 ## 🛠️ Prerequisites
 
-- `eza`: Required for `projtree` and `fulltree` (high-performance `tree` replacement).
-- `fd`: Required for high-performance file cleanup.
-- `fzf`: Required for the advanced Espanso search function
-- `zathura` & `zathura-pdf-mupdf`: Required for the `pdf` function and minimalist document viewing.
-- `mpv` & `yt-dlp`: Required for terminal-based video streaming and YouTube playback.
-- `smartmontools`: Required for disk health diagnostics.
-- `pacman-contrib`: Required for `paccache` management.
+- **Modern CLI Suite:**
+  - `eza`: A modern replacement for `ls`, used by `projtree` and `fulltree`.
+  - `bat`: A `cat` clone with syntax highlighting for better code reading.
+  - `fzf`: Command-line fuzzy finder, essential for `dckr` and matches functions.
+  - `fd`: Required for high-performance file cleanup.
+  - `ripgrep`(rg): Ultra-fast text search within projects.
+  - `jq`: Command-line JSON processor for handling API and config data.
+  - `tldr`: Simplified and community-driven man pages.
+- **Docker Ecosystem:**
+  - `docker` & `docker-compose`: The core engine required for the `dckr` management function.
+- **Viewers & Media:**
+  - `zathura` & `zathura-pdf-mupdf`: Minimalist PDF viewing used by the `pdf` function.
+  - `mpv` & `yt-dlp`: High-performance media playback and YouTube streaming.
+- **System & Hardware:**
+  - `smartmontools`: Required for S.M.A.R.T. disk health diagnostics and reporting.
+  - `pacman-contrib`: Essential for system maintenance tasks like `paccache`.
+- **Fonts & Symbols:**
+  - `ttf-jetbrains-mono-nerd`: Developer-focused font with icons, required to correctly display symbols in the terminal.
+  - `ttf-nerd-fonts-symbols-common`: Common symbols for Nerd Font users to ensure cross-app icon compatibility.
+  - `noto-fonts-emoji`: Google Noto emoji fonts for full emoji support within the terminal and apps.
+- **Operating System:** Optimized for **Arch Linux** or **Manjaro**.
 
 ## 📊 Logging & Maintenance
 
@@ -130,7 +174,7 @@ When you run `setup.sh`, it will check if `~/.gitconfig.local` exists. If not, i
   - Secondary: Zed
   - Legacy/snippets: Visual Studio Code
 - **Automation**: Bash, symlinks, and Espanso for text expansion.
-- **Font**: FiraCode Nerd Font (Retina)
+- **Font & Symbols**: FiraCode Nerd Font (Retina)
 
 ## 📜 License
 
