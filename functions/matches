@@ -1,0 +1,23 @@
+# Advanced Espanso Search: Search in both triggers and replacements
+# Uses fzf to interactively find espanso triggers
+matches() {
+    local MATCH_FILE="$HOME/dotfiles/config/espanso/match/base.yml"
+    
+    if [[ -f "$MATCH_FILE" ]]; then
+        # 1. First, convert the YAML file into a clean list
+        # 2. Use fzf to search within both triggers and replacements
+        grep -E 'trigger:|replace:' "$MATCH_FILE" | \
+        sed 's/^[[:space:]]*//' | \
+        # Join trigger and replace lines together (similar to paste command)
+        sed 'N;s/\n/ /' | \
+        # Format the output for a cleaner look in fzf
+        sed 's/trigger: ":/󱐋 /; s/replace: / ➔ /; s/"//g' | \
+        fzf --height 40% \
+            --reverse \
+            --header "Search by trigger or content (e.g., 'git commit')" \
+            --border \
+            --ansi
+    else
+        echo "Espanso base.yml not found at $MATCH_FILE"
+    fi
+}

@@ -1,20 +1,37 @@
 # ~/.zshrc
 
 # 🔄 Path & Environment
-export PATH="$HOME/.cargo/bin:$HOME/.dotnet/tools:/opt/Windsurf:$HOME/.npm-global/bin:$PATH"
-[[ ":$PATH:" != *":$PNPM_HOME:"* ]] && export PATH="$PNPM_HOME:$PATH"
+typeset -U path PATH
 
-# ⚡ Initialize Completion System (Must load before custom functions for compdef)
+# 🔄 Path & Environment
+path=(
+    "$BUN_INSTALL/bin"
+    "$HOME/.cargo/bin"
+    "/opt/Windsurf"
+    "$HOME/.npm-global/bin"
+    "$HOME/.local/bin"
+    $path
+)
+# ⚡ Initialize Completion System (Sadece bir kez çağrılması yeterlidir)
 autoload -U compinit && compinit
+autoload -Uz bashcompinit && bashcompinit
 
-# 📦 Load Toolchains
+# 📦 Load Toolchains & Completions
 [[ -f "$HOME/.cargo/env" ]] && source "$HOME/.cargo/env"
-[[ -s "$HOME/.bun/_bun" ]] && source "$HOME/.bun/_bun"
+[ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
 
-# 🧠 Load Alias & Functions & Env Variables files
+# 🧠 Load Alias & Env Variables files
 [[ -f "$HOME/.zsh_aliases" ]] && source "$HOME/.zsh_aliases"
-[[ -f "$HOME/.zsh_functions" ]] && source "$HOME/.zsh_functions"
 [[ -f "$HOME/.zshenv" ]] && source "$HOME/.zshenv"
+
+# Load custom functions from the modular directory
+if [ -d "$HOME/.zsh_functions.d" ]; then
+  for func_file in "$HOME/.zsh_functions.d"/*; do
+    # Only source if it's a file and readable
+    [ -f "$func_file" ] && source "$func_file"
+  done
+fi
+
 
 # 🧩 Manjaro & FZF
 [[ -e /usr/share/zsh/manjaro-zsh-prompt ]] && source /usr/share/zsh/manjaro-zsh-prompt
@@ -26,18 +43,15 @@ source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
 source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=8'
 
-# Update terminal title for Pop Launcher integration
-preexec() { print -Pn "\e]0;$1\a" } # Set title to current cmd
-
-precmd() { print -Pn "\e]0;%n@%m: %~\a" } # Reset title to user@host:dir
+# Terminal Title Integration
+preexec() { print -Pn "\e]0;$1\a" }
+precmd() { print -Pn "\e]0;%n@%m: %~\a" }
 
 # 📁 History & Completion
 HISTFILE=~/.zsh_history
 HISTSIZE=10000
 SAVEHIST=10000
 setopt HIST_IGNORE_ALL_DUPS INC_APPEND_HISTORY SHARE_HISTORY
-autoload -Uz compinit && compinit
-autoload -Uz bashcompinit && bashcompinit
 setopt auto_cd correct nocaseglob
 
 # ⌨️ Vim-Style & Smart History Search
@@ -45,22 +59,16 @@ autoload -Uz up-line-or-beginning-search down-line-or-beginning-search
 zle -N up-line-or-beginning-search
 zle -N down-line-or-beginning-search
 
-# Smart Arrow Bindings
-bindkey "^[[A" up-line-or-beginning-search # Up Arrow
-bindkey "^[[B" down-line-or-beginning-search # Down Arrow
-bindkey \^U backward-kill-line
-
-# History Back (Ctrl+K / Ctrl+J)
+bindkey "^[[A" up-line-or-beginning-search
+bindkey "^[[B" down-line-or-beginning-search
 bindkey '^K' up-line-or-beginning-search
 bindkey '^J' down-line-or-beginning-search
-
-# Delete All Line / Delete Keyword (Ctrl+U / Ctrl+W)
 bindkey '^U' backward-kill-line
 bindkey '^W' backward-kill-word
 
 WORDCHARS='*?_-.[]~=&;!#$%^(){}<>'
 
-# 📁 Advanced Completion
+# 📁 Advanced Completion Styles
 zstyle ':completion:*' menu select
 zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
 zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
@@ -71,9 +79,3 @@ eval "$(zoxide init zsh)"
 
 # 🔒 Misc
 xhost +local:root > /dev/null 2>&1
-
-# OpenClaw Completion
-#source <(openclaw completion --shell zsh)
-
-# bun completions
-[ -s "/home/myrn/.bun/_bun" ] && source "/home/myrn/.bun/_bun"

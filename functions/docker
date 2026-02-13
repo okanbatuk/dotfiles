@@ -1,0 +1,76 @@
+# Docker Interactive Helper: Build, Run, Select, or Stop
+# Supports short-option combining like 'dckr -rp 5000'
+dckr() {
+  local mode=""
+  local image_name="${PWD##*/}"
+  local port_mapping="8080:8080"
+  local env_file=""
+  local OPTIND opt
+
+  # Auto-detect .env file
+  [[ -f ".env" ]] && env_file="--env-file .env"
+
+  # Parse options
+  while getopts "brn:p:ish" opt; do
+    case "$opt" in
+      b) mode="build" ;;
+      r) mode="run" ;;
+      i) mode="interactive" ;;
+      s) mode="stop" ;;         # New: Stop mode
+      n) image_name=$OPTARG ;;
+      p) port_mapping=$OPTARG ;;
+      h)
+        echo "Usage: dckr [OPTIONS]"
+        echo "  -b             Build image"
+        echo "  -r             Run container"
+        echo "  -i             Select image to run (fzf)"
+        echo "  -s             Select container to stop (fzf)"
+        echo "  -n <name>      Custom name"
+        echo "  -p <host:cont> Port mapping (default: 8080:8080)"
+        return 0
+        ;;
+    esac
+  done
+
+  # Normalize ports
+  [[ "$port_mapping" != *":"* ]] && port_mapping="${port_mapping}:${port_mapping}"
+
+  # --- MODES ---
+
+  if [[ "$mode" == "stop" ]]; then
+    local cid=$(docker ps --format "{{.ID}} | {{.Names}} ({{.Image}})" | fzf --height 40% --reverse --header "Select container to STOP" | cut -d' ' -f1)
+    [[ -n "$cid" ]] && docker stop "$cid" && echo "🛑 Container $cid stopped."
+    return
+  fi
+
+  if [[ "$mode" == "interactive" ]]; then
+    local selected=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep -v "<none>" | fzf --height 40% --reverse --header "Run Image (Env: ${env_file:-none})")
+    [[ -n "$selected" ]] && docker run -it --rm ${=env_file} -p "$port_mapping" "$selected"
+    return
+  fi
+
+  case "$mode" in
+    build)
+      docker build -t "$image_name" .
+      ;;
+    run)
+      echo "🚀 Running $image_name on $port_mapping"
+      docker run -it --rm ${=env_file} -p "$port_mapping" --name "${image_name}_container" "$image_name"
+      ;;
+    *) dckr -h ;;
+  esac
+}
+
+# --- Completion (Short options enabled) ---
+_dckr_completion() {
+    _arguments -s -w \
+        '-b[Build image]' \
+        '-r[Run container]' \
+        '-i[Interactive run selection]' \
+        '-s[Interactive stop selection]' \
+        '-n[Custom name]:name:' \
+        '-p[Port mapping]:port:' \
+        '-h[Help]'
+}
+
+compdef _dckr_completion dckr

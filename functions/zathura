@@ -1,0 +1,11 @@
+# Open PDF with Zathura in background silently
+pdf() {
+    if [[ -n "$1" ]]; then
+        # Run zathura, redirect output to null, and run in background
+        zathura "$1" > /dev/null 2>&1 &
+        # Ensure the process continues if the terminal is closed
+        disown
+    else
+        echo "Usage: pdf file.pdf"
+    fi
+}
