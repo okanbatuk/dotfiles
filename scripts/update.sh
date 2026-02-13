@@ -44,8 +44,9 @@ fi
 
 if command -v npm >/dev/null 2>&1; then
     echo -e "\n\033[1;32m>>> Updating user-global npm packages...\033[0m"
-    npm cache clean --force --silent
+    npm install -g npm@latest --silent
     npm update -g
+    npm cache verify
 fi
 
 # 3) CLEANUP
