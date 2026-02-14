@@ -11,6 +11,10 @@ echo -e "${YELLOW}📁 Preparing system and installing dependencies...${NC}"
 mkdir -p "$DOTFILES_DIR/logs"/{updates,maintenance,storage}
 echo -e "  ${GREEN}✅ Log structure ready${NC}"
 
+# Create cargo env file to prevent Zsh errors during first setup
+mkdir -p "$HOME/.cargo"
+touch "$HOME/.cargo/env"
+
 # 2. Comprehensive Dependency List
 # Categorized for better maintainability
 DEPENDENCIES=(
@@ -19,6 +23,7 @@ DEPENDENCIES=(
     git                 # Version control system
     docker              # Container engine
     docker-compose      # Multi-container orchestration tool
+    rustup              # Rust toolchain installer (Required for Cargo & env files)
 
     # --- Modern CLI Tools ---
     eza                 # A modern, feature-rich replacement for 'ls'
@@ -28,6 +33,13 @@ DEPENDENCIES=(
     fd                  # A simple, fast and user-friendly alternative to 'find'
     jq                  # Command-line JSON processor
     tldr                # Collaborative cheatsheets for console commands
+    starship            # The minimal, blazing-fast, and infinitely customizable prompt
+    zoxide              # A smarter cd command for your terminal
+
+    # --- Shell Enhancements ---
+    zsh                 # The Z shell
+    zsh-autosuggestions # Fish-like autosuggestions for zsh
+    zsh-syntax-highlighting # Fish-shell-like syntax highlighting for Zsh
 
     # --- Multimedia & UI ---
     alacritty           # A cross-platform, GPU-accelerated terminal emulator
