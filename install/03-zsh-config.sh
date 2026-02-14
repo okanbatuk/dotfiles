@@ -12,7 +12,7 @@ FILES_TO_SOURCE=(.zsh_aliases .zshenv)
 
 for file in "${FILES_TO_SOURCE[@]}"; do
     # Check if the source line already exists to avoid duplicates
-    if ! grep -q "source ~/$file" "$ZSHRC"; then
+    if ! grep -q "source.*$file" "$ZSHRC"; then
         echo -e "  ➕ Adding source line for $file to .zshrc"
         # Append the source command with a check if the file exists
         echo -e "\n# Load $file\n[[ -f ~/$file ]] && source ~/$file" >> "$ZSHRC"
