@@ -1,6 +1,6 @@
 #!/bin/bash
 # 01-system.sh - Preparation and Dependency Installation
-source "$(dirname "$0")/00-header.sh"
+source "$(dirname "$0")/00-core.sh"
 
 echo -e "${CYAN}Running task with DOTFILES_DIR: $DOTFILES_DIR${NC}"
 echo -e "${YELLOW}📁 Preparing system and installing dependencies...${NC}"

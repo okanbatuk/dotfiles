@@ -7,12 +7,12 @@ alias cam-off='sudo usbguard block-device id 04f2:b5a7'
 alias cam-on='sudo usbguard allow-device id 04f2:b5a7'
 
 # ⚙️ Dotfiles & System Maintenance
-alias upfull="$HOME/dotfiles/scripts/update.sh --full"
-alias up="$HOME/dotfiles/scripts/update.sh --light"
-alias shut="$HOME/dotfiles/scripts/shutdown.sh"
-alias disk-mount="$HOME/dotfiles/scripts/mount.sh"
-alias disk-report="$HOME/dotfiles/scripts/disk-report.sh"
-alias get-info="$HOME/dotfiles/scripts/get-info.sh"
+alias upfull="$HOME/scripts/.update.sh --full"
+alias up="$HOME/scripts/.update.sh --light"
+alias shut="$HOME/scripts/.shutdown.sh"
+alias disk-mount="$HOME/scripts/.mount.sh"
+alias disk-report="$HOME/scripts/.disk-report.sh"
+alias get-info="$HOME/scripts/.get-info.sh"
 alias reload='source ~/.zshrc'
 
 # 🧩 GNOME & Pop Shell Fixes (Reset Tiling Mode)

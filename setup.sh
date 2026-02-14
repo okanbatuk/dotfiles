@@ -1,5 +1,5 @@
 #!/bin/bash
-source "$(dirname "$0")/install/00-header.sh"
+source "$(dirname "$0")/install/00-core.sh"
 
 show_menu() {
     echo -e "${BLUE}========================================${NC}"

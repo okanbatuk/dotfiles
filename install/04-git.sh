@@ -1,6 +1,6 @@
 #!/bin/bash
 # 04-git.sh - Personal Git configuration and GPG check
-source "$(dirname "$0")/00-header.sh"
+source "$(dirname "$0")/00-core.sh"
 
 echo -e "${CYAN}Running task with DOTFILES_DIR: $DOTFILES_DIR${NC}"
 echo -e "${YELLOW}👤 Configuring Git and GPG...${NC}"

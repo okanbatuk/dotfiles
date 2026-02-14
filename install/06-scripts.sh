@@ -1,6 +1,6 @@
 #!/bin/bash
 # 06-scripts.sh - Linking and preparing custom automation scripts
-source "$(dirname "$0")/00-header.sh"
+source "$(dirname "$0")/00-core.sh"
 
 echo -e "${CYAN}Running task with DOTFILES_DIR: $DOTFILES_DIR${NC}"
 echo -e "${YELLOW}📜 Linking automation scripts to ~/scripts...${NC}"

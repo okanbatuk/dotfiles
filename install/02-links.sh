@@ -1,6 +1,6 @@
 #!/bin/bash
 # 02-links.sh - Linking core configs and application settings
-source "$(dirname "$0")/00-header.sh"
+source "$(dirname "$0")/00-core.sh"
 
 echo -e "${CYAN}Running task with DOTFILES_DIR: $DOTFILES_DIR${NC}"
 echo -e "${YELLOW}📂 Linking Home directory configs...${NC}"

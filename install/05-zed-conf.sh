@@ -1,6 +1,6 @@
 #!/bin/bash
 # 05-zed-conf.sh - Zed configuration as external repository.
-source "$(dirname "$0")/00-header.sh"
+source "$(dirname "$0")/00-core.sh"
 
 echo -e "${CYAN}Running task with DOTFILES_DIR: $DOTFILES_DIR${NC}"
 # Zed Editor Configuration
