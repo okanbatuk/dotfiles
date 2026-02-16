@@ -24,6 +24,7 @@ dotfiles/
 ├── functions/            # Modular Zsh Functions (Auto-loaded)
 │   ├── dckr              # Pro Docker manager
 │   ├── matches           # Espanso search
+│   ├── journalctl        # Smart log viewer (jlog)
 │   ├── projtree          # Modern project tree
 │   └── ...               # (One file per function)
 ├── config/               # App-specific configurations (Linked to ~/.config)
@@ -63,6 +64,7 @@ Modern CLI tools, custom functions, and quick-access configuration shortcuts.
 | `projtree` | Function | Modern tree view with auto-ignores (`node_modules`, `.git`, `dist`). Supports `-p` for **path**, `-d` for **depth**, `-i` for **ignore patterns** with interactive tab-completion (multi-flag support & auto-strips path prefix).         |
 | `fulltree` | Function | Advanced tree view all files. Supports `-p` for **path**, `-d` for **depth**, `-i` for **ignore patterns** with interactive tab-completion (multi-flag support & auto-strips path prefix).                                                |
 | `matches`  | Function | Interactive Espanso trigger search using `fzf`.                                                                                                                                                                                           |
+| `jlog`     | Function | **Smart Journalctl Viewer:** Modern interface for systemd logs with shorthand support. Features real-time watching (`-n`), time-based filtering (e.g., `1h`, `10m`, `today`), and colored boot log inspection.                            |
 | `pdf`      | Function | Opens a PDF file using **Zathura** in the background. Redirects all output to `/dev/null` and uses `disown` to keep the process alive even after closing the terminal.                                                                    |
 
 ## ⚙️ Modular Setup
@@ -145,8 +147,13 @@ This will:
 
 All scripts automatically generate logs in the `~/dotfiles/logs/` directory.
 
+- **Smart Cleanup**: The automation suite goes beyond simple updates by performing deep multi-layer cleanup:
+  - **Development Caches**: Clears heavy caches from `npm`, `yarn`, `bun`, `pnpm`, and `node_modules` to reclaim gigabytes of space.
+  - **Package Management**: Automated cleanup of `pacman` (paccache), `yay`/`paru` AUR caches, and unused `Flatpak` runtimes.
+  - **System Internals**: Performs filesystem cache flushing (`sync` & `drop_caches`), vacuums systemd journal logs to the last 2 days, and wipes `/tmp` and thumbnail caches.
 - **Auto-Rotation**: Maintenance scripts automatically use `fd` to remove logs older than 7 or 30 days to keep the repository slim.
 - **Colorized Output**: All scripts provide enhanced terminal feedback using ANSI color coding for critical warnings (S.M.A.R.T. errors, failed services).
+- **Service Hygiene**: Maintenance scripts now automatically detect and report failed system and user-level services. After reporting, they perform a `reset-failed` to clear transient errors, ensuring a clean state for the next run.
 
 ## 🔒 Privacy & Git Configuration
 

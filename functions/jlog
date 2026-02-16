@@ -1,0 +1,60 @@
+# Journalctl Log Viewer: Modern interface for systemd logs
+# Usage: jlog [-n lines] [-s since] [-b] [-h]
+jlog() {
+  local lines=10
+  local since=""
+  local boot=false
+  local opt OPTIND
+
+  # Define colors
+  local BLUE='\033[1;34m'
+  local GREEN='\033[1;32m'
+  local YELLOW='\033[1;33m'
+  local NC='\033[0m' # No Color
+
+  # First pass to capture options
+  while getopts "n:s:bh" opt; do
+    case "$opt" in
+      n) lines=$OPTARG ;;
+      s) since=$OPTARG ;;
+      b) boot=true ;;
+      h) 
+        echo -e "${BLUE}Usage: jlog [OPTIONS]${NC}"
+        echo "  -n <number>  Watch last N lines (default: 10)"
+        echo "  -s <time>    Show logs since (e.g. 1h, today, 2026-02-15)"
+        echo "  -b           Show all logs from current boot (opens in less)"
+        echo "  -h           Show this help message"
+        return 0
+        ;;
+      *) return 1 ;;
+    esac
+  done
+
+  if [ "$boot" = true ]; then
+    echo -e "${BLUE}>>> Displaying logs from current boot...${NC}"
+    journalctl -b
+  elif [ -n "$since" ]; then
+    local formatted_since=$since
+    [[ $since =~ ^[0-9]+h$ ]] && formatted_since="${since%h} hours ago"
+    [[ $since =~ ^[0-9]+m$ ]] && formatted_since="${since%m} minutes ago"
+    [[ $since =~ ^[0-9]+s$ ]] && formatted_since="${since%s} seconds ago"
+    [[ $since =~ ^[0-9]+d$ ]] && formatted_since="${since%d} days ago"
+
+    echo -e "${BLUE}>>> Displaying logs since $since (Follow mode)...${NC}"
+    journalctl -f --since "$formatted_since"
+  else
+    echo -e "${BLUE}>>> Watching last $lines lines...${NC}"
+    journalctl -f -n "$lines"
+  fi
+}
+
+# --- Zsh Completion Support ---
+_jlog_completion() {
+    _arguments \
+        '-n[Number of lines to show]:lines:' \
+        '-s[Show logs since time]:time:' \
+        '-b[Show logs from current boot]' \
+        '-h[Show help]'
+}
+
+compdef _jlog_completion jlog
