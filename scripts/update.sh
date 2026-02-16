@@ -71,9 +71,26 @@ if [[ "$INFO_MODE" == "--full" ]]; then
         find "$HOME/Desktop/Projects" -name "node_modules" -type d -prune -exec rm -rf {} + 2>/dev/null
     fi
 
-    # 4. Failed Services check
+    # 4. Failed service check (System & User)
     echo -e "\n\033[1;36m>>> Checking for failed system services...\033[0m"
-    systemctl --failed --no-legend
+
+    # System-level check
+    failed_system=$(systemctl --failed --no-legend)
+    if [[ -n "$failed_system" ]]; then
+        echo -e "\033[1;31m❌ Failed SYSTEM services:\033[0m\n$failed_system"
+        sudo systemctl reset-failed
+    else
+        echo -e "\033[1;32m✅ No failed system services.\033[0m"
+    fi
+
+    # User-level check
+    failed_user=$(systemctl --user --failed --no-legend)
+    if [[ -n "$failed_user" ]]; then
+        echo -e "\033[1;31m❌ Failed USER services:\033[0m\n$failed_user"
+        systemctl --user reset-failed
+    else
+        echo -e "\033[1;32m✅ No failed user services.\033[0m"
+    fi
 
     echo -e "\n\033[1;32m🗑️  Deep cleanup completed.\033[0m"
 else
@@ -83,11 +100,10 @@ fi
 # Orphaned Packages Check
 orphans=$(pacman -Qdtq)
 if [[ -n "$orphans" ]]; then
-  echo -e "\n\033[1;33m⚠️  Orphaned packages detected:\033[0m"
-  pacman -Qdt
-  echo -e "\n\033[1;36mRemove them? [Y/n]\033[0m"
-  read -r ans
-  [[ $ans != "n" && $ans != "N" ]] && sudo pacman -Rs $orphans
+  echo -e "\n\033[1;33m⚠️  Orphaned packages detected, removing...\033[0m"
+  sudo pacman -Rs $orphans --noconfirm
+else
+  echo -e "\n\033[1;32m✅ No orphaned packages to clean.\033[0m"
 fi
 
 # 4) SECURITY CONTROLS
