@@ -1,17 +1,25 @@
-# Temel Ayarlar
+# Basic Settings
 set selection-clipboard clipboard
 set adjust-open "best-fit"
-set recolor "true"
+set recolor "false"
 
-# Night-Owl / Göz Yormayan Renkler
-set completion-bg          "#1e1e2e"
-set completion-fg          "#cdd6f4"
-set statusbar-bg           "#1e1e2e"
-set statusbar-fg           "#cdd6f4"
-set recolor-lightcolor     "#1e1e2e"
-set recolor-darkcolor      "#cdd6f4"
-set highlight-color        "#f9e2af"
-set highlight-active-color "#fab387"
+# Window Size Settings
+set window-width 1200
+set window-height 1000
 
-# Akıcı Kaydırma
+# Light / Clean Colors
+set completion-bg           "#ffffff"
+set completion-fg           "#000000"
+set statusbar-bg            "#f1f1f1"
+set statusbar-fg            "#000000"
+set notification-bg         "#ffffff"
+set notification-fg         "#000000"
+set inputbar-bg             "#ffffff"
+set inputbar-fg             "#000000"
+
+# Search and Highlight Colors
+set highlight-color         "#ffff00"
+set highlight-active-color  "#ffcc00"
+
+# Smooth Scrolling
 set scroll-step 50

@@ -36,6 +36,7 @@ DEPENDENCIES=(
     tldr                # Collaborative cheatsheets for console commands
     starship            # The minimal, blazing-fast, and infinitely customizable prompt
     zoxide              # A smarter cd command for your terminal
+    handlr              # A better xdg-utils alternative for managing default apps
 
     # --- Shell Enhancements ---
     zsh                 # The Z shell
@@ -44,6 +45,7 @@ DEPENDENCIES=(
 
     # --- Multimedia & UI ---
     alacritty           # A cross-platform, GPU-accelerated terminal emulator
+    drawing             # A simple image editor
     zathura             # A highly customizable and functional document viewer
     zathura-pdf-mupdf   # PDF support for zathura using MuPDF engine
     mpv                 # Media player for the command line

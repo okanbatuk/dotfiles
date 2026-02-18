@@ -129,9 +129,12 @@ This will:
   - `ripgrep`(rg): Ultra-fast text search within projects.
   - `jq`: Command-line JSON processor for handling API and config data.
   - `tldr`: Simplified and community-driven man pages.
+  - `handlr`: A smarter alternative to `xdg-utils` for opening files and managing default apps.
+  - `neofetch`: CLI system information tool used by the `:neo` expansion.
 - **Docker Ecosystem:**
   - `docker` & `docker-compose`: The core engine required for the `dckr` management function.
 - **Viewers & Media:**
+  - `drawing`: Simple image editor and drawing application for GNOME.
   - `zathura` & `zathura-pdf-mupdf`: Minimalist PDF viewing used by the `pdf` function.
   - `mpv` & `yt-dlp`: High-performance media playback and YouTube streaming.
 - **System & Hardware:**
@@ -174,6 +177,7 @@ When you run `setup.sh`, it will check if `~/.gitconfig.local` exists. If not, i
 - **Shell**: Zsh (with custom sources for aliases, functions, and env)
 - **Terminal**: Alacritty (Configured with FiraCode Nerd Font)
 - **Viewers & Players**:
+  - **Drawing**: Image editing application for creating and modifying bitmap image.
   - **Zathura**: Minimalist PDF viewer with auto-fit logic.
   - **MPV**: High-performance media player with `yt-dlp` integration.
 - **Editors**:
