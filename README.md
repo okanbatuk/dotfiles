@@ -166,7 +166,7 @@ This repository uses a **Local Include** strategy for Git identity.
 
 When you run `setup.sh`, it will check if `~/.gitconfig.local` exists. If not, it will prompt you for your details. This ensures your personal info is never committed to the repository history.
 
-> 💡 **Pro Tip**: To get the green Verified badge on your commits, generate a GPG key and add 1`signingkey = YOUR_KEY_ID` and `gpgsign = true` to your `~/.gitconfig.local`.
+> 💡 **Pro Tip**: To get the green Verified badge on your commits, generate a GPG key and add `signingkey = YOUR_KEY_ID` and `gpgsign = true` to your `~/.gitconfig.local`.
 
 ## 🛠️ Tools Used
 

@@ -16,7 +16,9 @@ dckr() {
       b) mode="build" ;;
       r) mode="run" ;;
       i) mode="interactive" ;;
-      s) mode="stop" ;;         # New: Stop mode
+      s) mode="stop" ;;
+      e) mode="export" ;;
+      d) mode="delete" ;;
       n) image_name=$OPTARG ;;
       p) port_mapping=$OPTARG ;;
       h)
@@ -25,6 +27,8 @@ dckr() {
         echo "  -r             Run container"
         echo "  -i             Select image to run (fzf)"
         echo "  -s             Select container to stop (fzf)"
+        echo "  -e             Export image to .tar (fzf)"
+        echo "  -d             Delete image (fzf)"
         echo "  -n <name>      Custom name"
         echo "  -p <host:cont> Port mapping (default: 8080:8080)"
         return 0
@@ -32,22 +36,43 @@ dckr() {
     esac
   done
 
-  # Normalize ports
-  [[ "$port_mapping" != *":"* ]] && port_mapping="${port_mapping}:${port_mapping}"
-
   # --- MODES ---
 
+  # 1. DELETE MODE
+  if [[ "$mode" == "delete" ]]; then
+    local selected=$(docker images --format "{{.Repository}}:{{.Tag}} | {{.ID}}" | grep -v "<none>" | fzf --height 40% --reverse --header "Select image to DELETE" | awk '{print $3}')
+    [[ -n "$selected" ]] && echo "🗑️ Deleting image $selected..." && docker rmi "$selected"
+    return
+  fi
+
+  # 2. EXPORT MODE
+  if [[ "$mode" == "export" ]]; then
+    local selected=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep -v "<none>" | fzf --height 40% --reverse --header "Select image to EXPORT (.tar)")
+    if [[ -n "$selected" ]]; then
+        local filename="${selected//:/_}.tar"
+        echo "📦 Exporting $selected to $filename..."
+        docker save -o "$filename" "$selected"
+        echo "✅ Saved as $filename"
+    fi
+    return
+  fi
+
+  # 3. STOP MODE
   if [[ "$mode" == "stop" ]]; then
     local cid=$(docker ps --format "{{.ID}} | {{.Names}} ({{.Image}})" | fzf --height 40% --reverse --header "Select container to STOP" | cut -d' ' -f1)
     [[ -n "$cid" ]] && docker stop "$cid" && echo "🛑 Container $cid stopped."
     return
   fi
 
+  # 4. INTERACTIVE MODE
   if [[ "$mode" == "interactive" ]]; then
     local selected=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep -v "<none>" | fzf --height 40% --reverse --header "Run Image (Env: ${env_file:-none})")
     [[ -n "$selected" ]] && docker run -it --rm ${=env_file} -p "$port_mapping" "$selected"
     return
   fi
+
+  # Normalization and Build/Run
+  [[ "$port_mapping" != *":"* ]] && port_mapping="${port_mapping}:${port_mapping}"
 
   case "$mode" in
     build)
@@ -68,6 +93,8 @@ _dckr_completion() {
         '-r[Run container]' \
         '-i[Interactive run selection]' \
         '-s[Interactive stop selection]' \
+        '-e[Export image to .tar (fzf)]' \
+        '-d[Delete image (fzf)]' \
         '-n[Custom name]:name:' \
         '-p[Port mapping]:port:' \
         '-h[Help]'

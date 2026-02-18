@@ -30,6 +30,7 @@ DEPENDENCIES=(
     bat                 # A 'cat' clone with syntax highlighting and git integration
     fzf                 # Command-line fuzzy finder (required for dckr)
     ripgrep             # 'rg' - Faster and more featureful alternative to grep
+    neofetch            # System information tool
     fd                  # A simple, fast and user-friendly alternative to 'find'
     jq                  # Command-line JSON processor
     tldr                # Collaborative cheatsheets for console commands
