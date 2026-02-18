@@ -83,6 +83,14 @@ flatpak uninstall --unused -y 2>/dev/null || true
 rm -rf ~/.var/app/*/cache 2>/dev/null || true
 sudo rm -rf /var/tmp/flatpak-cache/* 2>/dev/null || true
 
+# DELETE CUSTOM SESSION LOGS
+echo -e "${PURPLE}🧹 Wiping custom session logs directory...${NC}"
+CUSTOM_LOG_DIR="$HOME/dotfiles/logs/custom"
+if [ -d "$CUSTOM_LOG_DIR" ]; then
+    rm -rf "$CUSTOM_LOG_DIR"
+    echo -e "${GREEN}✅ Custom logs directory removed.${NC}"
+fi
+
 # DELETE OLD LOG FILES
 echo -e "${PURPLE}🗃️  Removing maintenance logs older than 30 days...${NC}"
 if command -v fd >/dev/null 2>&1; then
