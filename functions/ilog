@@ -1,0 +1,84 @@
+# 📝 Interactive Logging Tool (ilog)
+# Mode-based structure compatible with dckr function logic
+ilog() {
+  local mode=""
+  local target_file=""
+  local p_path=""
+  local s_name=""
+  local DEFAULT_PATH="$DOTFILES_DIR/logs/custom"
+  local OPTIND opt
+
+  # Parse options
+  while getopts "r:c:p:s:h" opt; do
+    case "$opt" in
+      r) mode="record"; target_file=$OPTARG ;; # Set mode to Record
+      c) mode="clean"; target_file=$OPTARG ;;  # Set mode to Clean
+      p) p_path=$OPTARG ;;                     # Optional custom path
+      s) s_name=$OPTARG ;;                     # Optional save name
+      h)
+        echo "Usage: ilog [OPTIONS]"
+        echo "  -r <name>      Record session (starts script command)"
+        echo "  -c <file>      Clean log file (removes ANSI noise)"
+        echo "  -p <path>      Custom directory path (default: $DEFAULT_PATH)"
+        echo "  -s <name>      Custom output filename (only for clean mode)"
+        return 0
+        ;;
+      *) ilog -h; return 1 ;;
+    esac
+  done
+  shift $((OPTIND-1))
+
+  # Determine the final directory
+  local final_dir="${p_path:-$DEFAULT_PATH}"
+
+  # --- MODES ---
+  case "$mode" in
+    record)
+      # 1. RECORD MODE
+      mkdir -p "$final_dir"
+      local log_full_path="$final_dir/${target_file}_$(date +%Y%m%d_%H%M).log"
+      echo "⏺️  Recording started: $log_full_path"
+      script -faq "$log_full_path" -c "/bin/zsh"
+      ;;
+
+    clean)
+      # 2. CLEAN MODE
+      if [[ ! -f "$target_file" ]]; then
+          echo "❌ Error: File '$target_file' not found."
+          return 1
+      fi
+
+      # Determine output filename logic
+      local output_name
+      if [[ -n "$s_name" ]]; then
+          output_name="${s_name%.*}.txt"
+      else
+          local base_fn=$(basename -- "$target_file")
+          output_name="${base_fn%.*}.txt"
+      fi
+
+      mkdir -p "$final_dir"
+      local output_full_path="$final_dir/$output_name"
+
+      # Execute core cleaning engine (Perl)
+      perl -pe "s/\e([^\[\]]|\[.*?[a-zA-Z]|\].*?\a)//g; s/\r//g;" "$target_file" > "$output_full_path"
+      echo "✨ Cleaned log saved to: $output_full_path"
+      ;;
+
+    *)
+      ilog -h
+      ;;
+  esac
+}
+
+# --- Zsh Completion (Short options enabled) ---
+_ilog_completion() {
+    _arguments -s -w \
+        '-r[Record session name]:name:' \
+        '-c[Clean log file]:file:_files' \
+        '-p[Custom path]:path:_files -/' \
+        '-s[Custom save name]:name:' \
+        '-h[Help]'
+}
+
+compdef _ilog_completion ilog

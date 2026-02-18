@@ -24,7 +24,8 @@ dotfiles/
 ├── functions/            # Modular Zsh Functions (Auto-loaded)
 │   ├── dckr              # Pro Docker manager
 │   ├── matches           # Espanso search
-│   ├── journalctl        # Smart log viewer (jlog)
+│   ├── jlog              # Smart log viewer (jlog)
+│   ├── ilog              # Terminal session logger & cleaner
 │   ├── projtree          # Modern project tree
 │   └── ...               # (One file per function)
 ├── config/               # App-specific configurations (Linked to ~/.config)
@@ -65,6 +66,7 @@ Modern CLI tools, custom functions, and quick-access configuration shortcuts.
 | `fulltree` | Function | Advanced tree view all files. Supports `-p` for **path**, `-d` for **depth**, `-i` for **ignore patterns** with interactive tab-completion (multi-flag support & auto-strips path prefix).                                                |
 | `matches`  | Function | Interactive Espanso trigger search using `fzf`.                                                                                                                                                                                           |
 | `jlog`     | Function | **Smart Journalctl Viewer:** Modern interface for systemd logs with shorthand support. Features real-time watching (`-n`), time-based filtering (e.g., `1h`, `10m`, `today`), and colored boot log inspection.                            |
+| `ilog`     | Function | **Session Recording:** Use `-r` to start recording the current terminal session to a timestamped log file. Use `-c <file>` to clean ANSI escape codes from a log, converting it into a readable text format using `perl`.                 |
 | `pdf`      | Function | Opens a PDF file using **Zathura** in the background. Redirects all output to `/dev/null` and uses `disown` to keep the process alive even after closing the terminal.                                                                    |
 
 ## ⚙️ Modular Setup
@@ -142,6 +144,8 @@ This will:
   - `mpv` & `yt-dlp`: High-performance media playback and YouTube streaming.
 - **System & Hardware:**
   - `smartmontools`: Required for S.M.A.R.T. disk health diagnostics and reporting.
+  - `util-linux`: Required for the `script` command (used by `rec` alias and `ilog`).
+  - `perl`: Required for regex-based log cleaning in `ilog`.
   - `pacman-contrib`: Essential for system maintenance tasks like `paccache`.
 - **Fonts & Symbols:**
   - `ttf-jetbrains-mono-nerd`: Developer-focused font with icons, required to correctly display symbols in the terminal.

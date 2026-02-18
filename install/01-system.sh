@@ -24,6 +24,8 @@ DEPENDENCIES=(
     docker              # Container engine
     docker-compose      # Multi-container orchestration tool
     rustup              # Rust toolchain installer (Required for Cargo & env files)
+    util-linux          # Required for 'script' command (ilog record)
+    perl                # Required for log cleaning (ilog clean)
 
     # --- Modern CLI Tools ---
     eza                 # A modern, feature-rich replacement for 'ls'

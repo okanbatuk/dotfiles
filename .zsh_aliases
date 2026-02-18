@@ -1,3 +1,6 @@
+# Source Dir
+DOTFILES_DIR="$HOME/dotfiles"
+
 # 🚀 App Launchers (Wayland Optimized)
 alias windsurf='windsurf --ozone-platform=wayland'
 alias code='code --ozone-platform=wayland'
@@ -14,6 +17,10 @@ alias disk-mount="$HOME/scripts/.mount.sh"
 alias disk-report="$HOME/scripts/.disk-report.sh"
 alias get-info="$HOME/scripts/.get-info.sh"
 alias reload='source ~/.zshrc'
+
+# 📝 Logging & Session Management
+LOG_PATH="$DOTFILES_DIR/logs/custom"
+alias golog='z "$LOG_PATH"'
 
 # 🧩 GNOME & Pop Shell Fixes (Reset Tiling Mode)
 alias psr='gnome-extensions disable pop-shell@system76.com && gnome-extensions enable pop-shell@system76.com'
@@ -41,7 +48,7 @@ alias c='clear'
 # ⚙️ Fast Config Access
 alias zshconf="nvim ~/.zshrc"
 alias aliasconf="nvim ~/.zsh_aliases"
-alias espconf="nvim ~/dotfiles/config/espanso/match/base.yml"
+alias espconf="nvim $DOTFILES_DIR/config/espanso/match/base.yml"
 
 # 🛠️ Git Quick Access
 alias gs='git status'
