@@ -11,7 +11,7 @@ dckr() {
   [[ -f ".env" ]] && env_file="--env-file .env"
 
   # Parse options
-  while getopts "brn:p:ish" opt; do
+  while getopts "brn:p:isedh" opt; do
     case "$opt" in
       b) mode="build" ;;
       r) mode="run" ;;
