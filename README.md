@@ -133,6 +133,9 @@ This will:
   - `neofetch`: CLI system information tool used by the `:neo` expansion.
 - **Docker Ecosystem:**
   - `docker` & `docker-compose`: The core engine required for the `dckr` management function.
+- **Editors & IDEs:**
+  - `neovim`: Extensible text editor, configured with `lazy.nvim`, `telescope`, and `oil.nvim`.
+  - `zed`: High-performance, multiplayer code editor for rapid development.
 - **Viewers & Media:**
   - `drawing`: Simple image editor and drawing application for GNOME.
   - `zathura` & `zathura-pdf-mupdf`: Minimalist PDF viewing used by the `pdf` function.

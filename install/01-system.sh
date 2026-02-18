@@ -43,6 +43,10 @@ DEPENDENCIES=(
     zsh-autosuggestions # Fish-like autosuggestions for zsh
     zsh-syntax-highlighting # Fish-shell-like syntax highlighting for Zsh
 
+    # --- Editors ---
+    neovim              # Core engine for your Neovim configuration
+    zed                 # High-performance, multiplayer code editor
+
     # --- Multimedia & UI ---
     alacritty           # A cross-platform, GPU-accelerated terminal emulator
     drawing             # A simple image editor
@@ -65,11 +69,15 @@ DEPENDENCIES=(
 # Checks if each package is already installed via pacman before attempting installation
 echo -e "${CYAN}📦 Checking system packages...${NC}"
 for pkg in "${DEPENDENCIES[@]}"; do
-    if ! pacman -Qs "$pkg" > /dev/null; then
-        echo -e "  📥 Installing $pkg..."
-        sudo pacman -S --noconfirm "$pkg"
+    if pacman -Qi "$pkg" &> /dev/null; then
+        echo -e "${GREEN} ✅ $pkg is already installed. ${NC}"
     else
-        echo -e "  ${GREEN}✅ $pkg is already installed.${NC}"
+        echo "📥 Installing $pkg..."
+        if sudo pacman -S --noconfirm "$pkg"; then
+            echo -e "${GREEN} ✅ Successfully installed $pkg.${NC}"
+        else
+            echo -e "${RED} ❌ Failed to install $pkg. Please check your connection or mirrors. ${NC}"
+        fi
     fi
 done
 
