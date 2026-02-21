@@ -5,9 +5,14 @@ DOTFILES_DIR="$HOME/dotfiles"
 alias windsurf='windsurf --ozone-platform=wayland'
 alias code='code --ozone-platform=wayland'
 
-# 🔐 Security & Hardware Control
-alias cam-off='sudo usbguard block-device id 04f2:b5a7'
-alias cam-on='sudo usbguard allow-device id 04f2:b5a7'
+# 🔐 Security & Hardware Control (Webcam & Bluetooth & Fingerprint Sensor)
+alias cam-off='sudo usbguard block-device id "$ID_WEBCAM"'
+alias cam-on='sudo usbguard allow-device id "$ID_WEBCAM"'
+alias bt-off='sudo systemctl stop bluetooth && sudo usbguard block-device id $ID_BLUETOOTH'
+
+alias bt-on='sudo usbguard allow-device id $ID_BLUETOOTH && sudo systemctl start bluetooth'
+alias fp-off='sudo usbguard block-device id $ID_FINGERPRINT'
+alias fp-on='sudo usbguard allow-device id $ID_FINGERPRINT'
 
 # ⚙️ Dotfiles & System Maintenance
 alias upfull="sudo $HOME/scripts/.update.sh --full"
