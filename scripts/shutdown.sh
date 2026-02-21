@@ -65,6 +65,7 @@ rm -rf ~/.cache/thumbnails/* 2>/dev/null || true
 # REMOVE OLD PACKAGE CACHE
 echo -e "${BLUE}📦 Cleaning package & AUR helper caches...${NC}"
 sudo paccache -rk 2 2>/dev/null || true
+sudo pamac clean --keep 2 2>/dev/null || true
 rm -rf ~/.cache/yay 2>/dev/null || true
 rm -rf ~/.cache/paru 2>/dev/null || true
 

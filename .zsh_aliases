@@ -10,11 +10,11 @@ alias cam-off='sudo usbguard block-device id 04f2:b5a7'
 alias cam-on='sudo usbguard allow-device id 04f2:b5a7'
 
 # ⚙️ Dotfiles & System Maintenance
-alias upfull="$HOME/scripts/.update.sh --full"
-alias up="$HOME/scripts/.update.sh --light"
-alias shut="$HOME/scripts/.shutdown.sh"
-alias disk-mount="$HOME/scripts/.mount.sh"
-alias disk-report="$HOME/scripts/.disk-report.sh"
+alias upfull="sudo $HOME/scripts/.update.sh --full"
+alias up="sudo $HOME/scripts/.update.sh --light"
+alias shut="sudo $HOME/scripts/.shutdown.sh"
+alias disk-mount="sudo $HOME/scripts/.mount.sh"
+alias disk-report="sudo $HOME/scripts/.disk-report.sh"
 alias get-info="$HOME/scripts/.get-info.sh"
 alias reload='source ~/.zshrc'
 
