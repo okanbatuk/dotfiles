@@ -1,0 +1,73 @@
+<keymap version="1" name="GNOME copy" parent="Default for GNOME">
+  <action id="ActivateCommitToolWindow">
+    <keyboard-shortcut first-keystroke="alt 0" />
+    <keyboard-shortcut first-keystroke="shift ctrl g" />
+  </action>
+  <action id="ActivateProjectToolWindow">
+    <keyboard-shortcut first-keystroke="alt 1" />
+    <keyboard-shortcut first-keystroke="shift ctrl e" />
+  </action>
+  <action id="ActivateStructureToolWindow">
+    <keyboard-shortcut first-keystroke="alt 7" />
+    <keyboard-shortcut first-keystroke="shift ctrl b" />
+  </action>
+  <action id="ActivateTerminalToolWindow">
+    <keyboard-shortcut first-keystroke="alt f12" />
+    <keyboard-shortcut first-keystroke="ctrl back_quote" />
+  </action>
+  <action id="CloseActiveTab">
+    <keyboard-shortcut first-keystroke="shift ctrl w" />
+  </action>
+  <action id="CollapseSelection" />
+  <action id="CommentByBlockComment">
+    <keyboard-shortcut first-keystroke="shift ctrl slash" />
+    <keyboard-shortcut first-keystroke="shift alt a" />
+  </action>
+  <action id="CommentByLineComment">
+    <keyboard-shortcut first-keystroke="ctrl slash" />
+  </action>
+  <action id="Console.TableResult.ColumnSortAsc" />
+  <action id="Console.TableResult.ColumnSortDesc" />
+  <action id="Debugger.RemoveAllBreakpoints">
+    <keyboard-shortcut first-keystroke="shift ctrl delete" />
+  </action>
+  <action id="DumpLookupElementWeights" />
+  <action id="EditorChooseLookupItemDot" />
+  <action id="EditorDown">
+    <keyboard-shortcut first-keystroke="down" />
+    <keyboard-shortcut first-keystroke="alt j" />
+  </action>
+  <action id="EditorDuplicateLines">
+    <keyboard-shortcut first-keystroke="shift ctrl alt j" />
+  </action>
+  <action id="EditorUnSelectWord" />
+  <action id="EditorUp">
+    <keyboard-shortcut first-keystroke="up" />
+    <keyboard-shortcut first-keystroke="alt k" />
+  </action>
+  <action id="GotoTypeDeclaration">
+    <mouse-shortcut keystroke="shift control button1" />
+  </action>
+  <action id="Kotlin.RunScratch" />
+  <action id="QuickChangeScheme" />
+  <action id="RecentLocations" />
+  <action id="ReformatCode">
+    <keyboard-shortcut first-keystroke="shift alt f" />
+  </action>
+  <action id="SelectAllOccurrences" />
+  <action id="SelectNextOccurrence" />
+  <action id="ShowIntentionActions">
+    <keyboard-shortcut first-keystroke="ctrl period" />
+  </action>
+  <action id="TW.CloseAllTabs">
+    <keyboard-shortcut first-keystroke="shift ctrl alt w" />
+  </action>
+  <action id="TW.CloseOtherTabs">
+    <keyboard-shortcut first-keystroke="ctrl alt w" />
+  </action>
+  <action id="TableResult.ShrinkSelection" />
+  <action id="Unwrap" />
+  <action id="Vcs.Log.ShowAllAffected" />
+  <action id="VcsHistory.ShowAllAffected" />
+  <action id="XDebugger.MoveWatchDown" />
+</keymap>

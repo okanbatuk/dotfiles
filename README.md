@@ -21,6 +21,8 @@ dotfiles/
 │   ├── 04-git.sh         # Personal Git identity & GPG setup
 │   ├── 05-zed-conf.sh    # External Zed editor configuration
 │   └── 06-scripts.sh     # Automation scripts linking (~/scripts)
+│   ├── 07-local-env.sh   # Local environment tweaks
+│   └── 08-java.sh        # Java (Temurin) & SDKMAN normalization
 ├── functions/            # Modular Zsh Functions (Auto-loaded)
 │   ├── dckr              # Pro Docker manager
 │   ├── matches           # Espanso search
@@ -31,6 +33,9 @@ dotfiles/
 ├── config/               # App-specific configurations (Linked to ~/.config)
 │   ├── alacritty/        # GPU terminal settings
 │   ├── nvim/             # Neovim environment
+│   ├── jetbrains/        # IntelliJ IDEA & IdeaVim settings
+│   │   ├── settings/     # Exported XML configurations (Keymaps, Editor, etc.)
+│   │   └── ideavimrc     # Centralized IdeaVim configuration
 │   └── ...               # (espanso, mpv, zathura, Code)
 ├── scripts/              # Internal automation scripts
 │   ├── update.sh         # Smart update system
@@ -79,6 +84,7 @@ The `setup.sh` script follows a robust execution order to ensure system integrit
 4. **Validation**: Verifies Zsh sources and essential dependencies.
 5. **Clean Install**: Installs apps (Alacritty, MPV, etc.) and manages config backups.
 6. **Automation**: Links custom scripts and sets executable permissions.
+7. **Java Environment**: Normalizes Java versions using SDKMAN, installs Temurin JDKs, and sets up IntelliJ IDEA.
 
 Clone the repo:
 
@@ -121,6 +127,8 @@ This will:
 
 > 💡 **VS Code**: Settings and snippets are stored under `config/Code/`. To apply them, manually copy the contents to `~/.config/Code/User/` as needed.
 
+> 💡 **IntelliJ IDEA**: Keymaps and editor settings are stored under `config/jetbrains/settings/`. To apply them, use `File > Manage IDE Settings > Import Settings` and point to the `settings/` folder.
+
 ## 🛠️ Prerequisites
 
 - **Modern CLI Suite:**
@@ -135,6 +143,10 @@ This will:
   - `neofetch`: CLI system information tool used by the `:neo` expansion.
 - **Docker Ecosystem:**
   - `docker` & `docker-compose`: The core engine required for the `dckr` management function.
+- **Java Ecosystem:**
+  - `SDKMAN!`: Primary manager for Java versions, Maven, and Gradle.
+  - `Temurin JDK (17, 21)`: Standardized OpenJDK distributions used via SDKMAN.
+  - `IntelliJ IDEA Community`: Primary IDE for Java/Kotlin development.
 - **Editors & IDEs:**
   - `neovim`: Extensible text editor, configured with `lazy.nvim`, `telescope`, and `oil.nvim`.
   - `zed`: High-performance, multiplayer code editor for rapid development.
@@ -189,7 +201,7 @@ When you run `setup.sh`, it will check if `~/.gitconfig.local` exists. If not, i
   - **MPV**: High-performance media player with `yt-dlp` integration.
 - **Editors**:
   - Primary: Neovim (Custom visual paste & system clipboard integration)
-  - Secondary: Zed
+  - Secondary: Zed, IntelliJ IDEA
   - Legacy/snippets: Visual Studio Code
 - **Automation**: Bash, symlinks, and Espanso for text expansion.
 - **Font & Symbols**: FiraCode Nerd Font (Retina)

@@ -1,0 +1,5 @@
+IdeaVIM
+org.jetbrains.idea.maven
+com.chrisrm.idea.MaterialThemeUI
+com.mallowigi
+Subversion

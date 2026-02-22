@@ -42,3 +42,12 @@ for app in "${APPS[@]}"; do
         echo -e "  ${GREEN}✅ Linked config for $app${NC}"
     fi
 done
+
+# IdeaVim configuration
+echo -e "${YELLOW}⌨️  Linking IdeaVim configuration...${NC}"
+if [ -f "$DOTFILES_DIR/config/JetBrains/ideavimrc" ]; then
+    ln -sf "$DOTFILES_DIR/config/JetBrains/ideavimrc" "$HOME/.ideavimrc"
+    echo -e "  ${GREEN}✅ Linked .ideavimrc${NC}"
+else
+    echo -e "  ${RED}❌ ideavimrc not found in $DOTFILES_DIR/config/JetBrains/${NC}"
+fi
