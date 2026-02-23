@@ -26,6 +26,7 @@ dotfiles/
 ├── functions/            # Modular Zsh Functions (Auto-loaded)
 │   ├── dckr              # Pro Docker manager
 │   ├── matches           # Espanso search
+│   ├── fnote             # Interactive Note Navigator (fzf + bat)
 │   ├── jlog              # Smart log viewer (jlog)
 │   ├── ilog              # Terminal session logger & cleaner
 │   ├── projtree          # Modern project tree
@@ -42,6 +43,7 @@ dotfiles/
 │   └── ...               # (shutdown, disk-report, get-info)
 ├── .zshrc                # Main Zsh entry point
 ├── .zsh_aliases          # Custom aliases
+├── .zsh_notes            # Knowledge base aliases
 ├── .zshenv               # Environment variables
 ├── .gitconfig            # Global git settings (UI, aliases)
 ├── setup.sh              # Main Orchestrator (Orchestrates /install scripts)
@@ -73,6 +75,7 @@ Modern CLI tools, custom functions, and quick-access configuration shortcuts.
 | `jlog`     | Function | **Smart Journalctl Viewer:** Modern interface for systemd logs with shorthand support. Features real-time watching (`-n`), time-based filtering (e.g., `1h`, `10m`, `today`), and colored boot log inspection.                            |
 | `ilog`     | Function | **Session Recording:** Use `-r` to start recording the current terminal session to a timestamped log file. Use `-c <file>` to clean ANSI escape codes from a log, converting it into a readable text format using `perl`.                 |
 | `pdf`      | Function | Opens a PDF file using **Zathura** in the background. Redirects all output to `/dev/null` and uses `disown` to keep the process alive even after closing the terminal.                                                                    |
+| `fnote`    | Function | **Interactive Note Navigator:** `find` and `fzf` to search through your entire knowledge base. Supports instant bat previews for text files and opens `.pdf`, `.doc`, `.docx` via `handlr`.                                               |
 
 ## ⚙️ Modular Setup
 

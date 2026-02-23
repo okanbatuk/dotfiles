@@ -1,0 +1,22 @@
+# Interactive Note Navigator using fzf and bat
+fnote() {
+    # -L: Follow symbolic links to reach the original notes directory
+    # -type f: Search only for files
+    # -not -path '*/.*': Exclude hidden directories (like .git or .obsidian)
+    local file
+    file=$(find -L "$NOTES_ROOT" -type f -not -path '*/.*' 2>/dev/null | fzf \
+        --prompt="🔍 Search Notes: " \
+        --preview "bat --color=always --style=numbers --line-range :500 {}")
+
+    # If a file was selected from the list
+    if [[ -n "$file" ]]; then
+        # Check file extension to determine the opener
+        if [[ "$file" == *.pdf || "$file" == *.doc || "$file" == *.docx ]]; then
+            # Use handlr to open PDF files in the default system viewer
+            o "$file"
+        else
+            # Use bat for text-based files with vertical paging
+            bat --paging=always "$file"
+        fi
+    fi
+}

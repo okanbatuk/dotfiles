@@ -1,0 +1,19 @@
+# === Base Path ===
+export NOTES_ROOT="$HOME/Desktop/Notes"
+
+# === Nav Aliases ===
+alias cdn-js='cd $NOTES_ROOT/js'
+alias cdn-ts='cd $NOTES_ROOT/ts'
+alias cdn-git='cd $NOTES_ROOT/git'
+
+# GIT
+alias gnote='cat $NOTES_ROOT/git/git.md'
+
+# JAVASCRIPT / TYPESCRIPT
+alias jsnote='cat $NOTES_ROOT/js/node-notes/"Node Notes.txt"'
+alias tsnote='cat $NOTES_ROOT/ts/ts.txt'
+alias nestnote='cat $NOTES_ROOT/ts/node-notes/nest-node.txt'
+
+# DATABASE & TOOLS
+alias redisnote='cat $NOTES_ROOT/+++/redis.txt'
+alias vimnote='cat $NOTES_ROOT/+++/vim.txt'

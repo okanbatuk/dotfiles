@@ -23,6 +23,8 @@ autoload -Uz bashcompinit && bashcompinit
 # 🧠 Load Alias & Env Variables files
 [[ -f "$HOME/.zsh_aliases" ]] && source "$HOME/.zsh_aliases"
 [[ -f "$HOME/.zshenv" ]] && source "$HOME/.zshenv"
+[[ -f "$HOME/.zsh_notes" ]] && source "$HOME/.zsh_notes"
+
 
 # Load custom functions from the modular directory
 if [ -d "$HOME/.zsh_functions.d" ]; then
