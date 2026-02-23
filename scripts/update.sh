@@ -30,16 +30,16 @@ command -v yay >/dev/null 2>&1 && yay -Syu --noconfirm
 echo -e "\n\033[1;32m>>> Updating Flatpak...\033[0m"
 flatpak update -y
 
-# 2) TOOLING (Bun & Rust)
+# 2) TOOLING (Bun & Rust & Npm & SDKMAN!)
 echo -e "\n\033[1;32m>>> Updating Bun...\033[0m"
 command -v bun >/dev/null 2>&1 && bun upgrade
+echo -e "  \033[1;32m✅ 2.1 Bun updated.\033[0m"
 
 echo -e "\n\033[1;32m>>> Updating Rustup & Toolchain...\033[0m"
 if command -v rustup >/dev/null 2>&1; then
-    rustup self update
     rustup update stable
     rustup default stable
-    echo -e "  \033[1;32m✅ Rust updated.\033[0m"
+    echo -e "  \033[1;32m✅ 2.2 Rust updated.\033[0m"
 fi
 
 if command -v npm >/dev/null 2>&1; then
@@ -47,6 +47,29 @@ if command -v npm >/dev/null 2>&1; then
     npm install -g npm@latest --silent
     npm update -g
     npm cache verify
+
+    echo -e "  \033[1;32m✅ 2.3 NPM update process completed.\033[0m"
+fi
+
+export SDKMAN_DIR="$HOME/.sdkman"
+if [[ -s "$SDKMAN_DIR/bin/sdkman-init.sh" ]]; then
+    echo -e "\n\033[1;32m>>> Updating SDKMAN!...\033[0m"
+    # Load SDKMAN functions
+    source "$SDKMAN_DIR/bin/sdkman-init.sh"
+    
+    # Update SDKMAN client and candidate list (Fast)
+    sdk selfupdate
+    sdk update
+    
+    # Perform heavy upgrades only in --full mode
+    if [[ "$INFO_MODE" == "--full" ]]; then
+        echo -e "\n\033[1;34m>>> [$MODE] Upgrading SDKMAN candidates (Java, Maven, etc.)...\033[0m"
+        # Force non-interactive upgrade for all candidates
+        export sdkman_auto_answer=true
+        sdk upgrade
+    fi
+    
+    echo -e "  \033[1;32m✅ 2.4 SDKMAN! update process completed.\033[0m"
 fi
 
 # 3) CLEANUP
