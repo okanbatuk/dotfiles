@@ -13,14 +13,18 @@ fi
 
 echo -e "${CYAN}Running task with DOTFILES_DIR: $DOTFILES_DIR${NC}"
 # Zed Editor Configuration
-ZED_REPO_URL="https://github.com/okanbatuk/zed-config.git"
+ZED_REPO_URL="git@github.com:okanbatuk/zed-config.git"
 ZED_TARGET="$DOTFILES_DIR/external/zed-config"
 ZED_CONFIG_DIR="$REAL_HOME/.config/zed"
 
-if ! git ls-remote "$ZED_REPO_URL" &>/dev/null; then
-    echo "⚠️ Zed repo is private or unreachable. Skipping cloning..."
+# 1. Non-interactive accessibility check
+# GIT_TERMINAL_PROMPT=0 prevents Git from asking for credentials
+if ! GIT_TERMINAL_PROMPT=0 git ls-remote "$ZED_REPO_URL" &>/dev/null; then
+    echo "${RED}⚠️ Zed repo is private or unreachable. Skipping cloning...${NC}"
 else
     echo -e "${YELLOW}📝 Setting up Zed editor...${NC}"
+
+    # 2. Clone or Update logic
     if [ ! -d "$ZED_TARGET" ]; then
         echo -e "  📥 ${CYAN}Cloning Zed config repository...${NC}"
         mkdir -p "$DOTFILES_DIR/external"

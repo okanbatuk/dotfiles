@@ -10,11 +10,11 @@ My personal dotfiles and automation scripts for a consistent, reproducible devel
 ```bash
 dotfiles/
 ├── logs/                 # Centralized logs for all automation
+│   ├── custom/           # Logs for user-defined manual scripts
 │   ├── updates/          # System update history
 │   ├── maintenance/      # Shutdown & cleanup diagnostics
 │   └── storage/          # S.M.A.R.T. health & disk usage reports
 ├── install/              # Modular Bootstrap Tasks (Orchestrated by setup.sh)
-│   ├── 00-core.sh        # Shared environment & global variables (Inherited)
 │   ├── 01-system.sh      # Dependencies, logs, and fonts
 │   ├── 02-links.sh       # Core dotfiles and .config/ app linking
 │   ├── 03-zsh-config.sh  # .zshrc sourcing logic & function loader
@@ -23,6 +23,7 @@ dotfiles/
 │   └── 06-scripts.sh     # Automation scripts linking (~/scripts)
 │   ├── 07-local-env.sh   # Local environment tweaks
 │   └── 08-java.sh        # Java (Temurin) & SDKMAN normalization
+│   └── 09-javascript.sh  # Node.js, Bun, and Global NPM Prefix
 ├── functions/            # Modular Zsh Functions (Auto-loaded)
 │   ├── dckr              # Pro Docker manager
 │   ├── matches           # Espanso search
@@ -40,12 +41,15 @@ dotfiles/
 │   └── ...               # (espanso, mpv, zathura, Code)
 ├── scripts/              # Internal automation scripts
 │   ├── update.sh         # Smart update system
+│   ├── shutdown.sh       # Deep-cleans system caches and manages poweroff
+│   ├── disk-report.sh    # S.M.A.R.T. health analysis & usage reports
 │   └── ...               # (shutdown, disk-report, get-info)
 ├── .zshrc                # Main Zsh entry point
 ├── .zsh_aliases          # Custom aliases
 ├── .zsh_notes            # Knowledge base aliases
 ├── .zshenv               # Environment variables
 ├── .gitconfig            # Global git settings (UI, aliases)
+├── core.sh               # Shared environment, global variables & colors (Source of Truth)
 ├── setup.sh              # Main Orchestrator (Orchestrates /install scripts)
 └── README.md             # This documentation
 ```
@@ -89,6 +93,12 @@ The `setup.sh` script follows a robust execution order to ensure system integrit
 6. **Automation**: Links custom scripts and sets executable permissions.
 7. **Java Environment**: Normalizes Java versions using SDKMAN, installs Temurin JDKs, and sets up IntelliJ IDEA.
 
+## ⚙️ Key Infrastructure Updates:
+
+- **Core Env**: All scripts now source `core.sh` to resolve `$REAL_USER` and colors dynamically.
+- **Idempotency**: IntelliJ and Node.js tasks now skip installation if already present to save bandwidth.
+- **JS Environment**: NPM global prefix is now set to `~/.npm-global` to avoid sudo issues.
+
 Clone the repo:
 
 ```bash
@@ -103,6 +113,8 @@ Run the orchestrator to choose specific tasks or maintenance actions:
 ```bash
 ./setup.sh
 ```
+
+> ✨ Now features a robust menu with a `case` statement to handle numeric selections, automatic runs (`a`), and clean exits (`q`).
 
 ##### **2. Automatic Mode**
 
@@ -143,7 +155,8 @@ This will:
   - `jq`: Command-line JSON processor for handling API and config data.
   - `tldr`: Simplified and community-driven man pages.
   - `handlr`: A smarter alternative to `xdg-utils` for opening files and managing default apps.
-  - `neofetch`: CLI system information tool used by the `:neo` expansion.
+  - `fastfetch`: Migrated from neofetch for near-instant reporting and this tool use by the `:ff` expansion.
+  - `unzip` & `zip`: Required for SDKMAN! and Bun runtimes.
 - **Docker Ecosystem:**
   - `docker` & `docker-compose`: The core engine required for the `dckr` management function.
 - **Java Ecosystem:**
@@ -155,6 +168,7 @@ This will:
   - `zed`: High-performance, multiplayer code editor for rapid development.
 - **Viewers & Media:**
   - `drawing`: Simple image editor and drawing application for GNOME.
+  - `tesseract-data-eng/tur`: OCR support for Zathura PDF engine.
   - `zathura` & `zathura-pdf-mupdf`: Minimalist PDF viewing used by the `pdf` function.
   - `mpv` & `yt-dlp`: High-performance media playback and YouTube streaming.
 - **System & Hardware:**

@@ -37,8 +37,9 @@ run_task() {
 
 # Main Logic
 if [[ "$1" == "--auto" ]]; then
-    # Automatic mode (skips menu)
-    for task in $(ls "$DOTFILES_DIR/install" | grep -v "00-header.sh"); do
+    # Auto mode (skips menu)
+    tasks=($(ls "$DOTFILES_DIR/install" | grep -E '^[0-9].*\.sh$'))
+    for task in "${tasks[@]}"; do
         run_task "$task"
     done
 else
@@ -47,17 +48,24 @@ else
         show_menu
         read -p "Select an option: " choice
 
-        if [[ "$choice" == "q" ]]; then
-            break
-        elif [[ "$choice" == "a" ]]; then
-            for task in $(ls "$DOTFILES_DIR/install" | grep -v "00-header.sh"); do
-                run_task "$task"
-            done
-            break
-        elif [[ "$choice" -gt 0 && "$choice" -le "${#options[@]}" ]]; then
-            run_task "${options[$((choice-1))]}"
-        else
-            echo -e "${RED}Invalid option!${NC}"
-        fi
+        case $choice in
+            q|Q)
+                echo -e "${YELLOW}👋 Exiting...${NC}"
+                break ;;
+            a|A)
+                tasks=($(ls "$DOTFILES_DIR/install" | grep -E '^[0-9].*\.sh$'))
+                for task in "${tasks[@]}"; do
+                    run_task "$task"
+                done
+                break ;;
+            [0-9]*)
+                if [[ "$choice" -gt 0 && "$choice" -le "${#options[@]}" ]]; then
+                    run_task "${options[$((choice-1))]}"
+                else
+                    echo -e "${RED}❌ Invalid number!${NC}"
+                fi ;;
+            *)
+                echo -e "${RED}❌ Invalid option!${NC}" ;;
+        esac
     done
 fi
