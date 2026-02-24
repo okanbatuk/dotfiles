@@ -1,21 +1,30 @@
 #!/bin/bash
 # 03-zsh-config.sh - Managing Zsh sourcing for multiple config files and functions
-source "$(dirname "$0")/00-core.sh"
+# --- Core Environment Import ---
+CORE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+CORE_ENV="$CORE_DIR/../core.sh"
+
+if [ -f "$CORE_ENV" ]; then
+    source "$CORE_ENV"
+else
+    # Fallback to current dir if not in scripts/
+    source "$CORE_DIR/core.sh" 2>/dev/null || { echo "Error: core.sh not found"; exit 1; }
+fi
 
 echo -e "${CYAN}Running task with DOTFILES_DIR: $DOTFILES_DIR${NC}"
 echo -e "${YELLOW}🐚 Updating .zshrc configuration...${NC}"
-ZSHRC="$HOME/.zshrc"
+ZSHRC="$REAL_HOME/.zshrc"
 
 # 1. List of files to be sourced in .zshrc
 # Add any new config files here (e.g., .zshenv, .zsh_plugins)
-FILES_TO_SOURCE=(.zsh_aliases .zshenv)
+FILES_TO_SOURCE=(.zsh_aliases .zshenv .zsh_notes)
 
 for file in "${FILES_TO_SOURCE[@]}"; do
     # Check if the source line already exists to avoid duplicates
     if ! grep -q "source.*$file" "$ZSHRC"; then
         echo -e "  ➕ Adding source line for $file to .zshrc"
         # Append the source command with a check if the file exists
-        echo -e "\n# Load $file\n[[ -f ~/$file ]] && source ~/$file" >> "$ZSHRC"
+        echo -e "\n# Load $file\n[[ -f $REAL_HOME/$file ]] && source $REAL_HOME/$file" >> "$ZSHRC"
         echo -e "  ${GREEN}✅ $file source added.${NC}"
     else
         echo -e "  ${GREEN}✅ $file is already sourced in .zshrc${NC}"
@@ -29,9 +38,9 @@ if ! grep -q ".zsh_functions.d" "$ZSHRC"; then
     cat <<'EOF' >> "$ZSHRC"
 
 # Load modular functions from .zsh_functions.d
-if [ -d ~/.zsh_functions.d ]; then
-    for func in ~/.zsh_functions.d/*; do
-        [ -f "$func" ] && source "$func"
+if [ -d $REAL_HOME/.zsh_functions.d ]; then
+    for func in $REAL_HOME/.zsh_functions.d/*; do
+        [ -f "\$func" ] && source "\$func"
     done
 fi
 EOF

@@ -1,12 +1,21 @@
 #!/bin/bash
 # 05-zed-conf.sh - Zed configuration as external repository.
-source "$(dirname "$0")/00-core.sh"
+# --- Core Environment Import ---
+CORE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+CORE_ENV="$CORE_DIR/../core.sh"
+
+if [ -f "$CORE_ENV" ]; then
+    source "$CORE_ENV"
+else
+    # Fallback to current dir if not in scripts/
+    source "$CORE_DIR/core.sh" 2>/dev/null || { echo "Error: core.sh not found"; exit 1; }
+fi
 
 echo -e "${CYAN}Running task with DOTFILES_DIR: $DOTFILES_DIR${NC}"
 # Zed Editor Configuration
 ZED_REPO_URL="https://github.com/okanbatuk/zed-config.git"
 ZED_TARGET="$DOTFILES_DIR/external/zed-config"
-ZED_CONFIG_DIR="$HOME/.config/zed"
+ZED_CONFIG_DIR="$REAL_HOME/.config/zed"
 
 if ! git ls-remote "$ZED_REPO_URL" &>/dev/null; then
     echo "⚠️ Zed repo is private or unreachable. Skipping cloning..."

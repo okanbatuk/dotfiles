@@ -1,6 +1,15 @@
 #!/bin/bash
 # 01-system.sh - Preparation and Dependency Installation
-source "$(dirname "$0")/00-core.sh"
+# --- Core Environment Import ---
+CORE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+CORE_ENV="$CORE_DIR/../core.sh"
+
+if [ -f "$CORE_ENV" ]; then
+    source "$CORE_ENV"
+else
+    # Fallback to current dir if not in scripts/
+    source "$CORE_DIR/core.sh" 2>/dev/null || { echo "Error: core.sh not found"; exit 1; }
+fi
 
 echo -e "${CYAN}Running task with DOTFILES_DIR: $DOTFILES_DIR${NC}"
 echo -e "${YELLOW}📁 Preparing system and installing dependencies...${NC}"
@@ -12,8 +21,8 @@ mkdir -p "$DOTFILES_DIR/logs"/{updates,maintenance,storage}
 echo -e "  ${GREEN}✅ Log structure ready${NC}"
 
 # Create cargo env file to prevent Zsh errors during first setup
-mkdir -p "$HOME/.cargo"
-touch "$HOME/.cargo/env"
+mkdir -p "$REAL_HOME/.cargo"
+touch "$REAL_HOME/.cargo/env"
 
 # 2. Comprehensive Dependency List
 # Categorized for better maintainability

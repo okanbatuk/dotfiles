@@ -1,5 +1,14 @@
 #!/bin/bash
-source "$(dirname "$0")/install/00-core.sh"
+# --- Core Environment Import ---
+CORE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+CORE_ENV="$CORE_DIR/../core.sh"
+
+if [ -f "$CORE_ENV" ]; then
+    source "$CORE_ENV"
+else
+    # Fallback to current dir if not in scripts/
+    source "$CORE_DIR/core.sh" 2>/dev/null || { echo "Error: core.sh not found"; exit 1; }
+fi
 
 show_menu() {
     echo -e "${BLUE}========================================${NC}"

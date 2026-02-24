@@ -1,14 +1,23 @@
 #!/bin/bash
 # install/07-local-env.sh
-source "$(dirname "$0")/00-core.sh"
+# --- Core Environment Import ---
+CORE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+CORE_ENV="$CORE_DIR/../core.sh"
 
-LOCAL_ENV="$HOME/.zshenv.local"
+if [ -f "$CORE_ENV" ]; then
+    source "$CORE_ENV"
+else
+    # Fallback to current dir if not in scripts/
+    source "$CORE_DIR/core.sh" 2>/dev/null || { echo "Error: core.sh not found"; exit 1; }
+fi
+
+LOCAL_ENV="$REAL_HOME/.zshenv.local"
 
 echo -e "${CYAN}🔍 Checking local environment file...${NC}"
 
 if [ ! -f "$LOCAL_ENV" ]; then
     echo -e "${YELLOW}Creating $LOCAL_ENV with default device IDs...${NC}"
-    
+
     cat <<EOF > "$LOCAL_ENV"
 # Device Ids
 export ID_WEBCAM="04f2:b5a7"

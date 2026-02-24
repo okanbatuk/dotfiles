@@ -1,35 +1,47 @@
 #!/bin/bash
 # 08-java.sh - Java normalization via SDKMAN and IntelliJ setup
+# --- Core Environment Import ---
+CORE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+CORE_ENV="$CORE_DIR/../core.sh"
 
-source "$(dirname "$0")/00-core.sh"
+if [ -f "$CORE_ENV" ]; then
+    source "$CORE_ENV"
+else
+    # Fallback to current dir if not in scripts/
+    source "$CORE_DIR/core.sh" 2>/dev/null || { echo "Error: core.sh not found"; exit 1; }
+fi
 
 echo -e "${CYAN}🚀 Configuring Java environment with SDKMAN...${NC}"
 
 # 1. Ensure SDKMAN is installed and sourced
-export SDKMAN_DIR="$HOME/.sdkman"
-if [[ -s "$SDKMAN_DIR/bin/sdkman-init.sh" ]]; then
-    source "$SDKMAN_DIR/bin/sdkman-init.sh"
-    echo -e "  ${GREEN}✅ SDKMAN found and sourced.${NC}"
-else
-    echo -e "${YELLOW}⚠️  SDKMAN missing, installing...${NC}"
+if [ ! -d "$SDKMAN_DIR" ]; then
+    echo -e "${BLUE}📥 Downloading and installing SDKMAN!...${NC}"
+    export sdkman_auto_answer=true
     curl -s "https://get.sdkman.io" | bash
+
+    source "$SDKMAN_DIR/bin/sdkman-init.sh"
+else
+    echo -e "${GREEN}✅ SDKMAN! is already installed.${NC}"
     source "$SDKMAN_DIR/bin/sdkman-init.sh"
 fi
 
 # 2. Install and set Temurin versions via SDKMAN
-echo -e "${YELLOW}☕ Installing Temurin JDK 21 and 17...${NC}"
-# Standardizing on SDKMAN versions to ensure 'which java' points here
-sdk install java 21.0.2-tem < /dev/null
-sdk install java 17.0.10-tem < /dev/null
+if command -v sdk >/dev/null; then
+    export sdkman_auto_answer=true
+    export sdkman_auto_selfupdate=true
 
-echo -e "${YELLOW}⚙️  Setting Temurin 21 as default for SDKMAN...${NC}"
-sdk default java 21.0.2-tem
+    echo -e "${BLUE}☕ Installing JDKs...${NC}"
+    sdk install java 17.0.10-tem
+    sdk install java 21.0.2-tem
+    sdk default java 21.0.2-tem
 
-# 3. Install Maven via SDKMAN
-echo -e "${YELLOW}🛠️  Installing Maven via SDKMAN...${NC}"
-sdk install maven < /dev/null
+    echo -e "${BLUE}🛠️  Installing Maven...${NC}"
+    sdk install maven
+else
+    echo -e "${RED}❌ SDKMAN initialization failed! Check $SDKMAN_DIR${NC}"
+fi
 
-# 5. Install IntelliJ IDEA Community Edition from Official Repos
+# 3. Install IntelliJ IDEA Community Edition from Official Repos
 echo -e "${YELLOW}📦 Ensuring IntelliJ IDEA is installed (Official Repo)...${NC}"
 sudo pamac install --no-confirm intellij-idea-community-edition
 

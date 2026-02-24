@@ -1,11 +1,20 @@
 #!/bin/bash
 # 04-git.sh - Personal Git configuration and GPG check
-source "$(dirname "$0")/00-core.sh"
+# --- Core Environment Import ---
+CORE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+CORE_ENV="$CORE_DIR/../core.sh"
+
+if [ -f "$CORE_ENV" ]; then
+    source "$CORE_ENV"
+else
+    # Fallback to current dir if not in scripts/
+    source "$CORE_DIR/core.sh" 2>/dev/null || { echo "Error: core.sh not found"; exit 1; }
+fi
 
 echo -e "${CYAN}Running task with DOTFILES_DIR: $DOTFILES_DIR${NC}"
 echo -e "${YELLOW}👤 Configuring Git and GPG...${NC}"
 
-GIT_LOCAL="$HOME/.gitconfig.local"
+GIT_LOCAL="$REAL_HOME/.gitconfig.local"
 
 # 1. Setup Personal Credentials
 if [ ! -f "$GIT_LOCAL" ]; then
