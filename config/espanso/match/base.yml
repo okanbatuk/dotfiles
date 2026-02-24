@@ -36,8 +36,8 @@ matches:
         params:
           cmd: "echo 'Hello from your shell'"
 
-  - trigger: ":neo"
-    replace: "neofetch"
+  - trigger: ":ff"
+    replace: "fastfetch"
 
   - trigger: ":upd"
     replace: "updateall"

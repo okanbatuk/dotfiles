@@ -28,52 +28,24 @@ touch "$REAL_HOME/.cargo/env"
 # Categorized for better maintainability
 DEPENDENCIES=(
     # --- Core & Build Tools ---
-    base-devel          # Essential tools for building/compiling (gcc, make, etc.)
-    git                 # Version control system
-    docker              # Container engine
-    docker-compose      # Multi-container orchestration tool
-    rustup              # Rust toolchain installer (Required for Cargo & env files)
-    util-linux          # Required for 'script' command (ilog record)
-    perl                # Required for log cleaning (ilog clean)
-
+    base-devel git docker docker-compose rustup util-linux perl
+    unzip zip
     # --- Modern CLI Tools ---
-    eza                 # A modern, feature-rich replacement for 'ls'
-    bat                 # A 'cat' clone with syntax highlighting and git integration
-    fzf                 # Command-line fuzzy finder (required for dckr)
-    ripgrep             # 'rg' - Faster and more featureful alternative to grep
-    neofetch            # System information tool
-    fd                  # A simple, fast and user-friendly alternative to 'find'
-    jq                  # Command-line JSON processor
-    tldr                # Collaborative cheatsheets for console commands
-    starship            # The minimal, blazing-fast, and infinitely customizable prompt
-    zoxide              # A smarter cd command for your terminal
-    handlr              # A better xdg-utils alternative for managing default apps
-
+    eza bat fzf ripgrep
+    fastfetch
+    fd jq tldr starship zoxide handlr
     # --- Shell Enhancements ---
-    zsh                 # The Z shell
-    zsh-autosuggestions # Fish-like autosuggestions for zsh
-    zsh-syntax-highlighting # Fish-shell-like syntax highlighting for Zsh
-
+    zsh zsh-autosuggestions zsh-syntax-highlighting
     # --- Editors ---
-    neovim              # Core engine for your Neovim configuration
-    zed                 # High-performance, multiplayer code editor
-
+    neovim zed
     # --- Multimedia & UI ---
-    alacritty           # A cross-platform, GPU-accelerated terminal emulator
-    drawing             # A simple image editor
-    zathura             # A highly customizable and functional document viewer
-    zathura-pdf-mupdf   # PDF support for zathura using MuPDF engine
-    mpv                 # Media player for the command line
-    yt-dlp              # A feature-rich command-line audio/video downloader
-
+    tesseract-data-eng
+    tesseract-data-tur
+    alacritty drawing zathura zathura-pdf-mupdf mpv yt-dlp
     # --- System Tools ---
-    smartmontools       # Control and monitor storage systems (S.M.A.R.T.)
-    pacman-contrib      # Collection of scripts and tools for pacman (e.g., paccache)
-
+    smartmontools pacman-contrib
     # --- Fonts & UI Elements ---
-    ttf-jetbrains-mono-nerd       # Developer-focused font with icons
-    ttf-nerd-fonts-symbols-common # Common symbols for Nerd Font users
-    noto-fonts-emoji              # Google Noto emoji fonts
+    ttf-jetbrains-mono-nerd ttf-nerd-fonts-symbols-common noto-fonts-emoji
 )
 
 # 3. Package Installation Loop

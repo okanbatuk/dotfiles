@@ -43,7 +43,13 @@ fi
 
 # 3. Install IntelliJ IDEA Community Edition from Official Repos
 echo -e "${YELLOW}📦 Ensuring IntelliJ IDEA is installed (Official Repo)...${NC}"
-sudo pamac install --no-confirm intellij-idea-community-edition
+# Check if the package is already installed via pacman
+if pacman -Qi intellij-idea-community-edition &> /dev/null; then
+    echo -e "  ${GREEN}✅ IntelliJ IDEA is already installed. Skipping download.${NC}"
+else
+    echo -e "  📥 Downloading and installing IntelliJ IDEA (Community Edition)..."
+    sudo pacman -S --noconfirm intellij-idea-community-edition
+fi
 
 echo -e "${GREEN}✅ Java setup completed!${NC}"
 echo -e "${BLUE}NOTE: System OpenJDK remains to satisfy IntelliJ dependencies, but SDKMAN takes priority in shell.${NC}"
