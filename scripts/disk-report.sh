@@ -2,15 +2,16 @@
 # disk-report.sh - Updated with core.sh integration
 
 # --- Core Environment Import ---
-CORE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-CORE_ENV="$CORE_DIR/../core.sh"
+SOURCE="${BASH_SOURCE[0]}"
+while [ -h "$SOURCE" ]; do
+    DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
+    SOURCE="$(readlink "$SOURCE")"
+    [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE"
+done
+SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 
-if [ -f "$CORE_ENV" ]; then
-    source "$CORE_ENV"
-else
-    # Fallback to current dir if not in scripts/
-    source "$CORE_DIR/core.sh" 2>/dev/null || { echo "Error: core.sh not found"; exit 1; }
-fi
+CORE_ENV="$(dirname "$SCRIPT_DIR")/core.sh"
+source "$CORE_ENV" 2>/dev/null || { echo "Error: core.sh not found"; exit 1; }
 
 # --- Setup logging ---
 LOG_DIR_STORAGE="$LOG_DIR/storage"

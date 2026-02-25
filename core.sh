@@ -15,6 +15,8 @@ export SDKMAN_DIR="$REAL_HOME/.sdkman"
 # Common UI Colors
 export BLUE='\033[1;34m'
 export GREEN='\033[1;32m'
-export RED='\033[1;31m'
+export YELLOW='\033[1;33m'
+export RED='\033[0;31m'
+export CYAN='\033[0;36m'
 export PURPLE='\033[1;35m'
 export NC='\033[0m'
