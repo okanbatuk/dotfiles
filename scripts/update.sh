@@ -14,7 +14,7 @@ CORE_ENV="$(dirname "$SCRIPT_DIR")/core.sh"
 source "$CORE_ENV" 2>/dev/null || { echo "Error: core.sh not found"; exit 1; }
 
 run_as_user() {
-    sudo -u "$REAL_USER" "$@"
+    sudo -i -u "$REAL_USER" "$@"
 }
 
 # --- 0. Logging & Mode Setup ---
@@ -26,72 +26,84 @@ setup_env() {
     mkdir -p "$LOG_DIR_UPDATES"
     LOG_FILE="$LOG_DIR_UPDATES/update-$(date +%Y-%m-%d)-$MODE.log"
 
-    # Tüm çıktıyı log dosyasına ve terminale yönlendir
     exec > >(tee -a "$LOG_FILE") 2>&1
     echo -e "\n${PURPLE}===== UPDATE STARTED AT $(date) [Mode: $MODE] =====${NC}"
 }
 
 # --- 1. System Packages ---
 update_os() {
-    echo -e "\n${GREEN}>>> Updating System Packages (Pacman & Yay)...${NC}"
+    echo -e "\n${GREEN}>>> [STEP 1] Updating System Packages...${NC}"
     if [[ "$MODE" == "full" ]]; then
+        echo -e "🌐 [PACMAN] Refreshing mirrors..."
         sudo pacman-mirrors --fasttrack 10
     fi
+
+    echo -e "📦 [PACMAN] Running system upgrade..."
     sudo pacman -Syyu --noconfirm
-    command -v yay >/dev/null 2>&1 && run_as_user yay -Syu --noconfirm
+    if command -v yay >/dev/null 2>&1; then
+        echo -e "📦 [YAY] Running AUR upgrade (as user)..."
+        yay -Syu --noconfirm --needed
+    fi
+
+    echo -e "📦 [FLATPAK] Checking for updates..."
     flatpak update -y
 }
 
 # --- 2. Runtimes & SDKs ---
 update_tooling() {
-    echo -e "\n${CYAN}>>> Updating Runtimes & Tooling...${NC}"
+    echo -e "\n${CYAN}>>> [STEP 2] Updating Runtimes & Tooling...${NC}"
 
-    # Bun
-    command -v bun >/dev/null 2>&1 && run_as_user bun upgrade
-
-    # Rust (Burada isteğin üzerine default stable eklendi)
-    if command -v rustup >/dev/null 2>&1; then
-        run_as_user rustup update stable && run_as_user rustup default stable
+    if command -v bun >/dev/null 2>&1; then
+        echo -e "🚀 [BUN] Upgrading..."
+        run_as_user bun upgrade
     fi
 
-    # NPM
+    if command -v rustup >/dev/null 2>&1; then
+        echo -e "🦀 [RUST] Updating stable toolchain..."
+        run_as_user rustup update stable
+    fi
+
     if command -v npm >/dev/null 2>&1; then
+        echo -e "🟢 [NPM] Updating global npm and packages..."
         run_as_user npm install -g npm@latest --silent
-        run_as_user npm update -g
+        run_as_user npm update -g --no-audit --no-fund
         run_as_user npm cache verify
     fi
 
     # SDKMAN!
     if [[ -s "$SDKMAN_DIR/bin/sdkman-init.sh" ]]; then
+        echo -e "☕ [SDKMAN] Updating..."
         run_as_user bash -c "source $SDKMAN_DIR/bin/sdkman-init.sh && sdk selfupdate && sdk update"
-        [[ "$MODE" == "full" ]] && run_as_user bash -c "source $SDKMAN_DIR/bin/sdkman-init.sh && export sdkman_auto_answer=true && sdk upgrade"
+        if [[ "$MODE" == "full" ]]; then
+             echo -e "☕ [SDKMAN-FULL] Upgrading all SDKs..."
+             run_as_user bash -c "source $SDKMAN_DIR/bin/sdkman-init.sh && export sdkman_auto_answer=true && sdk upgrade"
+        fi
     fi
 }
 
 # --- 3. Deep Maintenance & Cleanup ---
 run_maintenance() {
+    echo -e "\n${BLUE}>>> [STEP 3] Maintenance & Cleanup...${NC}"
     if [[ "$MODE" != "full" ]]; then
-        echo -e "\n${GREEN}>>> [LIGHT] Skipping deep cleanup.${NC}"
+        echo -e "⏭️  [LIGHT] Skipping deep maintenance."
         return
     fi
 
-    echo -e "\n${BLUE}>>> Deep Maintenance & Cleanup...${NC}"
+    echo -e "🧹 [CLEANUP] Removing old caches and orphaned packages..."
 
     # Cache & Space
     rm -rf "$REAL_HOME/.cache"/* 2>/dev/null
     sudo paccache -rk 2
 
+    # Orphaned Packages
+    local orphans=$(pacman -Qdtq)
+    [[ -n "$orphans" ]] && sudo pacman -Rs $orphans --noconfirm
+
+    echo -e "🧹 [CLEANUP] Removing node_modules..."
     # Node Modules Cleanup (Desktop/Projects)
     PROJECTS_DIR="$REAL_HOME/Desktop/Projects"
     if [ -d "$PROJECTS_DIR" ] && command -v fd >/dev/null 2>&1; then
         fd -H -t d node_modules "$PROJECTS_DIR" -x rm -rf
-    fi
-
-    # Failed Services
-    local failed_system=$(systemctl --failed --no-legend)
-    if [[ -n "$failed_system" ]]; then
-        echo -e "${RED}❌ Failed SYSTEM services:${NC}\n$failed_system"
-        sudo systemctl reset-failed
     fi
 }
 
@@ -107,9 +119,12 @@ check_health() {
     local root_available=$(df -h / | awk 'NR==2 {print $4}')
     echo -e "${BLUE}🗂️  Available space on '/':${NC} ${GREEN}$root_available${NC}"
 
-    # Orphaned Packages
-    local orphans=$(pacman -Qdtq)
-    [[ -n "$orphans" ]] && sudo pacman -Rs $orphans --noconfirm
+    # Failed Services
+    local failed_system=$(systemctl --failed --no-legend)
+    if [[ -n "$failed_system" ]]; then
+        echo -e "${RED}❌ Failed SYSTEM services:${NC}\n$failed_system"
+        sudo systemctl reset-failed
+    fi
 }
 
 # --- Main Logic ---
