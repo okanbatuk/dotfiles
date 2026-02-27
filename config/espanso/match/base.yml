@@ -39,9 +39,6 @@ matches:
   - trigger: ":ff"
     replace: "fastfetch"
 
-  - trigger: ":upd"
-    replace: "updateall"
-
   - trigger: ":go"
     replace: "google.com"
 
@@ -67,6 +64,17 @@ matches:
 
   - trigger: ":conf"
     replace: "~/.config"
+
+  # --- CONFIG -------------------------------------------------------
+
+  - trigger: ":zsh"
+    replace: "zshconf"
+
+  - trigger: ":alias"
+    replace: "aliasconf"
+
+  - trigger: ":esp"
+    replace: "espconf"
 
   # --- GIT ----------------------------------------------------------
   # 1) commit

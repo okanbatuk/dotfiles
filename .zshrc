@@ -8,7 +8,7 @@ path=(
     "$BUN_INSTALL/bin"
     "$HOME/.cargo/bin"
     "/opt/Windsurf"
-    "$HOME/.npm-global/bin"
+    "$NPM_GLOB/bin"
     "$HOME/.local/bin"
     $path
 )
@@ -85,3 +85,6 @@ xhost +local:root > /dev/null 2>&1
 #THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
 export SDKMAN_DIR="$HOME/.sdkman"
 [[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
+
+# bun completions
+[ -s "/home/myrn/.bun/_bun" ] && source "/home/myrn/.bun/_bun"
