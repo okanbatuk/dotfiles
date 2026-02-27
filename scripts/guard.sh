@@ -18,6 +18,7 @@ BLACKLIST=(
     "gem install"
 
     # --- High-Risk Operations (Safety Nets) ---
+    # These remain blocked for root to prevent irreversible system-wide permission damage.
     "rm -rf / "
     "chmod -R 777"
     "chown -R root"
@@ -26,7 +27,7 @@ BLACKLIST=(
 # --- Check if the command is blacklisted ---
 check_blacklist() {
     local cmd_to_run="$*"
-    
+
     for blocked in "${BLACKLIST[@]}"; do
         if [[ "$cmd_to_run" == *"$blocked"* ]]; then
             return 1

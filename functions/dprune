@@ -1,0 +1,17 @@
+# ------------------------------------------------------------------------------
+# Safe Docker Wrapper: Intercepts 'system prune' to provide a summary of active
+# containers before performing a destructive cleanup operation.
+# ------------------------------------------------------------------------------
+docker() {
+    # Check for 'system prune' command
+    if [[ "$1" == "system" && "$2" == "prune" ]]; then
+        echo -e "\033[0;33m[Guardian]\033[0m CRITICAL: You are about to prune Docker resources."
+        echo -e "Current status of containers:"
+        command docker ps -a --format "table {{.Names}}\t{{.Status}}\t{{.Image}}"
+        
+        echo -ne "\n\033[1;31m[Guardian]\033[0m Do you really want to continue? (y/N): "
+        read confirm
+        [[ "$confirm" != [yY] ]] && { echo "Prune aborted."; return 1; }
+    fi
+    command docker "$@"
+}

@@ -1,24 +1,35 @@
 # ------------------------------------------------------------------------------
 # Safe Git Push Wrapper: Converts dangerous '-f' or '--force' to '--force-with-lease'
-# to prevent accidental overwriting of remote changes.
+# and prevents direct force-pushes to protected branches (main/master).
 # ------------------------------------------------------------------------------
 git() {
-    # 1. Check if the first argument is 'push'
+    # Intercept only the 'push' command
     if [[ "$1" == "push" ]]; then
         local args=()
         local force_detected=false
+        local target_branch=""
 
-        # 2. Iterate through arguments starting from the second one
+        # Parse arguments to replace flags and detect branch
         for arg in "${@:2}"; do
             if [[ "$arg" == "-f" ]] || [[ "$arg" == "--force" ]]; then
-                # 3. Replace dangerous flags with the safer alternative
+                # Replace dangerous flags with the safer alternative
                 args+=("--force-with-lease")
                 force_detected=true
             else
                 args+=("$arg")
+                # Identify potential branch name (not starting with '-')
+                [[ "$arg" != -* ]] && target_branch="$arg"
             fi
         done
 
+        # Block direct force-push to main/master without explicit confirmation
+        if [[ "$target_branch" == "main" ]] || [[ "$target_branch" == "master" ]]; then
+            echo -ne "\033[0;33m[Guardian]\033[0m WARNING: You are pushing to a protected branch: \033[1;31m$target_branch\033[0m. Proceed? (y/N): "
+            read confirm
+            [[ "$confirm" != [yY] ]] && { echo "Push aborted."; return 1; }
+        fi
+
+        # Log the transformation if a dangerous flag was intercepted
         if [[ "$force_detected" == true ]]; then
             echo -e "\033[0;34m[Guardian]\033[0m Dangerous flag detected. Executing:"
             echo -e "           \033[1;32mgit push ${args[*]}\033[0m"

@@ -1,0 +1,15 @@
+# ------------------------------------------------------------------------------
+# Safe Move Wrapper: Prevents accidental file overwrites by prompting for
+# confirmation when the target destination already exists.
+# ------------------------------------------------------------------------------
+mv() {
+    # Check if target already exists and is not a directory
+    local target="${@: -1}"
+    if [[ -f "$target" ]]; then
+        echo -e "\033[0;33m[Guardian]\033[0m Target file '\033[1;31m$target\033[0m' already exists."
+        echo -ne "Overwrite? (y/N): "
+        read confirm
+        [[ "$confirm" != [yY] ]] && { echo "Move aborted."; return 1; }
+    fi
+    command mv "$@"
+}

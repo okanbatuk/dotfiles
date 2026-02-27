@@ -31,6 +31,11 @@ dotfiles/
 │   ├── jlog              # Smart log viewer (jlog)
 │   ├── ilog              # Terminal session logger & cleaner
 │   ├── projtree          # Modern project tree
+│   ├── chmod             # Recursive permission guard
+│   ├── chown             # Recursive ownership guard
+│   ├── dprune            # Prune safety with container summary
+│   ├── mv                # Overwrite protection for moving
+│   ├── cp                # Overwrite protection for copies
 │   ├── rm                # Safe 'rm' wrapper (strips -f, enforces interaction)
 │   ├── gpush             # Safe 'git' wrapper (handles safe force pushing)
 │   └── ...               # (One file per function)
@@ -74,18 +79,27 @@ I've implemented a robust maintenance system with automated logging and log rota
 
 Modern CLI tools, custom functions, and quick-access configuration shortcuts.
 
-| Command       | Type     | Description                                                                                                                                                                                                                               |
-| ------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `dckr`        | Function | **Advanced Docker Management:** A modular CLI tool for rapid container workflows. Supports interactive image/container selection via `fzf`, automatic `.env` loading, port mapping, and `docker-compose` integration with smart defaults. |
-| `projtree`    | Function | Modern tree view with auto-ignores (`node_modules`, `.git`, `dist`). Supports `-p` for **path**, `-d` for **depth**, `-i` for **ignore patterns** with interactive tab-completion (multi-flag support & auto-strips path prefix).         |
-| `fulltree`    | Function | Advanced tree view all files. Supports `-p` for **path**, `-d` for **depth**, `-i` for **ignore patterns** with interactive tab-completion (multi-flag support & auto-strips path prefix).                                                |
-| `matches`     | Function | Interactive Espanso trigger search using `fzf`.                                                                                                                                                                                           |
-| `jlog`        | Function | **Smart Journalctl Viewer:** Modern interface for systemd logs with shorthand support. Features real-time watching (`-n`), time-based filtering (e.g., `1h`, `10m`, `today`), and colored boot log inspection.                            |
-| `ilog`        | Function | **Session Recording:** Use `-r` to start recording the current terminal session to a timestamped log file. Use `-c <file>` to clean ANSI escape codes from a log, converting it into a readable text format using `perl`.                 |
-| `pdf`         | Function | Opens a PDF file using **Zathura** in the background. Redirects all output to `/dev/null` and uses `disown` to keep the process alive even after closing the terminal.                                                                    |
-| `fnote`       | Function | **Interactive Note Navigator:** `find` and `fzf` to search through your entire knowledge base. Supports instant bat previews for text files and opens `.pdf`, `.doc`, `.docx` via `handlr`.                                               |
-| `rm -f`       | Function | **Safety Wrapper:** Automatically strips `-f` / `--force` flags in interactive mode to prevent accidental mass deletions.                                                                                                                 |
-| `git push -f` | Function | **Force-With-Lease:** Intercepts force push to use `--force-with-lease`, protecting remote history from accidental overwrites.                                                                                                            |
+| Command               | Type     | Description                                                                                                                                                                                                                               |
+| --------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `dckr`                | Function | **Advanced Docker Management:** A modular CLI tool for rapid container workflows. Supports interactive image/container selection via `fzf`, automatic `.env` loading, port mapping, and `docker-compose` integration with smart defaults. |
+| `projtree`            | Function | Modern tree view with auto-ignores (`node_modules`, `.git`, `dist`). Supports `-p` for **path**, `-d` for **depth**, `-i` for **ignore patterns** with interactive tab-completion (multi-flag support & auto-strips path prefix).         |
+| `fulltree`            | Function | Advanced tree view all files. Supports `-p` for **path**, `-d` for **depth**, `-i` for **ignore patterns** with interactive tab-completion (multi-flag support & auto-strips path prefix).                                                |
+| `matches`             | Function | Interactive Espanso trigger search using `fzf`.                                                                                                                                                                                           |
+| `jlog`                | Function | **Smart Journalctl Viewer:** Modern interface for systemd logs with shorthand support. Features real-time watching (`-n`), time-based filtering (e.g., `1h`, `10m`, `today`), and colored boot log inspection.                            |
+| `ilog`                | Function | **Session Recording:** Use `-r` to start recording the current terminal session to a timestamped log file. Use `-c <file>` to clean ANSI escape codes from a log, converting it into a readable text format using `perl`.                 |
+| `pdf`                 | Function | Opens a PDF file using **Zathura** in the background. Redirects all output to `/dev/null` and uses `disown` to keep the process alive even after closing the terminal.                                                                    |
+| `fnote`               | Function | **Interactive Note Navigator:** `find` and `fzf` to search through your entire knowledge base. Supports instant bat previews for text files and opens `.pdf`, `.doc`, `.docx` via `handlr`.                                               |
+| `cp` / `mv`           | Function | **Overwrite Protection:** Checks if the target exists and prompts for confirmation before replacing files.                                                                                                                                |
+| `chmod` / `chown`     | Function | **Recursive Guard:** Requires explicit confirmation when using the `-R` flag to prevent mass permission drifts.                                                                                                                           |
+| `rm -f`               | Function | **Safety Wrapper:** Automatically strips `-f` / `--force` flags in interactive mode to prevent accidental mass deletions.                                                                                                                 |
+| `git push -f`         | Function | **Force-With-Lease:** Intercepts force push to use `--force-with-lease`, protecting remote history from accidental overwrites.                                                                                                            |
+| `docker system prune` | Function | **Prune Safety:** Displays a summary of all containers before cleanup to prevent data loss.                                                                                                                                               |
+
+> ### **⚙️ Function Loading Strategy**
+>
+> Currently using a **Source-on-Startup** strategy for interactive wrappers (`rm`, `gpush`, etc.) to ensure global command interception.
+>
+> - **Next Milestone**: Migrating non-wrapper utilities to `autoload -Uz` (Lazy Loading) to maintain sub-50ms shell startup times as the function library grows.
 
 ## ⚙️ Modular Setup
 
@@ -98,7 +112,7 @@ The `setup.sh` script follows a robust execution order to ensure system integrit
 5. **Clean Install**: Installs apps (Alacritty, MPV, etc.) and manages config backups.
 6. **Automation**: Links custom scripts and sets executable permissions.
 7. **Java Environment**: Normalizes Java versions using SDKMAN, installs Temurin JDKs, and sets up IntelliJ IDEA.
-8. **Security & Guards**: `guard.sh` aliases and the `rm` safety wrapper to enforce development best practices.
+8. **Security & Guards**: Activates `guard.sh` for package managers and deploys **Protective Wrappers** for high-risk operations (`rm`, `git push`, `chmod`, `chown`, `cp`, `mv`, `docker`) to enforce safe development practices.
 
 ## ⚙️ Key Infrastructure Updates:
 
@@ -203,11 +217,26 @@ All scripts automatically generate logs in the `~/dotfiles/logs/` directory.
 
 ## 🛡️ Security Guardian & Command Safety
 
+> ### ⚠️ CRITICAL PRIVILEGE ADVISORY
+>
+> To ensure these safety nets are **never bypassed**, the alias `alias sudo='sudo '` is active in `.zsh_aliases`. This forces Zsh to resolve the command following `sudo`, ensuring that our **Guardian Functions** (`rm`, `chmod`, `gpush`, etc.) are triggered even with elevated privileges.
+>
+> **Failing to use this alias or bypassing it with `command sudo` may lead to irreversible system damage.**
+
 To maintain a "Clean OS" philosophy, I've implemented a robust Command Interceptor (Guardian):
 
-- **Root Pollution Prevention**: Commands like `npm install -g` or `pip install` are intercepted via `.guard.sh`. They are blocked if run with `sudo` to prevent permission issues in `$HOME`.
-- **High-Risk Protection**: A `BLACKLIST` prevents execution of dangerous operations like `chmod -R 777` or `chown` on system-critical paths.
-- **Interactive Safety**: The `rm` command is wrapped in a Zsh function that parses arguments and removes the `-f` (force) flag. This ensures you are always prompted before a recursive deletion in the terminal, while keeping automated scripts (like `update.sh`) fast and non-interactive.
+1. **Passive Guards (`.guard.sh`)**: Intercepts package manager commands (e.g., `npm -g`, `pip`) to prevent root pollution in `$HOME`. It blocks execution if certain blacklist criteria are met.
+2. **Interactive Guards (Functions)**: High-risk system commands are wrapped in Zsh functions that enforce safety logic before execution:
+   - **Git Safe Push**: Automatically converts `git push -f` to `--force-with-lease`. It also blocks direct pushes to `main`/`master` without explicit `y/n` confirmation.
+   - **Recursive Safety**: Commands like `chmod -R` and `chown -R` trigger a Guardian warning, requiring manual confirmation to prevent mass permission drifts.
+   - **Data Integrity**: `cp` and `mv` commands check if the target destination already exists and prompt for overwrite confirmation.
+   - **Docker Cleanup**: `docker system prune` displays a summary of active containers and images before performing a destructive cleanup.
+
+> 💡 **Pro Tip: Bypassing the Guardian**
+>
+> If you need to execute the original system binary without Guardian interference (e.g., inside a non-interactive script), simply prefix the command with `command`.
+>
+> - Example: `command rm -rf ./tmp` or `command git push -f origin main`.
 
 ## 🔒 Privacy & Git Configuration
 

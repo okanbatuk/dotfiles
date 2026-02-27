@@ -5,12 +5,6 @@ SCRIPTS_DIR="$HOME/scripts"
 # --- 🛡️ Guardian & Security Controls ---
 # 'sudo ' with a space allows alias expansion for the next command
 alias sudo="sudo "
-alias cp='cp -i'
-alias mv='mv -i'
-
-# --- ⚠️ High-Risk Command Guards ---
-alias chmod="$SCRIPTS_DIR/.guard.sh chmod"
-alias chown="$SCRIPTS_DIR/.guard.sh chown"
 
 # --- 📦 Package Manager Guards (Avoid Root Pollution) ---
 alias npm="$SCRIPTS_DIR/.guard.sh npm"
@@ -86,4 +80,3 @@ alias gclean='git fetch --prune && git branch -vv | grep ": gone]" | awk "{print
 
 # --- 🌐 Network ---
 alias myip='curl ifconfig.me'
-

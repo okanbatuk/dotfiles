@@ -3,22 +3,22 @@
 # to force interactivity in the current shell.
 # ------------------------------------------------------------------------------
 function rm() {
-    # 1. Create a local array to store cleaned arguments
     local args=()
 
-    # 2. Iterate through all arguments and strip any 'f' from flags
+    # 1. Logic to strip force flags and enforce interaction
     for arg in "$@"; do
-        if [[ "$arg" == -* ]]; then
+        if [[ "$arg" != "-f" ]] && [[ "$arg" != "--force" ]]; then
             # Remove 'f' from flag (e.g., -rf becomes -r, -f becomes -)
             # Then remove the trailing '-' if it's left alone
-            local clean_arg="${arg//f/}"
-            [[ "$clean_arg" != "-" ]] && args+=("$clean_arg")
-        else
             args+=("$arg")
         fi
     done
 
-    # 3. Execute with forced interaction
-    # Using --interactive=once ensures a prompt if 3+ files or recursive
-    command rm --preserve-root --interactive=once "${args[@]}"
+    # 2. Add safe flags for interactive use
+    # Using --preserve-root as a baseline safety measure
+    local safe_args=("--preserve-root" "--interactive=once" "${args[@]}")
+
+    # 3. Security Layer: Pass execution to guard.sh instead of 'command rm'
+    # This ensures that if run as root, blacklist (e.g., rm -rf /) is checked.
+    bash "$HOME/scripts/.guard.sh" rm "$@"
 }

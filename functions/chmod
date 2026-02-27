@@ -1,0 +1,24 @@
+# ------------------------------------------------------------------------------
+# Safe Permission Wrapper: Intercepts recursive (-R) operations to prevent
+# accidental mass permission changes on system or project files.
+# ------------------------------------------------------------------------------
+chmod() {
+    local is_recursive=false
+    # 0. Loop through arguments to detect the recursive flag
+    for arg in "$@"; do
+        [[ "$arg" == "-R" ]] && is_recursive=true
+    done
+
+    # 1. Interactive Layer: User confirmation for recursive flags
+    if [[ "$is_recursive" == true ]]; then
+        echo -e "\033[0;33m[Guardian]\033[0m CRITICAL: Recursive permission change (-R) detected."
+        echo -ne "           This may affect system stability. Continue? (y/N): "
+        read confirm
+        # If input is not exactly 'y' or 'Y', abort the operation
+        [[ "$confirm" != [yY] ]] && { echo "Operation aborted."; return 1; }
+    fi
+
+    # 2. Security Layer: Pass command to guard.sh for root/blacklist validation
+    # This replaces 'command chmod "$@"' to ensure guard.sh is triggered
+    bash "$HOME/scripts/.guard.sh" chmod "$@"
+}
