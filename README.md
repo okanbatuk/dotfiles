@@ -31,6 +31,7 @@ dotfiles/
 │   ├── jlog              # Smart log viewer (jlog)
 │   ├── ilog              # Terminal session logger & cleaner
 │   ├── projtree          # Modern project tree
+│   ├── rm                # Safe 'rm' wrapper (strips -f, enforces interaction)
 │   └── ...               # (One file per function)
 ├── config/               # App-specific configurations (Linked to ~/.config)
 │   ├── alacritty/        # GPU terminal settings
@@ -40,12 +41,13 @@ dotfiles/
 │   │   └── ideavimrc     # Centralized IdeaVim configuration
 │   └── ...               # (espanso, mpv, zathura, Code)
 ├── scripts/              # Internal automation scripts
+│   ├── guard.sh         # Security Interceptor for high-risk commands
 │   ├── update.sh         # Smart update system
 │   ├── shutdown.sh       # Deep-cleans system caches and manages poweroff
 │   ├── disk-report.sh    # S.M.A.R.T. health analysis & usage reports
 │   └── ...               # (shutdown, disk-report, get-info)
 ├── .zshrc                # Main Zsh entry point
-├── .zsh_aliases          # Custom aliases
+├── .zsh_aliases          # Custom aliases (including Guardian redirects)
 ├── .zsh_notes            # Knowledge base aliases
 ├── .zshenv               # Environment variables
 ├── .gitconfig            # Global git settings (UI, aliases)
@@ -58,13 +60,14 @@ dotfiles/
 
 I've implemented a robust maintenance system with automated logging and log rotation (7-30 days).
 
-| Command       | Target Script   | Description                                                                             |
-| ------------- | --------------- | --------------------------------------------------------------------------------------- |
-| `up`          | .update.sh      | **Mode:** `--light` - Fast daily update: Pacman, Yay, Flatpak, Bun, Rust.               |
-| `upfull`      | .update.sh      | **Mode:** `--full` - Deep maintenance: Mirror refresh, node_modules cleanup, deep info. |
-| `get-info`    | .get-info.sh    | Comprehensive system status (Light/Full modes).                                         |
-| `disk-report` | .disk-report.sh | S.M.A.R.T. disk health analysis & top directory usage.                                  |
-| `shut`        | .shutdown.sh    | Deep-cleans system caches. Prompts `Y/y` for poweroff, `N/n` for cleanup only.          |
+| Command       | Target Script  | Description                                                                                                                       |
+| ------------- | -------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| **GUARDIAN**  | guard.sh       | **Security Layer:** Intercepts high-risk commands (`npm -g`, `chmod 777`, etc.) to prevent root pollution and system instability. |
+| `up`          | update.sh      | **Mode:** `--light` - Fast daily update: Pacman, Yay, Flatpak, Bun, Rust.                                                         |
+| `upfull`      | update.sh      | **Mode:** `--full` - Deep maintenance: Mirror refresh, node_modules cleanup, deep info.                                           |
+| `get-info`    | get-info.sh    | Comprehensive system status (Light/Full modes).                                                                                   |
+| `disk-report` | disk-report.sh | S.M.A.R.T. disk health analysis & top directory usage.                                                                            |
+| `shut`        | shutdown.sh    | Deep-cleans system caches. Prompts `Y/y` for poweroff, `N/n` for cleanup only.                                                    |
 
 ## 🛠️ Navigation & Config Tools
 
@@ -80,6 +83,7 @@ Modern CLI tools, custom functions, and quick-access configuration shortcuts.
 | `ilog`     | Function | **Session Recording:** Use `-r` to start recording the current terminal session to a timestamped log file. Use `-c <file>` to clean ANSI escape codes from a log, converting it into a readable text format using `perl`.                 |
 | `pdf`      | Function | Opens a PDF file using **Zathura** in the background. Redirects all output to `/dev/null` and uses `disown` to keep the process alive even after closing the terminal.                                                                    |
 | `fnote`    | Function | **Interactive Note Navigator:** `find` and `fzf` to search through your entire knowledge base. Supports instant bat previews for text files and opens `.pdf`, `.doc`, `.docx` via `handlr`.                                               |
+| `rm`       | Function | **Safety Wrapper:** Automatically strips `-f` / `--force` flags in interactive mode to prevent accidental mass deletions.                                                                                                                 |
 
 ## ⚙️ Modular Setup
 
@@ -92,6 +96,7 @@ The `setup.sh` script follows a robust execution order to ensure system integrit
 5. **Clean Install**: Installs apps (Alacritty, MPV, etc.) and manages config backups.
 6. **Automation**: Links custom scripts and sets executable permissions.
 7. **Java Environment**: Normalizes Java versions using SDKMAN, installs Temurin JDKs, and sets up IntelliJ IDEA.
+8. **Security & Guards**: `guard.sh` aliases and the `rm` safety wrapper to enforce development best practices.
 
 ## ⚙️ Key Infrastructure Updates:
 
@@ -193,6 +198,14 @@ All scripts automatically generate logs in the `~/dotfiles/logs/` directory.
 - **Auto-Rotation**: Maintenance scripts automatically use `fd` to remove logs older than 7 or 30 days to keep the repository slim.
 - **Colorized Output**: All scripts provide enhanced terminal feedback using ANSI color coding for critical warnings (S.M.A.R.T. errors, failed services).
 - **Service Hygiene**: Maintenance scripts now automatically detect and report failed system and user-level services. After reporting, they perform a `reset-failed` to clear transient errors, ensuring a clean state for the next run.
+
+## 🛡️ Security Guardian & Command Safety
+
+To maintain a "Clean OS" philosophy, I've implemented a robust Command Interceptor (Guardian):
+
+- **Root Pollution Prevention**: Commands like `npm install -g` or `pip install` are intercepted via `.guard.sh`. They are blocked if run with `sudo` to prevent permission issues in `$HOME`.
+- **High-Risk Protection**: A `BLACKLIST` prevents execution of dangerous operations like `chmod -R 777` or `chown` on system-critical paths.
+- **Interactive Safety**: The `rm` command is wrapped in a Zsh function that parses arguments and removes the `-f` (force) flag. This ensures you are always prompted before a recursive deletion in the terminal, while keeping automated scripts (like `update.sh`) fast and non-interactive.
 
 ## 🔒 Privacy & Git Configuration
 

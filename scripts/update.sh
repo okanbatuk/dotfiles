@@ -74,10 +74,6 @@ update_tooling() {
     if [[ -s "$SDKMAN_DIR/bin/sdkman-init.sh" ]]; then
         echo -e "☕ [SDKMAN] Updating..."
         run_as_user bash -c "source $SDKMAN_DIR/bin/sdkman-init.sh && sdk selfupdate && sdk update"
-        if [[ "$MODE" == "full" ]]; then
-             echo -e "☕ [SDKMAN-FULL] Upgrading all SDKs..."
-             run_as_user bash -c "source $SDKMAN_DIR/bin/sdkman-init.sh && export sdkman_auto_answer=true && sdk upgrade"
-        fi
     fi
 }
 

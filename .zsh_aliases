@@ -1,6 +1,25 @@
-# Source Dir
+# Source Dirs
 DOTFILES_DIR="$HOME/dotfiles"
 SCRIPTS_DIR="$HOME/scripts"
+
+# --- 🛡️ Guardian & Security Controls ---
+# 'sudo ' with a space allows alias expansion for the next command
+alias sudo="sudo "
+alias cp='cp -i'
+alias mv='mv -i'
+
+# --- ⚠️ High-Risk Command Guards ---
+alias chmod="$SCRIPTS_DIR/.guard.sh chmod"
+alias chown="$SCRIPTS_DIR/.guard.sh chown"
+
+# --- 📦 Package Manager Guards (Avoid Root Pollution) ---
+alias npm="$SCRIPTS_DIR/.guard.sh npm"
+alias pnpm="$SCRIPTS_DIR/.guard.sh pnpm"
+alias yarn="$SCRIPTS_DIR/.guard.sh yarn"
+alias bun="$SCRIPTS_DIR/.guard.sh bun"
+alias cargo="$SCRIPTS_DIR/.guard.sh cargo"
+alias pip="$SCRIPTS_DIR/.guard.sh pip"
+alias gem="$SCRIPTS_DIR/.guard.sh gem"
 
 # --- 🚀 App Launchers (Wayland Optimized) ---
 alias windsurf='windsurf --ozone-platform=wayland'
@@ -15,13 +34,7 @@ alias bt-on='sudo usbguard allow-device id $ID_BLUETOOTH && sudo systemctl start
 alias fp-off='sudo usbguard block-device id $ID_FINGERPRINT'
 alias fp-on='sudo usbguard allow-device id $ID_FINGERPRINT'
 
-# --- 🛡️ Guardian & Proxy Controls ---
-alias sudo="sudo "
-alias npm="$SCRIPTS_DIR/.guard.sh npm"
-alias cargo="$SCRIPTS_DIR/.guard.sh cargo"
-alias pip="$SCRIPTS_DIR/.guard.sh pip"
-
-# --- ⚙️ Dotfiles & System Maintenance ---
+# --- ⚙️ System Maintenance & Dotfiles ---
 alias upfull="sudo $SCRIPTS_DIR/.update.sh --full"
 alias up="sudo $SCRIPTS_DIR/.update.sh --light"
 alias shut="sudo $SCRIPTS_DIR/.shutdown.sh"
@@ -29,12 +42,6 @@ alias disk-mount="sudo $SCRIPTS_DIR/.mount.sh"
 alias disk-report="sudo $SCRIPTS_DIR/.disk-report.sh"
 alias get-info="$SCRIPTS_DIR/.get-info.sh"
 alias reload='source ~/.zshrc'
-
-# --- 📝 Logging & Session Management ---
-LOG_PATH="$DOTFILES_DIR/logs/custom"
-alias golog='z "$LOG_PATH"'
-
-# --- 🧩 GNOME & Pop Shell Fixes (Reset Tiling Mode) ---
 alias psr='gnome-extensions disable pop-shell@system76.com && gnome-extensions enable pop-shell@system76.com'
 
 # --- 🎨 Modern CLI Replacements (Eza & Bat) ---
@@ -47,7 +54,7 @@ alias df='duf'
 alias o='handlr open'
 alias fo='fd --type f | fzf --preview "bat --color=always --style=numbers --line-range :500 {}" | xargs -r handlr open'
 
-# --- 🔍 Grep Enhancements ---
+# --- 🔍 Search & Filter ---
 alias grep='grep --color=auto'
 alias egrep='egrep --color=auto'
 alias fgrep='fgrep --color=auto'
@@ -72,3 +79,4 @@ alias gac='git add . && git commit -m'
 
 # --- 🌐 Network ---
 alias myip='curl ifconfig.me'
+

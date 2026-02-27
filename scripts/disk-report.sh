@@ -14,10 +14,12 @@ CORE_ENV="$(dirname "$SCRIPT_DIR")/core.sh"
 source "$CORE_ENV" 2>/dev/null || { echo "Error: core.sh not found"; exit 1; }
 
 # --- Setup logging ---
-LOG_DIR_STORAGE="$LOG_DIR/storage"
-mkdir -p "$LOG_DIR_STORAGE"
-LOG_FILE="$LOG_DIR_STORAGE/disk-report-$(date +%Y-%m-%d_%H-%M-%S).log"
-exec > >(tee -a "$LOG_FILE") 2>&1
+setup_env() {
+  LOG_DIR_STORAGE="$LOG_DIR/storage"
+  mkdir -p "$LOG_DIR_STORAGE"
+  LOG_FILE="$LOG_DIR_STORAGE/disk-report-$(date +%Y-%m-%d_%H-%M-%S).log"
+  exec > >(tee -a "$LOG_FILE") 2>&1
+}
 
 # --- Functions ---
 check_disk_health() {
@@ -52,6 +54,7 @@ delete_old_files() {
 }
 
 # --- Run ---
+setup_env
 check_disk_health
 report_disk_usage
 delete_old_files

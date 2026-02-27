@@ -1,0 +1,24 @@
+# ------------------------------------------------------------------------------
+# Safe 'rm' Wrapper: Strips both standalone '-f' and combined flags like '-rf'
+# to force interactivity in the current shell.
+# ------------------------------------------------------------------------------
+function rm() {
+    # 1. Create a local array to store cleaned arguments
+    local args=()
+
+    # 2. Iterate through all arguments and strip any 'f' from flags
+    for arg in "$@"; do
+        if [[ "$arg" == -* ]]; then
+            # Remove 'f' from flag (e.g., -rf becomes -r, -f becomes -)
+            # Then remove the trailing '-' if it's left alone
+            local clean_arg="${arg//f/}"
+            [[ "$clean_arg" != "-" ]] && args+=("$clean_arg")
+        else
+            args+=("$arg")
+        fi
+    done
+
+    # 3. Execute with forced interaction
+    # Using --interactive=once ensures a prompt if 3+ files or recursive
+    command rm --preserve-root --interactive=once "${args[@]}"
+}

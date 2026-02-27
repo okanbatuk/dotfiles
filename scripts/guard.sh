@@ -4,11 +4,23 @@
 # --- Configuration: The Blacklist ---
 # Any command starting with these patterns will be blocked if run as root
 BLACKLIST=(
+    # --- Node.js & JS Ecosystem ---
     "npm upgrade -g"
     "npm install -g"
     "npm update -g"
+    "yarn global add"
+    "pnpm add -g"
+    "bun install -g"
+
+    # --- Other Package Managers (Avoid Root Pollution) ---
     "cargo install"
     "pip install"
+    "gem install"
+
+    # --- High-Risk Operations (Safety Nets) ---
+    "rm -rf / "
+    "chmod -R 777"
+    "chown -R root"
 )
 
 # --- Check if the command is blacklisted ---
