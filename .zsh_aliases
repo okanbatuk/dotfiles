@@ -76,6 +76,13 @@ alias gp='git push'
 alias gpl='git pull'
 alias gl='git log --oneline --graph --all'
 alias gac='git add . && git commit -m'
+alias gcan='git commit --amend --no-edit' # Quick fix for last commit
+alias gacan='git add . && git commit --amend --no-edit' # Add all and amend
+alias gco='git checkout'
+alias gcb='git checkout -b' # Create and switch to new branch
+alias gb='git branch'
+alias grs='git restore --staged' # Unstage files
+alias gclean='git fetch --prune && git branch -vv | grep ": gone]" | awk "{print \$1}" | xargs -r git branch -d' # Cleanup merged branches
 
 # --- 🌐 Network ---
 alias myip='curl ifconfig.me'

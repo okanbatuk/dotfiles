@@ -1,0 +1,33 @@
+# ------------------------------------------------------------------------------
+# Safe Git Push Wrapper: Converts dangerous '-f' or '--force' to '--force-with-lease'
+# to prevent accidental overwriting of remote changes.
+# ------------------------------------------------------------------------------
+git() {
+    # 1. Check if the first argument is 'push'
+    if [[ "$1" == "push" ]]; then
+        local args=()
+        local force_detected=false
+
+        # 2. Iterate through arguments starting from the second one
+        for arg in "${@:2}"; do
+            if [[ "$arg" == "-f" ]] || [[ "$arg" == "--force" ]]; then
+                # 3. Replace dangerous flags with the safer alternative
+                args+=("--force-with-lease")
+                force_detected=true
+            else
+                args+=("$arg")
+            fi
+        done
+
+        if [[ "$force_detected" == true ]]; then
+            echo -e "\033[0;34m[Guardian]\033[0m Dangerous flag detected. Executing:"
+            echo -e "           \033[1;32mgit push ${args[*]}\033[0m"
+        fi
+
+        # Execute the git push command
+        command git push "${args[@]}"
+    else
+        # Not a 'push' command, execute standard git
+        command git "$@"
+    fi
+}

@@ -32,6 +32,7 @@ dotfiles/
 │   ├── ilog              # Terminal session logger & cleaner
 │   ├── projtree          # Modern project tree
 │   ├── rm                # Safe 'rm' wrapper (strips -f, enforces interaction)
+│   ├── gpush             # Safe 'git' wrapper (handles safe force pushing)
 │   └── ...               # (One file per function)
 ├── config/               # App-specific configurations (Linked to ~/.config)
 │   ├── alacritty/        # GPU terminal settings
@@ -73,17 +74,18 @@ I've implemented a robust maintenance system with automated logging and log rota
 
 Modern CLI tools, custom functions, and quick-access configuration shortcuts.
 
-| Command    | Type     | Description                                                                                                                                                                                                                               |
-| ---------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `dckr`     | Function | **Advanced Docker Management:** A modular CLI tool for rapid container workflows. Supports interactive image/container selection via `fzf`, automatic `.env` loading, port mapping, and `docker-compose` integration with smart defaults. |
-| `projtree` | Function | Modern tree view with auto-ignores (`node_modules`, `.git`, `dist`). Supports `-p` for **path**, `-d` for **depth**, `-i` for **ignore patterns** with interactive tab-completion (multi-flag support & auto-strips path prefix).         |
-| `fulltree` | Function | Advanced tree view all files. Supports `-p` for **path**, `-d` for **depth**, `-i` for **ignore patterns** with interactive tab-completion (multi-flag support & auto-strips path prefix).                                                |
-| `matches`  | Function | Interactive Espanso trigger search using `fzf`.                                                                                                                                                                                           |
-| `jlog`     | Function | **Smart Journalctl Viewer:** Modern interface for systemd logs with shorthand support. Features real-time watching (`-n`), time-based filtering (e.g., `1h`, `10m`, `today`), and colored boot log inspection.                            |
-| `ilog`     | Function | **Session Recording:** Use `-r` to start recording the current terminal session to a timestamped log file. Use `-c <file>` to clean ANSI escape codes from a log, converting it into a readable text format using `perl`.                 |
-| `pdf`      | Function | Opens a PDF file using **Zathura** in the background. Redirects all output to `/dev/null` and uses `disown` to keep the process alive even after closing the terminal.                                                                    |
-| `fnote`    | Function | **Interactive Note Navigator:** `find` and `fzf` to search through your entire knowledge base. Supports instant bat previews for text files and opens `.pdf`, `.doc`, `.docx` via `handlr`.                                               |
-| `rm`       | Function | **Safety Wrapper:** Automatically strips `-f` / `--force` flags in interactive mode to prevent accidental mass deletions.                                                                                                                 |
+| Command       | Type     | Description                                                                                                                                                                                                                               |
+| ------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `dckr`        | Function | **Advanced Docker Management:** A modular CLI tool for rapid container workflows. Supports interactive image/container selection via `fzf`, automatic `.env` loading, port mapping, and `docker-compose` integration with smart defaults. |
+| `projtree`    | Function | Modern tree view with auto-ignores (`node_modules`, `.git`, `dist`). Supports `-p` for **path**, `-d` for **depth**, `-i` for **ignore patterns** with interactive tab-completion (multi-flag support & auto-strips path prefix).         |
+| `fulltree`    | Function | Advanced tree view all files. Supports `-p` for **path**, `-d` for **depth**, `-i` for **ignore patterns** with interactive tab-completion (multi-flag support & auto-strips path prefix).                                                |
+| `matches`     | Function | Interactive Espanso trigger search using `fzf`.                                                                                                                                                                                           |
+| `jlog`        | Function | **Smart Journalctl Viewer:** Modern interface for systemd logs with shorthand support. Features real-time watching (`-n`), time-based filtering (e.g., `1h`, `10m`, `today`), and colored boot log inspection.                            |
+| `ilog`        | Function | **Session Recording:** Use `-r` to start recording the current terminal session to a timestamped log file. Use `-c <file>` to clean ANSI escape codes from a log, converting it into a readable text format using `perl`.                 |
+| `pdf`         | Function | Opens a PDF file using **Zathura** in the background. Redirects all output to `/dev/null` and uses `disown` to keep the process alive even after closing the terminal.                                                                    |
+| `fnote`       | Function | **Interactive Note Navigator:** `find` and `fzf` to search through your entire knowledge base. Supports instant bat previews for text files and opens `.pdf`, `.doc`, `.docx` via `handlr`.                                               |
+| `rm -f`       | Function | **Safety Wrapper:** Automatically strips `-f` / `--force` flags in interactive mode to prevent accidental mass deletions.                                                                                                                 |
+| `git push -f` | Function | **Force-With-Lease:** Intercepts force push to use `--force-with-lease`, protecting remote history from accidental overwrites.                                                                                                            |
 
 ## ⚙️ Modular Setup
 
