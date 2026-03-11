@@ -35,7 +35,7 @@ update_os() {
     sudo pacman -Syyu --noconfirm
     if command -v yay >/dev/null 2>&1; then
         echo -e "📦 [YAY] Running AUR upgrade (as user)..."
-        yay -Syu --noconfirm --needed
+        run_as_user yay -Syu --noconfirm --needed
     fi
 
     echo -e "📦 [FLATPAK] Checking for updates..."

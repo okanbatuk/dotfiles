@@ -1,0 +1,9 @@
+[Unit]
+Description=Run Weekly Full System Update
+
+[Timer]
+OnCalendar=weekly
+Persistent=true
+
+[Install]
+WantedBy=timers.target

@@ -1,3 +1,4 @@
+---@diagnostic disable: undefined-global
 -- --- 1. CORE SETTINGS ---
 -- Set leader key to Space
 vim.g.mapleader = " "

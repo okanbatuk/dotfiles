@@ -1,0 +1,13 @@
+[Unit]
+Description=Weekly Full System Update
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=root
+WorkingDirectory=/home/myrn
+Environment=HOME=/home/myrn
+Environment=DOTFILES_DIR=/home/myrn/dotfiles
+Environment=PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/myrn/.local/bin
+ExecStart=/home/myrn/scripts/.update.sh --full

@@ -1,0 +1,9 @@
+[Unit]
+Description=Run Daily Light System Update
+
+[Timer]
+OnCalendar=daily
+Persistent=true
+
+[Install]
+WantedBy=timers.target
