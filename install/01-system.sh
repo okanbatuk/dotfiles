@@ -5,7 +5,7 @@ CORE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CORE_ENV="$CORE_DIR/../core.sh"
 
 if [ -f "$CORE_ENV" ]; then
-    source "$CORE_ENV"
+    source "$CORE_ENV" # Inherit DOTFILES_DIR, REAL_USER, and REAL_HOME
 else
     # Fallback to current dir if not in scripts/
     source "$CORE_DIR/core.sh" 2>/dev/null || { echo "Error: core.sh not found"; exit 1; }
@@ -23,13 +23,14 @@ echo -e "  ${GREEN}✅ Log structure ready${NC}"
 # Create cargo env file to prevent Zsh errors during first setup
 mkdir -p "$REAL_HOME/.cargo"
 touch "$REAL_HOME/.cargo/env"
+sudo chown -R "$REAL_USER":"$REAL_USER" "$REAL_HOME/.cargo"
 
 # 2. Comprehensive Dependency List
-# Categorized for better maintainability
+# Optimized for a Backend Engineer's workflow (Node.js, Docker, Modern CLI tools)
 DEPENDENCIES=(
     # --- Core & Build Tools ---
     base-devel git docker docker-compose rustup util-linux perl
-    unzip zip
+    unzip zip gnupg pinentry
     # --- Modern CLI Tools ---
     eza bat fzf ripgrep
     fastfetch

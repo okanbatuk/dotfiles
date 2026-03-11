@@ -3,28 +3,18 @@
 # 🔄 Path & Environment
 typeset -U path PATH
 
-# 🔄 Path & Environment
-path=(
-    "$BUN_INSTALL/bin"
-    "$HOME/.cargo/bin"
-    "/opt/Windsurf"
-    "$NPM_GLOB/bin"
-    "$HOME/.local/bin"
-    $path
-)
 # ⚡ Initialize Completion System (Sadece bir kez çağrılması yeterlidir)
-autoload -U compinit && compinit
+autoload -Uz compinit
+if [[ -n ${ZDOTDIR:-$HOME}/.zcompdump(#qN.m-1) ]]; then
+  compinit -C
+else
+  compinit
+fi
 autoload -Uz bashcompinit && bashcompinit
-
-# 📦 Load Toolchains & Completions
-[[ -f "$HOME/.cargo/env" ]] && source "$HOME/.cargo/env"
-[ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
 
 # 🧠 Load Alias & Env Variables files
 [[ -f "$HOME/.zsh_aliases" ]] && source "$HOME/.zsh_aliases"
-[[ -f "$HOME/.zshenv" ]] && source "$HOME/.zshenv"
 [[ -f "$HOME/.zsh_notes" ]] && source "$HOME/.zsh_notes"
-
 
 # Load custom functions from the modular directory
 if [ -d "$HOME/.zsh_functions.d" ]; then
@@ -33,7 +23,6 @@ if [ -d "$HOME/.zsh_functions.d" ]; then
     [ -f "$func_file" ] && source "$func_file"
   done
 fi
-
 
 # 🧩 Manjaro & FZF
 [[ -e /usr/share/zsh/manjaro-zsh-prompt ]] && source /usr/share/zsh/manjaro-zsh-prompt
@@ -44,10 +33,6 @@ source /usr/share/fzf/completion.zsh
 source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
 source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=8'
-
-# Terminal Title Integration
-preexec() { print -Pn "\e]0;$1\a" }
-precmd() { print -Pn "\e]0;%n@%m: %~\a" }
 
 # 📁 History & Completion
 HISTFILE=~/.zsh_history
@@ -75,16 +60,23 @@ zstyle ':completion:*' menu select
 zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
 zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
 
-# 🚀 Initializers
+# 🚀 Initializers (Sıralama önemlidir)
+# FNM: Node.js versiyonunu dizine göre otomatik değiştirir [cite: 1, 10]
+if command -v fnm &> /dev/null; then
+  eval "$(fnm env --use-on-cd --shell zsh)"
+fi
+
+# Bun Completions
+[ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
+
+# Prompt & Navigation
+export STARSHIP_ZLE_KEYMAP_SELECT=0
 eval "$(starship init zsh)"
 eval "$(zoxide init zsh)"
 
-# 🔒 Misc
+# 🔒 Misc & Security
 xhost +local:root > /dev/null 2>&1
 
-#THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
-export SDKMAN_DIR="$HOME/.sdkman"
-[[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
-
-# bun completions
-[ -s "/home/myrn/.bun/_bun" ] && source "/home/myrn/.bun/_bun"
+# Terminal Title Integration
+preexec() { print -Pn "\e]0;$1\a" }
+precmd() { print -Pn "\e]0;%n@%m: %~\a" }

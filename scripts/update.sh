@@ -3,19 +3,9 @@
 
 clear
 # --- Core Environment Import ---
-SOURCE="${BASH_SOURCE[0]}"
-while [ -h "$SOURCE" ]; do
-    DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
-    SOURCE="$(readlink "$SOURCE")"
-    [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE"
-done
-SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
-CORE_ENV="$(dirname "$SCRIPT_DIR")/core.sh"
-source "$CORE_ENV" 2>/dev/null || { echo "Error: core.sh not found"; exit 1; }
-
-run_as_user() {
-    sudo -i -u "$REAL_USER" "$@"
-}
+# Minimal import: Variables come from .zshenv, functions from core.sh
+DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
+source "$DOTFILES_DIR/core.sh" || { echo "Core environment not found"; exit 1; }
 
 # --- 0. Logging & Mode Setup ---
 setup_env() {
@@ -23,8 +13,11 @@ setup_env() {
     [[ "$1" == "--full" ]] && MODE="full"
 
     LOG_DIR_UPDATES="$LOG_DIR/updates"
-    mkdir -p "$LOG_DIR_UPDATES"
+    mkdir -p "$LOG_DIR_UPDATES" 2>/dev/null
     LOG_FILE="$LOG_DIR_UPDATES/update-$(date +%Y-%m-%d)-$MODE.log"
+
+    # Fail-safe: Ensure the current user owns the log file if it was previously created by root
+    [ -f "$LOG_FILE" ] && sudo chown "$REAL_USER":"$REAL_USER" "$LOG_FILE" 2>/dev/null
 
     exec > >(tee -a "$LOG_FILE") 2>&1
     echo -e "\n${PURPLE}===== UPDATE STARTED AT $(date) [Mode: $MODE] =====${NC}"

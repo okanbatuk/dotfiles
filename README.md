@@ -102,13 +102,14 @@ Modern CLI tools, custom functions, and quick-access configuration shortcuts.
 The `setup.sh` script follows a robust execution order to ensure system integrity:
 
 1. **Infrastructure**: Creates localized log directories.
-2. **Core Linking**: Symlinks shell (`.zshrc`) and Git configurations.
-3. **Git Privacy**: Interactive setup for `.gitconfig.local` (keeps your email/name private).
-4. **Validation**: Verifies Zsh sources and essential dependencies.
-5. **Clean Install**: Installs apps (Alacritty, MPV, etc.) and manages config backups.
-6. **Automation**: Links custom scripts and sets executable permissions.
-7. **Java Environment**: Normalizes Java versions using SDKMAN, installs Temurin JDKs, and sets up IntelliJ IDEA.
-8. **Security & Guards**: Activates `guard.sh` for package managers and deploys **Protective Wrappers** for high-risk operations (`rm`, `git push`, `chmod`, `chown`, `cp`, `mv`, `docker`) to enforce safe development practices.
+2. **Core Runtimes & Editors**: Installs **FNM**, **Node.js LTS**, and **Bun** first. Then, installs global shims (`nopt`, `semver`, `node-gyp`) to satisfy dependencies before installing system-level editors (**Zed**, **Neovim**).
+3. **Smart Path Management**: All JS tools are isolated in `~/.local/share/fnm`. The `.zshenv` ensures these user-space binaries always take precedence over `/usr/bin/node` to prevent root pollution.
+4. **Core Linking**: Symlinks shell (`.zshrc`) and Git configurations.
+5. **Git Privacy**: Interactive setup for `.gitconfig.local` (keeps your email/name private).
+6. **Validation**: Verifies Zsh sources and essential dependencies.
+7. **Clean Install**: Installs apps (Alacritty, MPV, etc.) and manages config backups.
+8. **Automation**: Links custom scripts and sets executable permissions.
+9. **Security & Guards**: Activates `guard.sh` for package managers and deploys **Protective Wrappers** for high-risk operations (`rm`, `git push`, `chmod`, `chown`, `cp`, `mv`, `docker`) to enforce safe development practices.
 
 ## ⚙️ Key Infrastructure Updates:
 
@@ -159,7 +160,7 @@ This will:
 
 > 💡 **VS Code**: Settings and snippets are stored under `config/Code/`. To apply them, manually copy the contents to `~/.config/Code/User/` as needed.
 
-> 💡 **IntelliJ IDEA**: Keymaps and editor settings are stored under `config/jetbrains/settings/`. To apply them, use `File > Manage IDE Settings > Import Settings` and point to the `settings/` folder.
+> 💡 **VS Code**: Settings and snippets are stored under `config/Code/`. To apply them, manually copy the contents to `~/.config/Code/User/` as needed.
 
 ## 🛠️ Prerequisites
 
@@ -173,13 +174,14 @@ This will:
   - `tldr`: Simplified and community-driven man pages.
   - `handlr`: A smarter alternative to `xdg-utils` for opening files and managing default apps.
   - `fastfetch`: Migrated from neofetch for near-instant reporting and this tool use by the `:ff` expansion.
-  - `unzip` & `zip`: Required for SDKMAN! and Bun runtimes.
+  - `unzip` & `zip`: Required for Bun and FNM installation scripts.
 - **Docker Ecosystem:**
   - `docker` & `docker-compose`: The core engine required for the `dckr` management function.
-- **Java Ecosystem:**
-  - `SDKMAN!`: Primary manager for Java versions, Maven, and Gradle.
-  - `Temurin JDK (17, 21)`: Standardized OpenJDK distributions used via SDKMAN.
-  - `IntelliJ IDEA Community`: Primary IDE for Java/Kotlin development.
+- **JavaScript/TypeScript Ecosystem:**
+  - `Fast Node Manager (FNM)`: Now the central engine for Node.js management (replaces system node).
+  - `Bun`: High-performance JavaScript runtime, package manager, and bundler.
+  - `Biome`: Unified, ultra-fast toolchain for linting and formatting, replacing Prettier in the modern workflow.
+  - `typescript-language-server`: Industry-standard LSP for professional TS development.
 - **Editors & IDEs:**
   - `neovim`: Extensible text editor, configured with `lazy.nvim`, `telescope`, and `oil.nvim`.
   - `zed`: High-performance, multiplayer code editor for rapid development.
@@ -188,6 +190,9 @@ This will:
   - `tesseract-data-eng/tur`: OCR support for Zathura PDF engine.
   - `zathura` & `zathura-pdf-mupdf`: Minimalist PDF viewing used by the `pdf` function.
   - `mpv` & `yt-dlp`: High-performance media playback and YouTube streaming.
+- **Security & Identity:**
+  - `gnupg(GPG2)`: Secure communication and commit signing to achieve **Verified** status on GitHub.
+  - `pinentry`: A collection of simple PIN or passphrase entry dialogs required for GPG operations.
 - **System & Hardware:**
   - `smartmontools`: Required for S.M.A.R.T. disk health diagnostics and reporting.
   - `util-linux`: Required for the `script` command (used by `rec` alias and `ilog`).
@@ -210,6 +215,8 @@ All scripts automatically generate logs in the `~/dotfiles/logs/` directory.
 - **Auto-Rotation**: Maintenance scripts automatically use `fd` to remove logs older than 7 or 30 days to keep the repository slim.
 - **Colorized Output**: All scripts provide enhanced terminal feedback using ANSI color coding for critical warnings (S.M.A.R.T. errors, failed services).
 - **Service Hygiene**: Maintenance scripts now automatically detect and report failed system and user-level services. After reporting, they perform a `reset-failed` to clear transient errors, ensuring a clean state for the next run.
+- **GPG Persistence:** The maintenance suite ensures GPG agents are handled correctly during system cleanups to prevent "signing failed" errors in Git workflows.
+- **Proactive Health Checks**: Maintenance scripts parse `smartctl` output and provide visual ANSI alerts if reallocated sectors or pending defects are detected, preventing silent data loss.
 
 ## 🛡️ Security Guardian & Command Safety
 
@@ -227,6 +234,7 @@ To maintain a "Clean OS" philosophy, I've implemented a robust Command Intercept
    - **Recursive Safety**: Commands like `chmod -R` and `chown -R` trigger a Guardian warning, requiring manual confirmation to prevent mass permission drifts.
    - **Data Integrity**: `cp` and `mv` commands check if the target destination already exists and prompt for overwrite confirmation.
    - **Docker Cleanup**: `docker system prune` displays a summary of active containers and images before performing a destructive cleanup.
+3. **GPG TTY Integration**: Automatically exports `export GPG_TTY=$(tty)` in `.zshenv` to ensure `pinentry` correctly prompts for passphrases during Git operations, even in nested or multiplexed terminal sessions.
 
 > 💡 **Pro Tip: Bypassing the Guardian**
 >
@@ -245,7 +253,7 @@ This repository uses a **Local Include** strategy for Git identity.
 
 When you run `setup.sh`, it will check if `~/.gitconfig.local` exists. If not, it will prompt you for your details. This ensures your personal info is never committed to the repository history.
 
-> 💡 **Pro Tip**: To get the green Verified badge on your commits, generate a GPG key and add `signingkey = YOUR_KEY_ID` and `gpgsign = true` to your `~/.gitconfig.local`.
+> 💡 **Pro Tip**: To get the green **Verified** badge on your commits, the `setup.sh` orchestrator ensures `gnupg` and `pinentry` are configured. It automates the link between your local GPG key and Git identity by setting `signingkey` and `gpgsign = true` in your `~/.gitconfig.local`.
 
 ## 🛠️ Tools Used
 
@@ -258,7 +266,7 @@ When you run `setup.sh`, it will check if `~/.gitconfig.local` exists. If not, i
   - **MPV**: High-performance media player with `yt-dlp` integration.
 - **Editors**:
   - Primary: Neovim (Custom visual paste & system clipboard integration)
-  - Secondary: Zed, IntelliJ IDEA
+  - Secondary: Zed
   - Legacy/snippets: Visual Studio Code
 - **Automation**: Bash, symlinks, and Espanso for text expansion.
 - **Font & Symbols**: FiraCode Nerd Font (Retina)

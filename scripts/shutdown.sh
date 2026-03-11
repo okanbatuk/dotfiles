@@ -1,25 +1,13 @@
 #!/bin/bash
 # shutdown.sh - System maintenance and cleanup before poweroff
+# Optimized to use centralized core.sh logic and English documentation.
 
 clear
 
 # --- Core Environment Import ---
-SOURCE="${BASH_SOURCE[0]}"
-while [ -h "$SOURCE" ]; do
-    DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
-    SOURCE="$(readlink "$SOURCE")"
-    [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE"
-done
-SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
-
-CORE_ENV="$(dirname "$SCRIPT_DIR")/core.sh"
-source "$CORE_ENV" 2>/dev/null || { echo "Error: core.sh not found"; exit 1; }
-
-# --- Helper: Privilege De-escalation ---
-# Executes commands as the logged-in user to prevent root ownership pollution
-run_as_user() {
-    sudo -u "$REAL_USER" "$@"
-}
+# Using the streamlined import method leveraging .zshenv variables
+DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
+source "$DOTFILES_DIR/core.sh" || { echo "Core environment not found"; exit 1; }
 
 # --- 0. Logging & Setup ---
 setup_env() {
@@ -33,8 +21,11 @@ setup_env() {
 
     # Initialize log directory and file
     LOG_DIR_MAINT="$LOG_DIR/maintenance"
-    mkdir -p "$LOG_DIR_MAINT"
+    mkdir -p "$LOG_DIR_MAINT" 2>/dev/null
     LOG_FILE="$LOG_DIR_MAINT/shutdown-cleanup-$(date +%Y-%m-%d).log"
+
+    # Fail-safe: Ensure the current user owns the log file if it was previously created by root
+    [ -f "$LOG_FILE" ] && sudo chown "$REAL_USER":"$REAL_USER" "$LOG_FILE" 2>/dev/null
 
     # Redirect all output to log file and terminal
     exec > >(tee -a "$LOG_FILE") 2>&1
@@ -83,20 +74,22 @@ clean_user_space() {
 
 # --- 3. Developer Tooling Cleanup ---
 clean_dev_tools() {
-    echo -e "\n${GREEN}>>> [STEP 3] Dev-Tooling Cleanup (NPM, Bun, Rust)...${NC}"
-    # Clean dev caches
-    # We use run_as_user to ensure root doesn't own any regenerated metadata
+    echo -e "\n${GREEN}>>> [STEP 3] Dev-Tooling Cleanup (NPM, Bun, AUR)...${NC}"
+
+    # Clean dev caches using the centralized run_as_user helper
     echo -e "🧹 Cleaning NPM & Bun caches..."
     run_as_user rm -rf "$REAL_HOME/.npm/_cacache" 2>/dev/null || true
     run_as_user rm -rf "$REAL_HOME/.bun/install/cache" 2>/dev/null || true
 
-    echo -e "🧹 Cleaning AUR helper caches..."
+    echo -e "🧹 Cleaning AUR helper caches (yay/paru)..."
     run_as_user rm -rf "$REAL_HOME/.cache/yay" "$REAL_HOME/.cache/paru" 2>/dev/null || true
 
     # Handle Flatpak runtimes and app caches
-    echo -e "📦 Cleaning Flatpak unused runtimes..."
-    flatpak uninstall --unused -y 2>/dev/null || true
-    run_as_user rm -rf "$REAL_HOME/.var/app"/*/cache 2>/dev/null || true
+    if command -v flatpak >/dev/null 2>&1; then
+        echo -e "📦 Cleaning Flatpak unused runtimes..."
+        flatpak uninstall --unused -y 2>/dev/null || true
+        run_as_user rm -rf "$REAL_HOME/.var/app"/*/cache 2>/dev/null || true
+    fi
 }
 
 # --- 4. Log Management ---

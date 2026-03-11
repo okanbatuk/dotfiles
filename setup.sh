@@ -1,7 +1,21 @@
 #!/bin/bash
+# setup.sh - Interactive and automated dotfiles orchestrator
+
+set -e
+
+# --- 🔍 Smart Environment Detection ---
+# Identify the actual user and their home directory even when run with sudo
+REAL_USER=${SUDO_USER:-$USER}
+REAL_HOME=$(getent passwd "$REAL_USER" | cut -d: -f6)
+
+# Export variables so child scripts (01-system.sh, etc.) can inherit them
+export REAL_USER
+export REAL_HOME
+
 # --- Core Environment Import ---
-CORE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-CORE_ENV="$CORE_DIR/../core.sh"
+# Using the streamlined import method leveraging .zshenv variables if available
+DOTFILES_DIR="${DOTFILES_DIR:-$REAL_HOME/dotfiles}"
+source "$DOTFILES_DIR/core.sh" || { echo "Error: core.sh not found at $DOTFILES_DIR/core.sh"; exit 1; }
 
 if [ -f "$CORE_ENV" ]; then
     source "$CORE_ENV"
