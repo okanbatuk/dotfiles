@@ -20,15 +20,5 @@ config/Code/User/logs/
 config/Code/User/*.log
 config/Code/User/cachedExtensions/
 
-# JetBrains IntelliJ Settings Ignore
-**/config/JetBrains/settings/options/jdk.table.xml
-**/config/JetBrains/settings/options/trusted-paths.xml
-**/config/JetBrains/settings/options/updates.xml
-**/config/JetBrains/settings/options/window.state.xml
-**/config/JetBrains/settings/options/window.layouts.xml
-**/config/JetBrains/settings/options/recentProjects.xml
-**/config/JetBrains/settings/options/linux/
-
 # External repos (like Zed)
 external/
-

@@ -1,9 +1,0 @@
-<application>
-  <component name="LafManager">
-    <laf themeId="DARKER" />
-    <lafs-to-previous-schemes>
-      <laf-to-scheme laf="DEEPOCEAN" scheme="_@user_Light Owl (Material)" />
-      <laf-to-scheme laf="MOONLIGHT" scheme="_@user_Night Owl (Material)" />
-    </lafs-to-previous-schemes>
-  </component>
-</application>

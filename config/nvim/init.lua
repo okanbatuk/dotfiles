@@ -2,6 +2,13 @@
 -- Set leader key to Space
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
+vim.g.loaded_perl_provider = 0
+vim.g.loaded_ruby_provider = 0
+
+local node_path = vim.fn.exepath("node")
+if node_path ~= "" then
+  vim.g.node_host_prog = node_path
+end
 
 -- UI & Editor Settings
 vim.opt.clipboard = "unnamedplus" -- Sync with system clipboard
@@ -27,65 +34,72 @@ vim.opt.rtp:prepend(lazypath)
 
 -- --- 3. PLUGIN CONFIGURATION ---
 require("lazy").setup({
-  -- Theme
-  { "folke/tokyonight.nvim",                 lazy = false,       priority = 1000 },
+    -- Theme
+    { "folke/tokyonight.nvim",                 lazy = false,       priority = 1000 },
 
-  -- Oil.nvim: Edit your filesystem like a normal Neovim buffer
-  {
-    'stevearc/oil.nvim',
-    opts = {
-      view_options = { show_hidden = true }, -- Show dotfiles by default
-      -- Custom keymaps for easier navigation
-      keymaps = {
-        ["h"] = "actions.parent", -- Go to parent directory
-        ["l"] = "actions.select", -- Open file or enter directory
+    -- Oil.nvim: Edit your filesystem like a normal Neovim buffer
+    {
+      'stevearc/oil.nvim',
+      opts = {
+        view_options = { show_hidden = true }, -- Show dotfiles by default
+        -- Custom keymaps for easier navigation
+        keymaps = {
+          ["h"] = "actions.parent", -- Go to parent directory
+          ["l"] = "actions.select", -- Open file or enter directory
+        },
       },
+      dependencies = { "nvim-tree/nvim-web-devicons" },
     },
-    dependencies = { "nvim-tree/nvim-web-devicons" },
-  },
 
-  -- Telescope: The ultimate fuzzy finder (Built-in fzf experience)
-  {
-    'nvim-telescope/telescope.nvim',
-    tag = '0.1.5',
-    dependencies = { 'nvim-lua/plenary.nvim' },
-    opts = {
-      defaults = {
-        -- Include hidden files by default in searches
-        find_command = { "fd", "--type", "f", "--strip-cwd-prefix", "--hidden", "--exclude", ".git" },
+    -- Telescope: The ultimate fuzzy finder (Built-in fzf experience)
+    {
+      'nvim-telescope/telescope.nvim',
+      tag = '0.1.5',
+      dependencies = { 'nvim-lua/plenary.nvim' },
+      opts = {
+        defaults = {
+          -- Include hidden files by default in searches
+          find_command = { "fd", "--type", "f", "--strip-cwd-prefix", "--hidden", "--exclude", ".git" },
+        }
       }
-    }
-  },
+    },
 
-  -- Lualine: Status line for better visibility
-  {
-    'nvim-lualine/lualine.nvim',
-    dependencies = { 'nvim-tree/nvim-web-devicons' },
-    opts = {
-      options = {
-        theme = 'tokyonight', -- Synchronize with your theme
-        section_separators = '',
-        component_separators = '',
-        globalstatus = true, -- Single bar at the bottom for all splits
-      },
-      sections = {
-        lualine_z = {
-          {
-            'datetime',
-            style = '%a %H:%M' -- Displays time in HH:MM:SS format
+    -- Lualine: Status line for better visibility
+    {
+      'nvim-lualine/lualine.nvim',
+      dependencies = { 'nvim-tree/nvim-web-devicons' },
+      opts = {
+        options = {
+          theme = 'tokyonight', -- Synchronize with your theme
+          section_separators = '',
+          component_separators = '',
+          globalstatus = true, -- Single bar at the bottom for all splits
+        },
+        sections = {
+          lualine_z = {
+            {
+              'datetime',
+              style = '%a %H:%M' -- Displays time in HH:MM:SS format
+            }
           }
         }
       }
-    }
+    },
+
+    -- Treesitter: Advanced syntax highlighting
+    { "nvim-treesitter/nvim-treesitter",       build = ":TSUpdate" },
+
+    -- Your previous plugins
+    { 'tpope/vim-sensible' },
+    { 'vim-scripts/Txtfmt-The-Vim-Highlighter' },
   },
-
-  -- Treesitter: Advanced syntax highlighting
-  { "nvim-treesitter/nvim-treesitter",       build = ":TSUpdate" },
-
-  -- Your previous plugins
-  { 'tpope/vim-sensible' },
-  { 'vim-scripts/Txtfmt-The-Vim-Highlighter' },
-})
+  {
+    rocks = {
+      enabled = false,
+      hererocks = false,
+    }
+  }
+)
 
 -- Set colorscheme
 vim.cmd("colorscheme tokyonight")

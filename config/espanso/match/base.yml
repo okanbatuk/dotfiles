@@ -21,7 +21,7 @@ matches:
     replace: "Hi Okan!"
 
   - trigger: ":git"
-    replace: "https://github.com/okanbatuk"
+    replace: "o https://github.com/okanbatuk"
 
   # NOTE: espanso uses YAML to define matches, so pay attention to the indentation!
 
@@ -79,11 +79,11 @@ matches:
   # --- GIT ----------------------------------------------------------
   # 1) commit
   - trigger: ":gcm"
-    replace: 'git commit -m "'
+    replace: "git commit -m '"
 
   # 2) commit -a
   - trigger: ":gca"
-    replace: 'git commit -ma "'
+    replace: "git commit -ma '"
 
   # 3) branch list
   - trigger: ":gbr"
@@ -91,11 +91,11 @@ matches:
 
   # 4) new branch
   - trigger: ":gbc"
-    replace: 'git checkout -b "'
+    replace: "git checkout -b '"
 
   # 5) switch branch
   - trigger: ":gco"
-    replace: 'git checkout "'
+    replace: "git checkout '"
 
   # 6) push
   - trigger: ":gpush"
@@ -135,7 +135,7 @@ matches:
 
   # 15) stash with message
   - trigger: ":gstash"
-    replace: 'git stash push -m "'
+    replace: "git stash push -m '"
 
   # 16) stash pop
   - trigger: ":gsp"
@@ -143,7 +143,7 @@ matches:
 
   # 17) tag
   - trigger: ":gtag"
-    replace: 'git tag "'
+    replace: "git tag '"
 
   # 18) fetch & prune
   - trigger: ":gfetch"
@@ -160,7 +160,7 @@ matches:
 
   # --- Git (additional) --------------------------------------------------
   - trigger: ":gamend"
-    replace: 'git commit --amend -m "'
+    replace: "git commit --amend -m '"
 
   - trigger: ":grebase"
     replace: "git rebase -i HEAD~"
@@ -265,7 +265,7 @@ matches:
     replace: "sudo fail2ban-client status"
 
   # --- File && Permission -----------------------------------------------
-  - trigger: ":chmodx"
+  - trigger: ":cmx"
     replace: "chmod +x "
 
   - trigger: ":ftree"
@@ -337,10 +337,10 @@ matches:
   - trigger: ":search"
     replace: "pacman -Ss "
 
-  - trigger: ":orphan"
+  - trigger: ":orp"
     replace: "pacman -Qdt"
 
-  # --- Date & Time ----------------------------------------------
+  # --- Date & Time & Shell ----------------------------------------------
   - trigger: ":date"
     replace: "{{out}}"
     vars:
@@ -385,6 +385,9 @@ matches:
         params:
           layout: horizontal
           label: "Path under ~/Desktop"
+
+  - trigger: ":ex"
+    replace: "exit"
 
   # --- systemd -----------------------------------------------------
   - trigger: ":svcstat"

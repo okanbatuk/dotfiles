@@ -1,7 +1,0 @@
-<application>
-  <component name="TerminalFontOptions">
-    <option name="VERSION" value="1" />
-    <option name="FONT_FAMILY" value="Hack" />
-    <option name="LINE_SPACING" value="1.4" />
-  </component>
-</application>

@@ -15,15 +15,14 @@ dotfiles/
 │   ├── maintenance/      # Shutdown & cleanup diagnostics
 │   └── storage/          # S.M.A.R.T. health & disk usage reports
 ├── install/              # Modular Bootstrap Tasks (Orchestrated by setup.sh)
-│   ├── 01-system.sh      # Dependencies, logs, and fonts
-│   ├── 02-links.sh       # Core dotfiles and .config/ app linking
-│   ├── 03-zsh-config.sh  # .zshrc sourcing logic & function loader
-│   ├── 04-git.sh         # Personal Git identity & GPG setup
-│   ├── 05-zed-conf.sh    # External Zed editor configuration
-│   └── 06-scripts.sh     # Automation scripts linking (~/scripts)
-│   ├── 07-local-env.sh   # Local environment tweaks
-│   └── 08-java.sh        # Java (Temurin) & SDKMAN normalization
-│   └── 09-javascript.sh  # Node.js, Bun, and Global NPM Prefix
+│   ├── 01-system.sh      # Core dependencies (base-devel, git, curl, unzip)
+│   ├── 02-dev-env.sh     # FNM, Node.js (LTS), Bun, Global Shims (nopt, semver) & Editors
+│   ├── 03-links.sh       # Core dotfiles and .config/ app linking
+│   ├── 04-zsh-config.sh  # .zshrc sourcing logic & function loader
+│   ├── 05-git.sh         # Personal Git identity & GPG setup
+│   ├── 06-zed-conf.sh    # External Zed editor configuration
+│   ├── 07-scripts.sh     # Automation scripts linking (~/scripts)
+│   └── 08-local-env.sh   # Machine-specific tweaks
 ├── functions/            # Modular Zsh Functions (Auto-loaded)
 │   ├── dckr              # Pro Docker manager
 │   ├── matches           # Espanso search
@@ -42,9 +41,6 @@ dotfiles/
 ├── config/               # App-specific configurations (Linked to ~/.config)
 │   ├── alacritty/        # GPU terminal settings
 │   ├── nvim/             # Neovim environment
-│   ├── jetbrains/        # IntelliJ IDEA & IdeaVim settings
-│   │   ├── settings/     # Exported XML configurations (Keymaps, Editor, etc.)
-│   │   └── ideavimrc     # Centralized IdeaVim configuration
 │   └── ...               # (espanso, mpv, zathura, Code)
 ├── scripts/              # Internal automation scripts
 │   ├── guard.sh         # Security Interceptor for high-risk commands
