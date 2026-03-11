@@ -1,5 +1,8 @@
 #!/bin/bash
 # 01-system.sh - Preparation and Dependency Installation
+
+set -e # Ensure any uncontrolled error triggers the failure trap in setup.sh
+
 # --- Core Environment Import ---
 CORE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CORE_ENV="$CORE_DIR/../core.sh"
@@ -7,7 +10,6 @@ CORE_ENV="$CORE_DIR/../core.sh"
 if [ -f "$CORE_ENV" ]; then
     source "$CORE_ENV" # Inherit DOTFILES_DIR, REAL_USER, and REAL_HOME
 else
-    # Fallback to current dir if not in scripts/
     source "$CORE_DIR/core.sh" 2>/dev/null || { echo "Error: core.sh not found"; exit 1; }
 fi
 
@@ -37,8 +39,6 @@ DEPENDENCIES=(
     fd jq tldr starship zoxide handlr
     # --- Shell Enhancements ---
     zsh zsh-autosuggestions zsh-syntax-highlighting
-    # --- Editors ---
-    neovim zed
     # --- Multimedia & UI ---
     tesseract-data-eng
     tesseract-data-tur
@@ -56,12 +56,11 @@ for pkg in "${DEPENDENCIES[@]}"; do
     if pacman -Qi "$pkg" &> /dev/null; then
         echo -e "${GREEN} ✅ $pkg is already installed. ${NC}"
     else
-        echo "📥 Installing $pkg..."
-        if sudo pacman -S --noconfirm "$pkg"; then
-            echo -e "${GREEN} ✅ Successfully installed $pkg.${NC}"
-        else
-            echo -e "${RED} ❌ Failed to install $pkg. Please check your connection or mirrors. ${NC}"
-        fi
+        echo -e "${YELLOW}📥 Installing $pkg...${NC}"
+        sudo pacman -S --noconfirm "$pkg" || {
+            echo -e "${RED} ❌ Critical failure: Failed to install $pkg.${NC}"
+            exit 1 # This will be caught by setup.sh's trap
+        }
     fi
 done
 

@@ -56,17 +56,12 @@ update_tooling() {
         run_as_user rustup update stable
     fi
 
-    if command -v npm >/dev/null 2>&1; then
-        echo -e "🟢 [NPM] Updating global npm and packages..."
-        run_as_user npm install -g npm@latest --silent
-        run_as_user npm update -g --no-audit --no-fund
-        run_as_user npm cache verify
-    fi
-
-    # SDKMAN!
-    if [[ -s "$SDKMAN_DIR/bin/sdkman-init.sh" ]]; then
-        echo -e "☕ [SDKMAN] Updating..."
-        run_as_user bash -c "source $SDKMAN_DIR/bin/sdkman-init.sh && sdk selfupdate && sdk update"
+    if command -v fnm >/dev/null 2>&1 && command -v npm >/dev/null 2>&1; then
+        echo -e "🟢 [NPM/FNM] Updating global packages for $(node -v)..."
+        run_as_user bash -c "eval \"\$(fnm env)\" && \
+                    npm install -g npm@latest --silent && \
+                    npm update -g --no-audit --no-fund && \
+                    npm cache verify"
     fi
 }
 

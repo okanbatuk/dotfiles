@@ -114,8 +114,15 @@ The `setup.sh` script follows a robust execution order to ensure system integrit
 ## ⚙️ Key Infrastructure Updates:
 
 - **Core Env**: All scripts now source `core.sh` to resolve `$REAL_USER` and colors dynamically.
-- **Idempotency**: IntelliJ and Node.js tasks now skip installation if already present to save bandwidth.
-- **JS Environment**: NPM global prefix is now set to `~/.npm-global` to avoid sudo issues.
+- **Node.js Management**: Migrated from system-wide Node.js to **fnm (Fast Node Manager)** for lightning-fast, isolated version switching.
+- **Runtime Diversity**: Native support for **Bun** alongside Node.js for high-performance streaming-aware projects.
+- **Isolated Environments**: Global NPM packages are now stored within FNM's user-space directories, eliminating the need for `sudo` and preventing permission conflicts.
+- **Privilege Safety**: All runtime installations (FNM, Bun, Rust) use `run_as_user` to prevent `$HOME` directory pollution and permission drifts.
+- **Bulletproof Heredoc Execution**: Install scripts utilize absolute path execution for initial runtime setups to bypass shell hashing delays during the bootstrap process.
+- **Zero-Sudo Node Workflow**: Global NPM packages are installed without `sudo`, ensuring the `$HOME` directory permissions remain intact.
+- **Modern Tooling**: Transitioned from Prettier to **Biome** for lightning-fast formatting and linting, integrated directly into the Zed and Neovim LSP workflows.
+
+## 🚀 Installation
 
 Clone the repo:
 
@@ -158,7 +165,7 @@ This will:
 - Clone and link [Zed config](https://github.com/okanbatuk/zed-config) from its own repository
 - Link custom scripts to `~/scripts`
 
-> 💡 **VS Code**: Settings and snippets are stored under `config/Code/`. To apply them, manually copy the contents to `~/.config/Code/User/` as needed.
+> 🧪 **Docker Testing**: The repository includes a standardized Docker workflow to verify the "Zero Root Pollution" architecture in a clean Arch Linux environment before deploying to production machines.
 
 > 💡 **VS Code**: Settings and snippets are stored under `config/Code/`. To apply them, manually copy the contents to `~/.config/Code/User/` as needed.
 
@@ -241,6 +248,13 @@ To maintain a "Clean OS" philosophy, I've implemented a robust Command Intercept
 > If you need to execute the original system binary without Guardian interference (e.g., inside a non-interactive script), simply prefix the command with `command`.
 >
 > - Example: `command rm -rf ./tmp` or `command git push -f origin main`.
+
+> 🛡️ **Shadow Dependency Injection**
+>
+> To keep the system root directory (`/usr/bin`) clean, we proactively install common Node.js dependencies (`nopt`, `semver`, `node-gyp`) in the user-space global directory.
+>
+> - **Mechanism**: When `pacman` installs a package like `zed`, it may pull `nodejs` as a hard dependency. Our architecture renders these system-wide binaries inactive by prioritizing the **FNM-managed** binaries in the `$PATH`.
+> - **Benefit**: You get the latest Node.js/NPM versions while satisfying the OS's package manager requirements without actually using the outdated system node.
 
 ## 🔒 Privacy & Git Configuration
 
