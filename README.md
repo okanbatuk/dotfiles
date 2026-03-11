@@ -11,6 +11,8 @@ My personal dotfiles and automation scripts for a consistent, reproducible devel
 dotfiles/
 ├── logs/                 # Centralized logs for all automation
 │   ├── custom/           # Logs for user-defined manual scripts
+│   ├── setup/            # Detailed logs for each setup.sh execution session
+│   ├── state/            # Persistence layer tracking completed installation tasks (.done files)
 │   ├── updates/          # System update history
 │   ├── maintenance/      # Shutdown & cleanup diagnostics
 │   └── storage/          # S.M.A.R.T. health & disk usage reports
@@ -41,10 +43,11 @@ dotfiles/
 ├── config/               # App-specific configurations (Linked to ~/.config)
 │   ├── alacritty/        # GPU terminal settings
 │   ├── nvim/             # Neovim environment
+│   └── systemd/          # System-level update & maintenance units (linked to /etc)
 │   └── ...               # (espanso, mpv, zathura, Code)
 ├── scripts/              # Internal automation scripts
-│   ├── guard.sh         # Security Interceptor for high-risk commands
-│   ├── update.sh         # Smart update system
+│   ├── guard.sh          # Security Interceptor for high-risk commands
+│   └── update.sh         # Core update logic (invoked by systemd or manually)
 │   ├── shutdown.sh       # Deep-cleans system caches and manages poweroff
 │   ├── disk-report.sh    # S.M.A.R.T. health analysis & usage reports
 │   └── ...               # (shutdown, disk-report, get-info)
@@ -70,6 +73,23 @@ I've implemented a robust maintenance system with automated logging and log rota
 | `get-info`    | get-info.sh    | Comprehensive system status (Light/Full modes).                                                                                   |
 | `disk-report` | disk-report.sh | S.M.A.R.T. disk health analysis & top directory usage.                                                                            |
 | `shut`        | shutdown.sh    | Deep-cleans system caches. Prompts `Y/y` for poweroff, `N/n` for cleanup only.                                                    |
+
+## 🤖 System Automation (systemd)
+
+The system maintenance cycle is managed via **system-level** systemd units located in `config/systemd/`. These are symlinked to `/etc/systemd/system/` to ensure they can manage core system tasks without manual intervention.
+
+### 🔄 Update Cycles
+
+- **Update-Light (Daily)**: Performs routine package synchronization and updates core development runtimes (Rust, Node.js, Bun).
+- **Update-Full (Weekly)**: Executes deep system maintenance, including mirror optimization, orphan package removal, and project-specific cleanup (e.g., recursive `node_modules` removal).
+
+### 🛡️ Security & Privilege Management
+
+To maintain high security while allowing automation:
+
+- **Root Context**: The primary service runs as `root` to handle `pacman` and system-level operations.
+- **User Context**: Sensitive tools like `yay` (AUR), `rustup`, and `fnm` are executed within the user's environment via a `run_as_user` wrapper to comply with AUR security policies.
+- **Sudoers Integration**: Specific binaries (`yay`, `pacman`) are granted restricted `NOPASSWD` access in `/etc/sudoers.d/` to allow fully non-interactive background execution.
 
 ## 🛠️ Navigation & Config Tools
 
