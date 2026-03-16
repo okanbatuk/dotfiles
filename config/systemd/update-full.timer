@@ -3,6 +3,7 @@ Description=Run Weekly Full System Update
 
 [Timer]
 OnCalendar=weekly
+RandomizedDelaySec=15min
 Persistent=true
 
 [Install]
