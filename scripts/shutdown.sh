@@ -12,120 +12,119 @@ source "$DOTFILES_DIR/core.sh" || { echo "Core environment not found"; exit 1; }
 # --- 0. Logging & Setup ---
 setup_env() {
     # Determine if shutdown is required via parameter or prompt
-    if [[ "$1" =~ ^[YyNn]$ ]]; then
-        SHUTDOWN_CHOICE="$1"
-    else
-        echo -e "${CYAN}❓ Do you want to shutdown after cleanup? (Yy/Nn):${NC} "
-        read -r SHUTDOWN_CHOICE
-    fi
+    [[ "$1" =~ ^[YyNn]$ ]] && SHUTDOWN_CHOICE="$1" || { log_info "Shutdown after cleanup? (Yy/Nn):"; read -r SHUTDOWN_CHOICE; }
 
     # Initialize log directory and file
-    LOG_DIR_MAINT="$LOG_DIR/maintenance"
-    mkdir -p "$LOG_DIR_MAINT" 2>/dev/null
-    LOG_FILE="$LOG_DIR_MAINT/shutdown-cleanup-$(date +%Y-%m-%d).log"
-
-    # Fail-safe: Ensure the current user owns the log file if it was previously created by root
-    [ -f "$LOG_FILE" ] && sudo chown "$REAL_USER":"$REAL_USER" "$LOG_FILE" 2>/dev/null
+    prepare_logging "maintenance" "shutdown-cleanup-$(date +%Y-%m-%d).log"
 
     # Redirect all output to log file and terminal
-    exec > >(tee -a "$LOG_FILE") 2>&1
-    echo -e "\n${PURPLE}===== CLEANUP STARTED AT $(date) [User: $REAL_USER] =====${NC}"
+    exec > >(tee -a "$CURRENT_LOG_FILE") 2>&1
+    log_info "===== CLEANUP STARTED AT $(date) ====="
+    log_debug "Shutdown choice: $SHUTDOWN_CHOICE | Active user: $REAL_USER"
 }
 
 # --- 1. System Maintenance (Root Required) ---
-clean_system() {
-    echo -e "\n${BLUE}>>> [STEP 1] System Level Cleanup...${NC}"
+cleanup_system() {
+    log_info ">>> [STEP 1] System Level Cleanup..."
+    log_debug "Cleaning system-wide caches and temp files..."
+    # Refresh sudo timestamp to avoid password prompts later
+    sudo -v
 
-    # Flush memory caches to disk
-    echo -e "🧠 Flushing filesystem caches..."
+    # 1. Memory Management
+    log_info "🧠 Flushing filesystem caches..."
     sync && echo 3 | sudo tee /proc/sys/vm/drop_caches > /dev/null
 
-    # Vacuum systemd journal logs older than 2 days
-    echo -e "🧹 Vacuuming journal logs (2 days)..."
+    # 2. Journal Logs
+    log_info "🧹 Vacuuming journal logs (2 days)..."
     sudo journalctl --vacuum-time=2d
 
-    # Clean temporary directories using fd for performance if available
-    echo -e "🧹 Cleaning temporary files..."
-    if command -v fd >/dev/null 2>&1; then
-        sudo fd . /tmp /var/tmp -x rm -rf 2>/dev/null || true
-    else
-        sudo find /tmp /var/tmp -mindepth 1 -delete 2>/dev/null || true
+    # 3. Package Management (System Level)
+    log_info "📦 Cleaning package caches (Pacman/Pamac)..."
+    log_debug "Running paccache and pamac clean"
+    sudo paccache -rk 2 2>/dev/null || true
+    if command -v pamac >/dev/null 2>&1; then
+        sudo pamac clean --keep 2 --no-confirm 2>/dev/null || true
     fi
 
-    # Remove old cached packages
-    echo -e "📦 Cleaning package caches (Pacman/Pamac)..."
-    sudo paccache -rk 2 2>/dev/null || true
-    sudo pamac clean --keep 2 2>/dev/null || true
+    # 5. User Space Cleanup (User Level - Single Execution)
+    log_info "🧹 Cleaning all user caches ($REAL_USER)..."
+    log_debug "Target directory: $REAL_HOME/.cache"
+    run_as_user "rm -rf $REAL_HOME/.cache/* 2>/dev/null"
+
+    # 6. Temporary Files (Safe Cleanup)
+    log_info "🧹 Cleaning old temporary files..."
+    log_debug "Using systemd-tmpfiles for safe cleanup of /tmp"
+    sudo systemd-tmpfiles --clean 2>/dev/null || true
 }
 
 # --- 2. User & Desktop Maintenance ---
 clean_user_space() {
-    echo -e "\n${CYAN}>>> [STEP 2] User Space Cleanup...${NC}"
+    log_info ">>> [STEP 2] User Space Cleanup..."
 
-    # Clean old screenshots (>24h)
+    # Screenshot Cleanup
     if [ -d "$SS_DIR" ]; then
-        echo -e "📸 Cleaning old screenshots (>24h)..."
-        run_as_user find "$SS_DIR" -type f -name "Screenshot*" -mmin +1440 -delete 2>/dev/null || true
+        log_info "📸 Cleaning old screenshots in $SS_DIR..."
+        run_as_user "find \"$SS_DIR\" -type f -name \"Screenshot*\" -mmin +1440 -delete 2>/dev/null"
     fi
 
-    echo -e "🧹 Clearing GNOME thumbnails & user cache..."
-    run_as_user rm -rf "$REAL_HOME/.cache/thumbnails"/* 2>/dev/null || true
+    log_debug "User space cleanup completed for $REAL_USER."
 }
 
 # --- 3. Developer Tooling Cleanup ---
 clean_dev_tools() {
-    echo -e "\n${GREEN}>>> [STEP 3] Dev-Tooling Cleanup (NPM, Bun, AUR)...${NC}"
+    log_info ">>> [STEP 3] Dev-Tooling Cleanup (NPM, Bun, AUR)..."
 
-    # Clean dev caches using the centralized run_as_user helper
-    echo -e "🧹 Cleaning NPM & Bun caches..."
-    run_as_user rm -rf "$REAL_HOME/.npm/_cacache" 2>/dev/null || true
-    run_as_user rm -rf "$REAL_HOME/.bun/install/cache" 2>/dev/null || true
+    # 1. Package Manager Caches
+    log_info "🧹 Cleaning NPM & Bun caches..."
+    log_debug "Removing NPM cacache and Bun install cache for $REAL_USER"
+    run_as_user "rm -rf $REAL_HOME/.npm/_cacache $REAL_HOME/.bun/install/cache 2>/dev/null"
 
-    echo -e "🧹 Cleaning AUR helper caches (yay/paru)..."
-    run_as_user rm -rf "$REAL_HOME/.cache/yay" "$REAL_HOME/.cache/paru" 2>/dev/null || true
-
-    # Handle Flatpak runtimes and app caches
+    # 2. Flatpak
     if command -v flatpak >/dev/null 2>&1; then
-        echo -e "📦 Cleaning Flatpak unused runtimes..."
-        flatpak uninstall --unused -y 2>/dev/null || true
-        run_as_user rm -rf "$REAL_HOME/.var/app"/*/cache 2>/dev/null || true
+        log_info "📦 Cleaning Flatpak runtimes & app caches..."
+
+        log_debug "Uninstalling unused Flatpak runtimes (System level)"
+        sudo flatpak uninstall --unused -y 2>/dev/null || true
+        log_debug "Clearing Flatpak app caches in $REAL_HOME/.var/app"
+        run_as_user "rm -rf $REAL_HOME/.var/app/*/cache 2>/dev/null"
     fi
 }
 
 # --- 4. Log Management ---
 manage_logs() {
-    echo -e "\n${PURPLE}>>> [STEP 4] Log Rotation & Management...${NC}"
+    log_info ">>> [STEP 4] Log Rotation & Management..."
 
-    # Remove custom session logs if directory exists
+    # Custom Session Logs Cleanup
     CUSTOM_LOG_DIR="$LOG_DIR/custom"
     if [ -d "$CUSTOM_LOG_DIR" ]; then
-        echo -e "🧹 Wiping custom session logs..."
+        log_info "🧹 Wiping custom session logs..."
+        log_debug "Removing directory: $CUSTOM_LOG_DIR"
         rm -rf "$CUSTOM_LOG_DIR"
     fi
-
-    # Rotate maintenance logs older than 30 days
-    echo -e "🗃️ Removing maintenance logs older than 30 days..."
-    find "$LOG_DIR_MAINT" -type f -name "*.log" -mtime +30 -delete
 }
 
 # --- Final Execution ---
 finalize() {
-    echo -e "\n${PURPLE}===== CLEANUP ENDED AT $(date) =====${NC}"
+    log_info "===== CLEANUP ENDED AT $(date) ====="
+    log_info "Log location: ${YELLOW}$CURRENT_LOG_FILE${NC}"
 
     # Execute poweroff if confirmed
     if [[ "$SHUTDOWN_CHOICE" =~ ^[Yy]$ ]]; then
-        echo -e "\n${RED}✅ System shutting down in 5 seconds...${NC}"
+        log_warn "✅ System shutting down in 5 seconds..."
+        log_debug "Triggering: sudo systemctl poweroff"
+
         sleep 5
         sudo systemctl poweroff
     else
-        echo -e "\n${GREEN}✅ Maintenance complete. Staying online.${NC}"
+        log_info "✅ Maintenance complete. Staying online."
+        log_debug "Shutdown was declined or not requested. Context: $REAL_USER"
     fi
 }
 
 # --- Main Logic ---
 main() {
     setup_env "$1"
-    clean_system
+    cleanup_system
     clean_user_space
     clean_dev_tools
     manage_logs

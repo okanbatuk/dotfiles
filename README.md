@@ -65,14 +65,14 @@ dotfiles/
 
 I've implemented a robust maintenance system with automated logging and log rotation (7-30 days).
 
-| Command       | Target Script  | Description                                                                                                                       |
-| ------------- | -------------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| **GUARDIAN**  | guard.sh       | **Security Layer:** Intercepts high-risk commands (`npm -g`, `chmod 777`, etc.) to prevent root pollution and system instability. |
-| `up`          | update.sh      | **Mode:** `--light` - Fast daily update: Pacman, Yay, Flatpak, Bun, Rust.                                                         |
-| `upfull`      | update.sh      | **Mode:** `--full` - Deep maintenance: Mirror refresh, node_modules cleanup, deep info.                                           |
-| `get-info`    | get-info.sh    | Comprehensive system status (Light/Full modes).                                                                                   |
-| `disk-report` | disk-report.sh | S.M.A.R.T. disk health analysis & top directory usage.                                                                            |
-| `shut`        | shutdown.sh    | Deep-cleans system caches. Prompts `Y/y` for poweroff, `N/n` for cleanup only.                                                    |
+| Command      | Target Script  | Description                                                                                                                       |
+| ------------ | -------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| **GUARDIAN** | guard.sh       | **Security Layer:** Intercepts high-risk commands (`npm -g`, `chmod 777`, etc.) to prevent root pollution and system instability. |
+| `up`         | update.sh      | **Mode:** `--light` - Fast daily update: Pacman, Yay, Flatpak, Bun, Rust with boot-time delay protection.                         |
+| `upfull`     | update.sh      | **Mode:** `--full` - Weekly update: Deep maintenance: Mirror refresh, node_modules cleanup, deep info.                            |
+| `get-info`   | get-info.sh    | Comprehensive system status (Light/Full modes).                                                                                   |
+| `dreport`    | disk-report.sh | S.M.A.R.T. disk health analysis & top directory usage.                                                                            |
+| `sd`         | shutdown.sh    | Full system cleanup (journal, cache, temp) with automated log rotation.                                                           |
 
 ## 🤖 System Automation (systemd)
 
@@ -80,8 +80,8 @@ The system maintenance cycle is managed via **system-level** systemd units locat
 
 ### 🔄 Update Cycles
 
-- **Update-Light (Daily)**: Performs routine package synchronization and updates core development runtimes (Rust, Node.js, Bun).
-- **Update-Full (Weekly)**: Executes deep system maintenance, including mirror optimization, orphan package removal, and project-specific cleanup (e.g., recursive `node_modules` removal).
+- **Update-Light (Daily)**: Performs routine package synchronization and updates development runtimes (Rust, Node.js, Bun). Includes a `RandomizedDelaySec=5min` to prevent I/O spikes immediately after system boot.
+- **Update-Full (Weekly)**: Executes deep system maintenance, including mirror list optimization, orphaned package removal, and `node_modules` cleanup in project directories. Utilizes a `Conflicts` mechanism to ensure it never runs simultaneously with the light update, avoiding database locks.
 
 ### 🛡️ Security & Privilege Management
 
@@ -133,14 +133,14 @@ The `setup.sh` script follows a robust execution order to ensure system integrit
 
 ## ⚙️ Key Infrastructure Updates:
 
-- **Core Env**: All scripts now source `core.sh` to resolve `$REAL_USER` and colors dynamically.
-- **Node.js Management**: Migrated from system-wide Node.js to **fnm (Fast Node Manager)** for lightning-fast, isolated version switching.
-- **Runtime Diversity**: Native support for **Bun** alongside Node.js for high-performance streaming-aware projects.
-- **Isolated Environments**: Global NPM packages are now stored within FNM's user-space directories, eliminating the need for `sudo` and preventing permission conflicts.
-- **Privilege Safety**: All runtime installations (FNM, Bun, Rust) use `run_as_user` to prevent `$HOME` directory pollution and permission drifts.
-- **Bulletproof Heredoc Execution**: Install scripts utilize absolute path execution for initial runtime setups to bypass shell hashing delays during the bootstrap process.
-- **Zero-Sudo Node Workflow**: Global NPM packages are installed without `sudo`, ensuring the `$HOME` directory permissions remain intact.
-- **Modern Tooling**: Transitioned from Prettier to **Biome** for lightning-fast formatting and linting, integrated directly into the Zed and Neovim LSP workflows.
+- **Context-Aware Automation**: All scripts now source `core.sh` to resolve `$REAL_USER`, `$DOTFILES_DIR`, and UI colors dynamically. The implementation of `${REAL_USER:-${SUDO_USER:-$USER}}` ensures that scripts maintain the correct user context even when triggered by systemd as `root`.
+- **Zero Root Pollution**: Tooling updates (such as **FNM**, **Bun**, and **Yay**) are strictly wrapped in a `run_as_user` function. This prevents root-owned files from cluttering the `$HOME` directory and ensures consistent permissions across all environments.
+- **Atomic Logging & Rotation**: Implemented a centralized `prepare_logging` system that handles directory creation, recursive ownership (`chown`), and a **30-day log retention policy**.
+- **Resilient Systemd Scheduling**: Maintenance tasks are orchestrated via systemd services and timers with `RandomizedDelaySec` (5-15 min) to prevent resource contention immediately after system boot.
+- **Process Isolation**: Update services utilize a `Conflicts` mechanism to prevent concurrent execution, effectively avoiding package database locks (`db.lck`).
+- **Node.js Management**: Powered by **FNM (Fast Node Manager)** for isolated, user-space version switching, eliminating the need for system-wide Node.js.
+- **Runtime Diversity**: Native support for **Bun** alongside Node.js, optimized for high-performance and streaming-aware backend projects.
+- **Modern Tooling Suite**: Transitioned to **Biome** for ultra-fast formatting and linting, fully integrated into the **Zed** and **Neovim** LSP workflows.
 
 ## 🚀 Installation
 
@@ -239,7 +239,7 @@ All scripts automatically generate logs in the `~/dotfiles/logs/` directory.
   - **Development Caches**: Clears heavy caches from `npm`, `yarn`, `bun`, `pnpm`, and `node_modules` to reclaim gigabytes of space.
   - **Package Management**: Automated cleanup of `pacman` (paccache), `yay`/`paru` AUR caches, and unused `Flatpak` runtimes.
   - **System Internals**: Performs filesystem cache flushing (`sync` & `drop_caches`), vacuums systemd journal logs to the last 2 days, and wipes `/tmp` and thumbnail caches.
-- **Auto-Rotation**: Maintenance scripts automatically use `fd` to remove logs older than 7 or 30 days to keep the repository slim.
+- **Auto-Rotation**: Maintenance scripts automatically use `fd` to remove logs older than 30 days to keep the repository slim, ensuring a clean history without manual intervention.
 - **Colorized Output**: All scripts provide enhanced terminal feedback using ANSI color coding for critical warnings (S.M.A.R.T. errors, failed services).
 - **Service Hygiene**: Maintenance scripts now automatically detect and report failed system and user-level services. After reporting, they perform a `reset-failed` to clear transient errors, ensuring a clean state for the next run.
 - **GPG Persistence:** The maintenance suite ensures GPG agents are handled correctly during system cleanups to prevent "signing failed" errors in Git workflows.

@@ -9,56 +9,55 @@ source "$DOTFILES_DIR/core.sh" || { echo "Error: core.sh not found"; exit 1; }
 
 # --- Setup logging ---
 setup_env() {
-    LOG_DIR_STORAGE="$LOG_DIR/storage"
-    mkdir -p "$LOG_DIR_STORAGE" 2>/dev/null
-    LOG_FILE="$LOG_DIR_STORAGE/disk-report-$(date +%Y-%m-%d_%H-%M-%S).log"
-
-    # Fail-safe: Ensure the current user owns the log file if it was previously created by root
-    [ -f "$LOG_FILE" ] && sudo chown "$REAL_USER":"$REAL_USER" "$LOG_FILE" 2>/dev/null
+    # Initialize storage log directory and file
+    prepare_logging "storage" "disk-report-$(date +%Y-%m-%d_%H-%M-%S).log"
 
     # Redirect all output to both log file and terminal
-    exec > >(tee -a "$LOG_FILE") 2>&1
-    echo -e "${PURPLE}===== DISK REPORT STARTED AT $(date) =====${NC}"
+    exec > >(tee -a "$CURRENT_LOG_FILE") 2>&1
+    log_info "===== DISK REPORT STARTED AT $(date) ====="
 }
 
 # --- Functions ---
 
 check_disk_health() {
-    echo -e "\n${CYAN}🛡️  Disk Health Check (S.M.A.R.T.):${NC}"
+    log_info "🛡️  Analyzing Physical Disk Health (S.M.A.R.T.)..."
 
-    # SSD (sda) - Primary Drive
-    if [ -b /dev/sda ]; then
-        SSD_STATUS=$(sudo smartctl -H /dev/sda | grep -i "test result" | awk -F: '{print $2}' | xargs)
-        SSD_BAD=$(sudo smartctl -A /dev/sda | grep "Reallocated_Sector_Ct" | awk '{print $10}')
-        echo -e "  [SSD - sda] Status: ${GREEN}$SSD_STATUS${NC}"
+    # Identify all physical disks (excluding partitions, loop devices, and rom)
+    local disks=$(lsblk -dno NAME,TYPE | grep "disk" | awk '{print $1}')
 
-        if [[ "$SSD_BAD" -eq 0 ]]; then
-            echo -e "  - Physical: ${GREEN}Perfect (0 bad sectors).${NC}"
+    for dev in $disks; do
+        local dev_path="/dev/$dev"
+        local model=$(lsblk -dno MODEL "$dev_path")
+
+        log_info "Analyzing device: $dev_path [$model]"
+
+        # Validate S.M.A.R.T. capability and health status
+        if sudo smartctl -H "$dev_path" > /dev/null 2>&1; then
+            local status=$(sudo smartctl -H "$dev_path" | grep -i "test result" | awk -F: '{print $2}' | xargs)
+            echo -e "  - Overall Health Status: ${GREEN}$status${NC}"
+
+            # Check for Reallocated Sectors (Critical for SATA SSD/HDD longevity)
+            if sudo smartctl -A "$dev_path" | grep -q "Reallocated_Sector_Ct"; then
+                local bad_sectors=$(sudo smartctl -A "$dev_path" | grep "Reallocated_Sector_Ct" | awk '{print $10}')
+                if [[ "$bad_sectors" -eq 0 ]]; then
+                    echo -e "  - Surface Condition: ${GREEN}Perfect (0 bad sectors)${NC}"
+                else
+                    log_warn "⚠️  WARNING: $bad_sectors reallocated sectors detected on $dev_path!"
+                fi
+            fi
         else
-            echo -e "  - ${RED}⚠️  WARNING: $SSD_BAD reallocated sectors detected!${NC}"
+            log_error "Failed to retrieve S.M.A.R.T. data for $dev_path. Ensure drive supports S.M.A.R.T."
         fi
-    fi
-
-    # HDD (sdb) - Storage Drive
-    if [ -b /dev/sdb ]; then
-        HDD_STATUS=$(sudo smartctl -H /dev/sdb | grep -i "test result" | awk -F: '{print $2}' | xargs)
-        echo -e "  [HDD - sdb] Status: ${GREEN}$HDD_STATUS${NC}"
-    fi
+    done
 }
 
 report_disk_usage() {
-    echo -e "\n${BLUE}📊 Top Disk Usage (Home: $REAL_HOME):${NC}"
-    # Showing top 15 largest directories/files in home
+    log_info "📊 Top Disk Usage (Home: $REAL_HOME):"
+    # Display top 15 largest directories/files in the home directory
     du -h --max-depth=2 "$REAL_HOME" 2>/dev/null | sort -hr | head -n 15
 
-    echo -e "\n${BLUE}📊 System Partition Summary:${NC}"
+    log_info "📊 System Partition Summary:"
     df -h /
-}
-
-delete_old_reports() {
-    echo -e "\n${PURPLE}🗃️  Cleaning storage logs older than 30 days...${NC}"
-    # Automated log rotation to prevent storage bloat
-    find "$LOG_DIR_STORAGE" -type f -name "*.log" -mtime +30 -delete 2>/dev/null
 }
 
 # --- Main Execution ---
@@ -66,10 +65,12 @@ main() {
     setup_env
     check_disk_health
     report_disk_usage
-    delete_old_reports
 
-    echo -e "\n${GREEN}✅ Disk report generated successfully at:${NC}"
-    echo -e "${YELLOW}$LOG_FILE${NC}"
+    # Rotation is handled globally by prepare_logging in core.sh,
+    # but specific directory cleanup can be added here if needed.
+
+    log_info "===== DISK REPORT GENERATED SUCCESSFULLY ====="
+    log_info "Log location: ${YELLOW}$CURRENT_LOG_FILE${NC}"
 }
 
 main "$@"
