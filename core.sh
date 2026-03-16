@@ -1,34 +1,94 @@
 #!/bin/bash
 # ~/dotfiles/core.sh
 # Shared environment variables, global constants, and helper functions.
-# This file acts as the "Source of Truth" for all automation scripts.
 
 # --- User & Directory Context ---
-# These are also defined in .zshenv for the shell,
-# but redefined here to ensure scripts work when run independently.
-export REAL_USER=${SUDO_USER:-$USER}
+export REAL_USER=${REAL_USER:-${SUDO_USER:-$USER}}
 export REAL_HOME=$(getent passwd "$REAL_USER" | cut -d: -f6)
-export DOTFILES_DIR="$REAL_HOME/dotfiles"
+export DOTFILES_DIR="${DOTFILES_DIR:-$REAL_HOME/dotfiles}"
 
 # --- Centralized Paths ---
 export SCRIPTS_DIR="$DOTFILES_DIR/scripts"
 export LOG_DIR="$DOTFILES_DIR/logs"
 export SS_DIR="$REAL_HOME/Pictures/Screenshots"
 
-# --- Helper Functions ---
+# --- 🔍 Debug Mode Detection ---
+# Scans all arguments passed to the calling script for --debug
+DEBUG_MODE=false
+for arg in "$@"; do
+  if [[ "$arg" == "--debug" || "$arg" == "-d" ]]; then
+      DEBUG_MODE=true
+      break # Flag bulunduğunda döngüden çıkmak daha verimlidir
+  fi
+done
+export DEBUG_MODE
 
-# run_as_user: Executes commands as the non-root user even from a sudo context.
-# Essential for FNM, Bun, and AUR (yay) installations to prevent root pollution.
-run_as_user() {
-    sudo -i -u "$REAL_USER" "$@"
-}
-
-# --- Common UI Colors ---
-# Used for consistent and readable terminal output across all scripts.
+# --- 🎨 Common UI Colors ---
 export BLUE='\033[1;34m'
 export GREEN='\033[1;32m'
+export RED='\033[1;31m'
 export YELLOW='\033[1;33m'
-export RED='\033[0;31m'
-export CYAN='\033[0;36m'
-export PURPLE='\033[1;35m'
-export NC='\033[0m' # No Color (Reset)
+export PURPLE='\033[1;35m' # Used for Debug
+export NC='\033[0m'
+
+# --- 📝 Logging Methods ---
+
+log_info() { echo -e "\n${GREEN}[INFO]${NC} $*"; }
+log_warn() { echo -e "\n${YELLOW}[WARN]${NC} $*"; }
+log_error() { echo -e "\n${RED}[ERROR]${NC} $*"; }
+
+# Only outputs if --debug flag is present
+log_debug() {
+    if [[ "$DEBUG_MODE" == true ]]; then
+        echo -e "\n${PURPLE}[DEBUG]${NC} $*"
+    fi
+}
+
+# --- 🛠️ Utility: prepare_logging ---
+# Handles directory creation, ownership, and rotation in one go
+prepare_logging() {
+    local sub_dir="$1" # e.g., "updates" or "maintenance" or "storage"
+    local target_dir="$LOG_DIR/$sub_dir"
+    local log_file_name="$2"
+    local log_path="$target_dir/$log_file_name"
+
+    # Create directory with sudo if needed, but ensure user ownership
+    if [ ! -d "$target_dir" ]; then
+        mkdir -p "$target_dir" 2>/dev/null || { sudo mkdir -p "$target_dir" && sudo chown -R "$REAL_USER":"$REAL_USER" "$LOG_DIR"; }
+    fi
+
+    # CRITICAL: Ensure the log file itself is writable by the user before 'tee'
+    if [ -f "$log_path" ]; then
+        [ ! -w "$log_path" ] && sudo chown "$REAL_USER":"$REAL_USER" "$log_path"
+    else
+        touch "$log_path"
+    fi
+    chmod 644 "$log_path"
+
+    # Export for the calling script
+    export CURRENT_LOG_FILE="$log_path"
+
+    # Rotate logs (older than 30 days)
+    log_debug "Rotating logs in $target_dir..."
+    find "$target_dir" -type f -name "*.log" -mtime +30 -delete 2>/dev/null
+}
+
+# --- 🛠️ Utility: run_as_user ---
+run_as_user() {
+    local target_user="${REAL_USER:-$USER}"
+
+    log_debug "Context check -> Current: $(whoami) (UID: $(id -u)), Target: $target_user"
+
+    if [ "$(id -u)" -eq 0 ]; then
+        log_debug "Elevated privileges (root) detected. Switching context to $target_user..."
+
+        # -H: Preservation of HOME is critical for tools like yay/makepkg
+        # bash -l: Ensures .zshenv/.zprofile (FNM, Bun, etc.) are loaded
+        sudo -H -u "$target_user" bash -l -c "
+            export DEBUG_MODE=$DEBUG_MODE
+            $*"
+    else
+        log_debug "Already running as $target_user. Executing directly..."
+        eval "$@"
+    fi
+}
