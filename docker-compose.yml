@@ -1,0 +1,12 @@
+services:
+  dotfiles-test:
+    build: .
+    container_name: dotfiles_lab
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+    volumes:
+      - .:/home/myrn/dotfiles # Sync local dotfiles with the container
+    stdin_open: true # Maintain open stdin for interactive shells
+    tty: true # Enable TTY support
+    restart: "no" # Do not restart on failure to allow debugging
