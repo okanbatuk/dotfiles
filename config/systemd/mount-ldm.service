@@ -1,0 +1,11 @@
+[Unit]
+Description=Mount Windows LDM Volume via ldmtool
+After=local-fs.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/bash /home/myrn/dotfiles/scripts/mount.sh
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
