@@ -24,6 +24,10 @@ if [ -d "$HOME/.zsh_functions.d" ]; then
   done
 fi
 
+# Register file/directory completion for the 'o' alias (handlr open wrapper)
+o() { handlr open "$@" }
+compdef _files o
+
 # 🧩 Manjaro & FZF
 [[ -e /usr/share/zsh/manjaro-zsh-prompt ]] && source /usr/share/zsh/manjaro-zsh-prompt
 source /usr/share/fzf/key-bindings.zsh

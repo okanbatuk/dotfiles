@@ -45,7 +45,6 @@ alias ls='eza --group-directories-first --icons=auto'
 alias ll='eza -al --icons=auto --git'
 alias free='free -m -h'
 alias df='duf'
-alias o='handlr open'
 alias fo='fd --type f | fzf --preview "bat --color=always --style=numbers --line-range :500 {}" | xargs -r handlr open'
 
 # --- 🔍 Search & Filter ---
