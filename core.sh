@@ -76,19 +76,27 @@ prepare_logging() {
 # --- 🛠️ Utility: run_as_user ---
 run_as_user() {
     local target_user="${REAL_USER:-$USER}"
+    # Resolve the target user's home directory via system database to avoid SUDO_HOME mismatches
+    local target_home=$(getent passwd "$target_user" | cut -d: -f6)
 
-    log_debug "Context check -> Current: $(whoami) (UID: $(id -u)), Target: $target_user"
+    log_debug "Context check -> Current: $(whoami) (UID: $(id -u)), Target: $target_user" >&2
 
     if [ "$(id -u)" -eq 0 ]; then
-        log_debug "Elevated privileges (root) detected. Switching context to $target_user..."
+        log_debug "Elevated privileges (root) detected. Switching context to $target_user..." >&2
 
-        # -H: Preservation of HOME is critical for tools like yay/makepkg
-        # bash -l: Ensures .zshenv/.zprofile (FNM, Bun, etc.) are loaded
-        sudo -H -u "$target_user" bash -l -c "
-            export DEBUG_MODE=$DEBUG_MODE
-            $*"
+        # -E: Preserves the existing environment variables from the calling shell
+        # env HOME=...: Forces the HOME variable to the target user's directory,
+        # ensuring tools like FNM don't accidentally look into /root
+        sudo -E -u "$target_user" env \
+            HOME="$target_home" \
+            REAL_USER="$REAL_USER" \
+            REAL_HOME="$REAL_HOME" \
+            FNM_DIR="$FNM_DIR" \
+            DETECTED_LTS="$DETECTED_LTS" \
+            DEBUG_MODE="$DEBUG_MODE" \
+            bash -c "$*"
     else
-        log_debug "Already running as $target_user. Executing directly..."
+        log_debug "Already running as $target_user. Executing directly..." >&2
         eval "$@"
     fi
 }

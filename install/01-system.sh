@@ -5,43 +5,36 @@ set -e # Ensure any uncontrolled error triggers the failure trap in setup.sh
 
 # --- Core Environment Import ---
 CORE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-CORE_ENV="$CORE_DIR/../core.sh"
+source "$CORE_DIR/../core.sh" || { source "$CORE_DIR/core.sh" 2>/dev/null || exit 1; }
 
-if [ -f "$CORE_ENV" ]; then
-    source "$CORE_ENV" # Inherit DOTFILES_DIR, REAL_USER, and REAL_HOME
-else
-    source "$CORE_DIR/core.sh" 2>/dev/null || { echo "Error: core.sh not found"; exit 1; }
+log_info "📁 Preparing system infrastructure and installing dependencies..."
+
+# 1. Infrastructure Setup
+# Create necessary log directories for operational tracking
+log_info "Initializing log structure..."
+mkdir -p "$LOG_DIR"/{updates,maintenance,storage}
+log_debug "Log directories verified at $LOG_DIR"
+
+# Create cargo environment placeholder to prevent shell initialization errors
+if [ ! -d "$REAL_HOME/.cargo" ]; then
+    mkdir -p "$REAL_HOME/.cargo"
+    touch "$REAL_HOME/.cargo/env"
+    chown -R "$REAL_USER":"$REAL_USER" "$REAL_HOME/.cargo"
+    log_debug "Cargo environment placeholder created for $REAL_USER"
 fi
 
-echo -e "${CYAN}Running task with DOTFILES_DIR: $DOTFILES_DIR${NC}"
-echo -e "${YELLOW}📁 Preparing system and installing dependencies...${NC}"
-
-# 1. Create necessary log directories
-# Used for tracking updates, maintenance tasks, and storage logs
-# Note: $DOTFILES_DIR is inherited from the main setup.sh
-mkdir -p "$DOTFILES_DIR/logs"/{updates,maintenance,storage}
-echo -e "  ${GREEN}✅ Log structure ready${NC}"
-
-# Create cargo env file to prevent Zsh errors during first setup
-mkdir -p "$REAL_HOME/.cargo"
-touch "$REAL_HOME/.cargo/env"
-sudo chown -R "$REAL_USER":"$REAL_USER" "$REAL_HOME/.cargo"
-
 # 2. Comprehensive Dependency List
-# Optimized for a Backend Engineer's workflow (Node.js, Docker, Modern CLI tools)
+# Curated for Backend Engineering, DevOps, and Modern CLI workflows
 DEPENDENCIES=(
     # --- Core & Build Tools ---
     base-devel git docker docker-compose rustup util-linux perl
     unzip zip gnupg pinentry
     # --- Modern CLI Tools ---
-    eza bat fzf ripgrep
-    fastfetch
-    fd jq tldr starship zoxide handlr
+    eza bat fzf ripgrep fastfetch fd jq tldr starship zoxide handlr
     # --- Shell Enhancements ---
     zsh zsh-autosuggestions zsh-syntax-highlighting
     # --- Multimedia & UI ---
-    tesseract-data-eng
-    tesseract-data-tur
+    tesseract-data-eng tesseract-data-tur
     alacritty drawing zathura zathura-pdf-mupdf mpv yt-dlp
     # --- System Tools ---
     smartmontools pacman-contrib
@@ -50,18 +43,18 @@ DEPENDENCIES=(
 )
 
 # 3. Package Installation Loop
-# Checks if each package is already installed via pacman before attempting installation
-echo -e "${CYAN}📦 Checking system packages...${NC}"
+log_info "📦 Synchronizing system packages..."
+
 for pkg in "${DEPENDENCIES[@]}"; do
     if pacman -Qi "$pkg" &> /dev/null; then
-        echo -e "${GREEN} ✅ $pkg is already installed. ${NC}"
+        log_debug "✅ $pkg is already satisfied."
     else
-        echo -e "${YELLOW}📥 Installing $pkg...${NC}"
+        log_info "📥 Installing package: $pkg..."
         sudo pacman -S --noconfirm "$pkg" || {
-            echo -e "${RED} ❌ Critical failure: Failed to install $pkg.${NC}"
+            log_error "❌ Critical failure: Failed to install $pkg."
             exit 1 # This will be caught by setup.sh's trap
         }
     fi
 done
 
-echo -e "${GREEN}✅ System dependencies update finished.${NC}"
+log_info "✅ System dependencies synchronization finished successfully."

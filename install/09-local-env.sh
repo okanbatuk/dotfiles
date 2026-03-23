@@ -1,5 +1,5 @@
 #!/bin/bash
-# 08-local-env.sh - Managing device-specific local environment variables
+# 09-local-env.sh - Managing device-specific local environment variables
 # Creates a .zshenv.local file for machine-specific IDs and private variables.
 
 set -e # Exit immediately if a command fails to trigger setup.sh trap
@@ -10,13 +10,14 @@ source "$CORE_DIR/../core.sh" || { source "$CORE_DIR/core.sh" 2>/dev/null || exi
 
 LOCAL_ENV="$REAL_HOME/.zshenv.local"
 
-echo -e "${CYAN}🔍 Checking local environment file for $REAL_USER...${NC}"
+log_info "🔍 Checking local environment file for $REAL_USER..."
 
+# 1. Local Environment Creation Logic
 if [ ! -f "$LOCAL_ENV" ]; then
-    echo -e "${YELLOW}Creating $LOCAL_ENV with default device IDs...${NC}"
+    log_warn "💡 $LOCAL_ENV not found. Creating a new one with default device IDs..."
 
     # Create the file using a heredoc
-    # Note: We use a simple cat here, but we will fix ownership immediately after
+    # This file contains sensitive hardware IDs and should remain local (gitignored)
     cat <<EOF > "$LOCAL_ENV"
 # Device Ids - Update these using 'lsusb' if needed
 export ID_WEBCAM="04f2:b5a7"
@@ -26,13 +27,17 @@ export ID_FINGERPRINT="1c7a:0603"
 # You can add local private variables or machine-specific exports below.
 EOF
 
+    # 2. Permissions & Ownership
     # Critical: Ensure the file is owned by the real user, not root
     chown "$REAL_USER:$REAL_USER" "$LOCAL_ENV"
-    chmod 600 "$LOCAL_ENV" # Set restrictive permissions as it might contain private data
 
-    echo -e "${GREEN}✅ Local environment file created successfully.${NC}"
+    # Set restrictive permissions (read/write only for user) as it might contain private data
+    chmod 600 "$LOCAL_ENV"
+
+    log_info "✅ Local environment file created successfully at $LOCAL_ENV."
 else
-    echo -e "${BLUE}ℹ️  $LOCAL_ENV already exists. Skipping creation to preserve your manual changes.${NC}"
+    # Preserving manual changes is a priority for device-specific configs
+    log_debug "ℹ️  $LOCAL_ENV already exists. Skipping creation to preserve your manual changes."
 fi
 
-echo -e "${GREEN}✅ Local environment task finished.${NC}"
+log_info "✅ Local environment task finished."
