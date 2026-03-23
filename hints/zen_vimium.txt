@@ -1,0 +1,27 @@
+Alt-h	Go back	Go back in history
+Alt-l	Go forward	Go forward in history
+J	Next tab	Switch to the next tab (down)
+K	Prev tab	Switch to the previous tab (up)
+g0	First tab	Go to the first tab in the list
+g$	Last tab	Go to the last tab in the list
+f	Open link	Open link in the current tab
+F	New tab link	Open link in a new tab
+T	Search tabs	Search through all open tabs
+/	Find mode	Enter find mode (search text on page)
+yy	Copy URL	Copy the current URL to clipboard
+r	Reload	Reload the current page
+x	Close tab	Close the current tab
+X	Restore tab	Restore the last closed tab
+gg	Scroll top	Scroll to the very top of the page
+G	Scroll bottom	Scroll to the very bottom of the page
+p	Open clip	Open clipboard URL in current tab
+W	New window	Move current tab to a new window
+yt	Duplicate	Duplicate the current tab
+Alt-p	Pin tab	Pin or unpin the current tab
+<<	Move up	Move tab up in sidebar
+>>	Move down	Move tab down in sidebar
+Ctrl-Alt-p	Zen search	Zen native tab search engine
+gi	Focus input	Focus first input box (Tab for next)
+i	Insert mode	Pass keys to website (e.g. YouTube)
+v	Visual mode	Select text using h,j,k,l (Vim style)
+Esc	Normal mode	Exit Insert/Visual Mode

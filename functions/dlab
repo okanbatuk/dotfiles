@@ -1,0 +1,102 @@
+# Docker Compose lab manager for multi-environment testing
+# Supports short-option combining like 'dlab -n myservice -ub' or 'dlab -n myservice -x root'
+dlab() {
+    local build=false
+    local mode=""
+    local user=""
+    local service=""
+    local OPTIND opt
+
+    while getopts "n:usbx:trlph" opt; do
+        case "$opt" in
+            n) service="$OPTARG" ;;
+            u) mode="up" ;;
+            s) mode="stop" ;;
+            b) build=true ;;
+            x) mode="sh"; user="$OPTARG" ;;
+            t) mode="teardown" ;;
+            r) mode="reset" ;;
+            l) mode="logs" ;;
+            p) mode="ps" ;;
+            h)
+                echo "Usage: dlab -n <service> [OPTIONS]"
+                echo ""
+                echo "  -n <service>    Target service name (required)"
+                echo "  -u              Start containers (detached)"
+                echo "  -ub             Start with rebuild"
+                echo "  -s              Stop containers"
+                echo "  -t              Full teardown (images, volumes)"
+                echo "  -r              Reset (teardown + rebuild)"
+                echo "  -x [user]       Exec into container (default: root)"
+                echo "  -p              Container status"
+                echo "  -l              Follow logs"
+                echo ""
+                echo "Examples:"
+                echo "  dlab -n dotfiles-test -ub"
+                echo "  dlab -n dotfiles-test -x myrn"
+                echo "  dlab -n myapp -x root"
+                return 0
+                ;;
+            *) dlab -h; return 1 ;;
+        esac
+    done
+
+    shift $((OPTIND - 1))
+
+    # Guard: -n is required for all modes except -h and -p
+    if [[ -z "$service" && "$mode" != "ps" ]]; then
+        echo "❌ Service name required. Use -n <service>"
+        echo "   Example: dlab -n dotfiles-test -u"
+        return 1
+    fi
+
+    case "$mode" in
+        up)
+            if $build; then
+                docker compose up -d --build
+            else
+                docker compose up -d
+            fi
+            ;;
+        stop)     docker compose down ;;
+        teardown) docker compose down --rmi all --volumes --remove-orphans ;;
+        reset)    docker compose down --rmi all --volumes --remove-orphans \
+                      && docker compose up -d --build ;;
+        sh)       docker compose exec -u "${user:-root}" "$service" bash ;;
+        ps)       docker compose ps ;;
+        logs)     docker compose logs -f "$service" ;;
+        *)        dlab -h ;;
+    esac
+}
+
+# --- Helper: list running container names ---
+_dlab_running_containers() {
+    docker ps --format '{{.Names}}' 2>/dev/null
+}
+
+# --- Helper: list compose services from docker-compose.yml ---
+_dlab_compose_services() {
+    docker compose ps --services 2>/dev/null
+}
+
+# --- Helper: list local system users (uid 1000-65533) ---
+_dlab_local_users() {
+    getent passwd | awk -F: '$3 >= 1000 && $3 < 65534 && $7 !~ /nologin|false/ {print $1}'
+}
+
+# --- Completion ---
+_dlab_completion() {
+    _arguments -s -w \
+        '-n[Target service name]:service:($(_dlab_compose_services))' \
+        '-u[Start containers]' \
+        '-b[Build flag (use with -u or -r)]' \
+        '-s[Stop containers]:container:($(_dlab_running_containers))' \
+        '-t[Full teardown]:container:($(_dlab_running_containers))' \
+        '-r[Reset: teardown + rebuild]:container:($(_dlab_running_containers))' \
+        '-x[Exec into container]:user:($(_dlab_local_users))' \
+        '-l[Follow logs]:container:($(_dlab_running_containers))' \
+        '-p[Container status]' \
+        '-h[Help]'
+}
+
+compdef _dlab_completion dlab

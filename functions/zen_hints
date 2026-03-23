@@ -1,0 +1,46 @@
+#!/bin/bash
+
+# Zen Browser Vimium C Shortcuts Search
+# Uses fzf to interactively find browser shortcuts from a hint file
+zen_hints() {
+    local HINTS_FILE="$HOME/dotfiles/hints/zen_vimium.txt"
+
+    if [[ -f "$HINTS_FILE" ]]; then
+        local selected=$(cat "$HINTS_FILE" | awk -F '\t' '{
+            printf "- ⚡ %-12s ➔  %s\t%s\t%s\t%s\n", $1, $2, $1, $2, $3
+        }' | fzf --height 60% \
+            --reverse \
+            --header "Search Zen (Vimium) Shortcuts" \
+            --border \
+            --ansi \
+            --tabstop=15 \
+            --delimiter $'\t' \
+            --preview-window 'right:45%:border-left' \
+            --with-nth 1 \
+            --preview '
+                p_key=$(echo {2} | sed "s/^\x27//; s/\x27$//")
+                p_action=$(echo {3} | sed "s/^\x27//; s/\x27$//")
+                p_desc=$(echo {4} | sed "s/^\x27//; s/\x27$//")
+
+                echo -e "\n  \033[1;34m󰘳 Shortcut\033[0m"
+                echo -e "  \033[1;37m<$p_key>\033[0m"
+
+                echo -e "\n  \033[1;32m󱔗 Action\033[0m"
+                echo -e "  \033[0;37m$p_action\033[0m"
+
+                echo -e "\n  \033[1;33m󰛨 Description\033[0m"
+                echo -e "  \033[0;37m$p_desc\033[0m"
+
+                echo -e "\n\n  \033[2;37m────────────────────────────\033[0m"
+                echo -e "  \033[2;37mPress $p_key in Zen to execute\033[0m"
+            ')
+
+        if [[ -n "$selected" ]]; then
+            local out_key=$(echo "$selected" | cut -f2 | sed "s/^\x27//; s/\x27$//")
+            local out_action=$(echo "$selected" | cut -f3 | sed "s/^\x27//; s/\x27$//")
+            echo "- ⚡ $out_key ➔ $out_action"
+        fi
+    else
+        echo "Error: $HINTS_FILE not found."
+    fi
+}

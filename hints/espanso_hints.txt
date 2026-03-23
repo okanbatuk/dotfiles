@@ -1,0 +1,208 @@
+espanso	Hi there!	Welcome message
+shell	echo 'Hello from your shell'	Print the output of a shell command
+hi	Hi Okan!	Greeting
+git	o https://github.com/okanbatuk	Open GitHub profile
+ff	fastfetch	System information summary
+op	xdg-open .	Open current directory in file manager
+zed	zeditor	Open Zed editor
+wind	windsurf	Open Windsurf IDE
+go	google.com	Google search
+alsa	alsamixer	Audio mixer
+proj	~/Desktop/Projects/	Projects directory path
+priv	~/Desktop/Private/	Private directory path
+conf	~/.config	Config directory path
+zsh	zshconf	Zsh configuration shortcut
+alias	aliasconf	Aliases configuration shortcut
+esps	espanso start	Start Espanso
+espr	espanso restart	Restart Espanso
+espc	espconf	Espanso configuration shortcut
+esp 	esp_hints	Espanso triggers list
+ehints	esp_hints	Espanso triggers list
+gs	git status	Check git status
+gc	git commit -m '	Git commit with message
+gca	git commit -ma '	Git commit all with message
+gbr	git branch	List git branches
+gundo	git reset --soft HEAD~1	Undo last commit, keep changes
+gam	git commit --amend -m '	Amend last commit message
+gcln	git branch --merged | grep -v "*" | xargs -n 1 git branch -d	Delete merged branches
+gup	git remote update && git status -uno	Fetch remote updates
+gcb	git checkout -b '	Create and switch to new branch
+gco	git checkout '	Switch branch or restore files
+gp	git push	Push changes to remote
+gpf	git push --force-with-lease	Safe force push
+gpull	git pull	Pull changes from remote
+gpo	git pull origin $(git branch --show-current)	Pull current branch from origin
+gr	git restore	Discard local changes
+gl	git log --oneline -10	Show last 10 commits
+gd	git diff	Show unstaged changes
+gdc	git diff --cached	Show staged changes
+gstash	git stash push -m '	Save changes to stash
+gsp	git stash pop	Restore latest stash
+gtag	git tag '	Create repository tag
+gfetch	git fetch --prune	Fetch and prune dead branches
+greb	git rebase -i HEAD~	Interactive rebase
+gign	curl -s https://www.toptal.com/developers/gitignore/api/$|$ >> .gitignore	Generate .gitignore
+gh	git rev-parse --short HEAD 2>/dev/null || echo no-repo	Get 7-char short SHA
+json	JSON.stringify(data, null, 2)	Pretty print JSON
+clg	console.log('🚀 ~ file: , line: ', )	Enhanced logging
+header	Authorization: Bearer	API Auth Header
+base64	echo -n "$|$ " | base64	Base64 encoding utility
+nr	npm run	NPM run command
+br	bun run	Bun run command
+ni	npm install	NPM install
+bi	bun install	Bun install
+badd	bun add	Bun add package
+nid	npm install -D	NPM install dev dependency
+nig	npm install -g	NPM install global
+dps	docker ps	List running containers
+dr	docker run	Run docker container
+ds	docker stop	Stop docker container
+dlogs	docker logs -f	Follow docker logs
+dex	docker exec -it $|$ /bin/sh	Interactive shell in container
+dstats	docker stats	Docker resource usage
+dclean	docker system prune -af --volumes	Wipe unused Docker data
+dbuild	docker build -t	Build docker image
+dc	docker-compose	Docker compose command
+dlup	dlab -ub -n	Start lab with rebuild
+dls	dlab -s -n	Stop lab containers
+dlt	dlab -t -n	Full teardown (images, volumes)
+dlr	dlab -r -n	Reset lab (teardown + rebuild)
+dlx 	dlab -x -n	Exec into container (default: root)
+dlxu	dlab -x [user] -n	Exec into container as user
+dll	dlab -l -n	Follow container logs
+dlp	dlab -p	Container status (all services)
+kaf	kubectl apply -f	K8s apply manifest
+kgn	kubectl get nodes	K8s get nodes
+kgp	kubectl get pods	K8s get pods
+kgs	kubectl get svc	K8s get services
+kdp	kubectl describe pod	K8s describe pod
+kl	kubectl logs -f	Follow K8s logs
+pac	sudo pacman -Syu	Update system (Pacman)
+psearch	pacman -Ss	Search packages
+orp	pacman -Qdt	List unused dependencies
+mirrors	sudo pacman-mirrors --fasttrack 10 && sudo pacman -Syyu	Update mirrors and system
+y	yay -Sua	Update AUR packages
+temp	watch sensors	Monitor temperatures
+path	echo $PATH | tr ':' '\n'	Readable PATH variable
+sstat	systemctl status	Service status
+ss	sudo systemctl start	Start service
+sstop	sudo systemctl stop	Stop service
+sr	sudo systemctl restart	Restart service
+sl	sudo journalctl -u	View service logs
+fw	sudo ufw status	Firewall status
+fwa	sudo ufw allow	Firewall allow port
+fwe	sudo ufw enable	Enable firewall
+fwd	sudo ufw disable	Disable firewall
+fbs	sudo fail2ban-client status	Check Fail2Ban status
+myip	curl -s https://ipinfo.io/ip	Show public IP
+port	sudo lsof -i :	Find process on port
+pingg	ping 8.8.8.8	Ping Google DNS
+http	python3 -m http.server 8000	Quick HTTP server
+pyt	python3	Run Python 3
+pyvers	python3 --version	Show Python version
+pipins	pip install	Install python package
+pipf	pip freeze > requirements.txt	Export python packages
+venv	python3 -m venv venv && source venv/bin/activate	Create/Activate venv
+activate	source venv/bin/activate	Activate venv
+cmx	chmod +x	Make file executable
+big10	du -ah . | sort -rh | head -n 10	10 largest files
+dir	du -sh */ | sort -rh	Directory sizes
+ds1	dust -d 1	Disk usage depth 1
+ds2	dust -d 2	Disk usage depth 2
+ft	fulltree	Full directory tree
+pt	projtree	Project directory tree
+findf	find . -type f -name '*	Find files by name
+findd	find . -type d -name '*	Find directories by name
+fdf	fd -t f $|$	Fast find files
+fdd	fd -t d $|$	Fast find directories
+fda	fd -IH $|$	Find all (hidden/ignored)
+tar	tar -czvf	Compress tar.gz
+untar	tar -xzvf	Extract tar.gz
+zip	zip -r	Compress zip
+unzip	unzip	Extract zip
+disk	df -h	Disk space usage
+mem	free -h	Memory usage
+top	htop	System monitor
+date	{options}	Choice of date formats
+time	date +%T	Current time (HH:MM:SS)
+hm	date +%H:%M	Current time (HH:MM)
+iso	date -Iseconds	ISO 8601 timestamp
+cdir	cd ~/Desktop/{{path}}	Navigate to Desktop path
+res	reload	Reload the config
+ex	exit	Close terminal
+si	inxi -Fxzc0	Full system info
+fi	get-info --full	Full diagnostic info
+mi	get-info	Medium diagnostic info
+li	get-info --light	Light diagnostic info
+size	du -sh	Total directory size
+ls	journalctl --disk-usage	Journal logs disk usage
+curlj	curl -s	Silent curl
+ul	sudo usbguard list-devices	View USB devices
+ua	sudo usbguard allow-device	Allow USB device
+zen	zen_hints	Zen Browser shortcuts
+zhints	zen_hints	Zen Browser shortcuts
+surp	😱	Emoji: Scared
+wow	😮	Emoji: Surprised
+mind	🤯	Emoji: Mind blown
+flush	😳	Emoji: Flushed
+smile	😊	Emoji: Smile
+sad	😢	Emoji: Sad
+party	🥳	Emoji: Party
+lol	😂	Emoji: Laughing
+cool	😎	Emoji: Cool
+touch	🥹	Emoji: Touched
+smirk	😏	Emoji: Smirk
+frust	😤	Emoji: Frustrated
+sleep	😴	Emoji: Sleepy
+think	🤔	Emoji: Thinking
+sweat	😅	Emoji: Nervous laugh
+sal	🫡	Emoji: Salute
+grim	😬	Emoji: Grimace
+rocket	🚀	Emoji: Rocket
+check	✅	Emoji: Checkmark
+error	❌	Emoji: Cross
+warn1	⚠️	Emoji: Warning
+fire	🔥	Emoji: Fire
+info	ℹ️	Emoji: Info
+gear	⚙️	Emoji: Settings
+eyes	👀	Emoji: Eyes
+lock	🔒	Emoji: Lock
+bug	🐛	Emoji: Bug
+clean	🧹	Emoji: Clean
+play	▶️	Emoji: Play
+stop	⏹️	Emoji: Stop
+pause	⏸️	Emoji: Pause
+step	⏭️	Emoji: Next
+point	👉	Emoji: Point
+ok	👌	Emoji: OK
+hs	🤝	Emoji: Handshake
+up	👍	Emoji: Thumbs up
+down	👎	Emoji: Thumbs down
+pray	🙏	Emoji: Pray
+clap	👏	Emoji: Clap
+wave	👋	Emoji: Wave
+muscle	💪	Emoji: Muscle
+write	✍️	Emoji: Writing
+tr	🇹🇷	Flag: Turkey
+en	🇬🇧	Flag: UK
+us	🇺🇸	Flag: USA
+lp	💻	Emoji: Laptop
+mouse	🖱️	Emoji: Mouse
+mon	🖥️	Emoji: Monitor
+ph	📱	Emoji: Phone
+bulb	💡	Emoji: Idea
+tool	🛠️	Emoji: Tools
+ham	🔨	Emoji: Hammer
+wrench	🔧	Emoji: Wrench
+bolt	⚡	Emoji: Lightning
+mail	✉️	Emoji: Mail
+letter	📩	Emoji: Letter
+warn2	❗	Emoji: Exclamation
+que	❓	Emoji: Question
+100	💯	Emoji: 100
+db	🗄️	Emoji: Database
+doc	📄	Emoji: Document
+box	📦	Emoji: Box
+search	🔍	Emoji: Search
+person	👤	Emoji: Person
+link	🔗	Emoji: Link

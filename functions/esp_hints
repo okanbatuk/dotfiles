@@ -1,0 +1,53 @@
+# Espanso Hints: Advanced search utility with a side-car preview panel
+# Optimized for high-density information display and pipe-safe parsing
+esp_hints() {
+    # Path to your tab-separated file [cite: 1]
+    local HINTS_FILE="$HOME/dotfiles/hints/espanso_hints.txt"
+
+    if [[ -f "$HINTS_FILE" ]]; then
+        # Use awk to inject the lightning icon and arrow for the left-side display
+        # Then fzf uses those columns for the interactive menu
+        local selected=$(cat "$HINTS_FILE" | awk -F '\t' '{
+            printf "- ⚡ %-10s ➔  %s\t%s\t%s\t%s\n", $1, $2, $1, $2, $3
+        }' | fzf --height 60% \
+            --reverse \
+            --header "Search by trigger or content (e.g., 'git commit')" \
+            --border \
+            --ansi \
+            --tabstop=15 \
+            --delimiter $'\t' \
+            --preview-window 'right:45%:border-left' \
+            --with-nth 1 \
+            --preview '
+                # {2}: Trigger, {3}: Action, {4}: Description
+                p_trigger=$(echo {2} | sed "s/^\x27//; s/\x27$//")
+                p_action=$(echo {3} | sed "s/^[[:space:]]*//;s/[[:space:]]*$//; s/^\x27//; s/\x27$//")
+                p_desc=$(echo {4} | sed "s/^[[:space:]]*//;s/[[:space:]]*$//; s/^\x27//; s/\x27$//")
+
+                # Enhanced UI rendering in the preview panel
+                echo -e "\n  \033[1;34m󰘳 Command\033[0m"
+                echo -e "  \033[1;37m<:$p_trigger>\033[0m"
+
+                echo -e "\n  \033[1;32m󱔗 Action\033[0m"
+                echo -e "  \033[0;37m$p_action\033[0m"
+
+                echo -e "\n  \033[1;33m󰛨 Description\033[0m"
+                echo -e "  \033[0;37m$p_desc\033[0m"
+
+                echo -e "\n\n  \033[2;37m────────────────────────────\033[0m"
+                echo -e "  \033[2;37mType :$p_trigger to execute\033[0m"
+            ')
+
+        # If a selection is made, print the result in the requested format
+        if [[ -n "$selected" ]]; then
+            # Extract trigger and action from the fzf selection using Tab delimiter
+            # and clean any potential single quotes from the YAML source
+            local out_trigger=$(echo "$selected" | cut -f2 | sed "s/^[[:space:]]*//;s/[[:space:]]*$//; s/^\x27//; s/\x27$//")
+            local out_action=$(echo "$selected" | cut -f3 | sed "s/^[[:space:]]*//;s/[[:space:]]*$//; s/^\x27//; s/\x27$//")
+
+            echo "- ⚡$out_trigger ➔ $out_action"
+        fi
+    else
+        echo "Error: $HINTS_FILE not found."
+    fi
+}
