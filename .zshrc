@@ -84,3 +84,6 @@ xhost +local:root > /dev/null 2>&1
 # Terminal Title Integration
 preexec() { print -Pn "\e]0;$1\a" }
 precmd() { print -Pn "\e]0;%n@%m: %~\a" }
+
+# bun completions
+[ -s "/home/myrn/.bun/_bun" ] && source "/home/myrn/.bun/_bun"

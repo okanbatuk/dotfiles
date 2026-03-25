@@ -35,6 +35,7 @@ alias sdn="$SCRIPTS_DIR/.shutdown.sh n"
 alias dmount="$SCRIPTS_DIR/.mount.sh"
 alias dreport="$SCRIPTS_DIR/.disk-report.sh"
 alias get-info="$SCRIPTS_DIR/.get-info.sh"
+alias get-timers='systemctl list-timers --all '
 alias reload='source ~/.zshrc'
 alias psr='gnome-extensions disable pop-shell@system76.com && gnome-extensions enable pop-shell@system76.com'
 

@@ -2,15 +2,18 @@
 # ~/dotfiles/core.sh
 # Shared environment variables, global constants, and helper functions.
 
-# --- User & Directory Context ---
-export REAL_USER=${REAL_USER:-${SUDO_USER:-$USER}}
-export REAL_HOME=$(getent passwd "$REAL_USER" | cut -d: -f6)
-export DOTFILES_DIR="${DOTFILES_DIR:-$REAL_HOME/dotfiles}"
+# --- User & Directory Context (Defensive Assignment) ---
+: "${REAL_USER:=${SUDO_USER:-${USER:-$(id -u -n)}}}"
+: "${REAL_HOME:=$(getent passwd "$REAL_USER" | cut -d: -f6)}"
+: "${DOTFILES_DIR:="$REAL_HOME/dotfiles"}"
 
 # --- Centralized Paths ---
-export SCRIPTS_DIR="$DOTFILES_DIR/scripts"
-export LOG_DIR="$DOTFILES_DIR/logs"
-export SS_DIR="$REAL_HOME/Pictures/Screenshots"
+: "${SCRIPTS_DIR:="$DOTFILES_DIR/scripts"}"
+: "${LOG_DIR:="$DOTFILES_DIR/logs"}"
+: "${SS_DIR:="$REAL_HOME/Pictures/Screenshots"}"
+
+# Exporting for sub-shells
+export REAL_USER REAL_HOME DOTFILES_DIR SCRIPTS_DIR LOG_DIR SS_DIR
 
 # --- 🔍 Debug Mode Detection ---
 # Scans all arguments passed to the calling script for --debug
@@ -49,21 +52,23 @@ log_debug() {
 prepare_logging() {
     local sub_dir="$1" # e.g., "updates" or "maintenance" or "storage"
     local target_dir="$LOG_DIR/$sub_dir"
-    local log_file_name="$2"
-    local log_path="$target_dir/$log_file_name"
+    local log_name="$2"
 
     # Create directory with sudo if needed, but ensure user ownership
     if [ ! -d "$target_dir" ]; then
-        mkdir -p "$target_dir" 2>/dev/null || { sudo mkdir -p "$target_dir" && sudo chown -R "$REAL_USER":"$REAL_USER" "$LOG_DIR"; }
+        sudo mkdir -p "$target_dir"
+        sudo chown "$REAL_USER":"$REAL_USER" "$target_dir"
+        sudo chmod 755 "$target_dir"
     fi
 
+    local log_path="$target_dir/$log_name"
+
     # CRITICAL: Ensure the log file itself is writable by the user before 'tee'
-    if [ -f "$log_path" ]; then
-        [ ! -w "$log_path" ] && sudo chown "$REAL_USER":"$REAL_USER" "$log_path"
-    else
+    if [ ! -f "$log_path" ]; then
         touch "$log_path"
+        sudo chown "$REAL_USER":"$REAL_USER" "$log_path"
+        sudo chmod 644 "$log_path"
     fi
-    chmod 644 "$log_path"
 
     # Export for the calling script
     export CURRENT_LOG_FILE="$log_path"
@@ -83,20 +88,9 @@ run_as_user() {
 
     if [ "$(id -u)" -eq 0 ]; then
         log_debug "Elevated privileges (root) detected. Switching context to $target_user..." >&2
-
-        # -E: Preserves the existing environment variables from the calling shell
-        # env HOME=...: Forces the HOME variable to the target user's directory,
-        # ensuring tools like FNM don't accidentally look into /root
-        sudo -E -u "$target_user" env \
-            HOME="$target_home" \
-            REAL_USER="$REAL_USER" \
-            REAL_HOME="$REAL_HOME" \
-            FNM_DIR="$FNM_DIR" \
-            DETECTED_LTS="$DETECTED_LTS" \
-            DEBUG_MODE="$DEBUG_MODE" \
-            bash -c "$*"
+        sudo -u "$target_user" -i zsh -c "$*"
     else
         log_debug "Already running as $target_user. Executing directly..." >&2
-        eval "$@"
+        zsh -c "$*"
     fi
 }

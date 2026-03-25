@@ -294,6 +294,9 @@ matches:
   - trigger: ":sr "
     replace: "sudo systemctl restart "
 
+  - trigger: ":stime"
+    replace: "get-timers"
+
   - trigger: ":sl "
     replace: "sudo journalctl -u "
 
