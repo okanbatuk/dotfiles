@@ -94,3 +94,25 @@ run_as_user() {
         zsh -c "$*"
     fi
 }
+
+# --- 🔔 Notification System ---
+# Sends desktop notifications from systemd services or scripts
+# Usage: send_notification "Title" "Message" "normal|critical" "icon_name"
+send_notification() {
+    local title="${1:-System Notification}"
+    local message="${2:-No message provided}"
+    local urgency="${3:-normal}"
+    local icon="${4:-system-software-update}"
+
+    # Identify the target user's ID (e.g., 1000)
+    local user_id=$(id -u "$REAL_USER")
+
+    # Execute notify-send as the real user with the correct D-Bus address
+    # This allows background services to communicate with the GNOME desktop
+    sudo -u "$REAL_USER" \
+        DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/$user_id/bus" \
+        notify-send "$title" "$message" \
+        --urgency="$urgency" \
+        --icon="$icon" \
+        --app-name="System Automator"
+}
