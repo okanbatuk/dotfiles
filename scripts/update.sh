@@ -19,8 +19,45 @@ setup_env() {
     log_debug "Mode: $MODE | User: $REAL_USER | Home: $REAL_HOME"
 }
 
+# --- 🛡️ Pacman Lock Management ---
+# Checks for existing pacman database locks and resolves conflicts
+handle_pacman_lock() {
+    local lock_file="/var/lib/pacman/db.lck"
+    
+    if [[ -f "$lock_file" ]]; then
+        log_warn "⚠️ Pacman lock file detected: $lock_file"
+        
+        # Identify the process ID (PID) holding the lock file
+        # fuser returns the PID of the process using the specified file
+        local pid=$(sudo fuser "$lock_file" 2>/dev/null | awk '{print $NF}')
+        
+        if [[ -n "$pid" ]]; then
+            # Get the command name of the blocking process for logging
+            local process_name=$(ps -p "$pid" -o comm=)
+            log_info "🛑 Found active process '$process_name' (PID: $pid) holding the lock. Terminating..."
+            
+            # Send SIGTERM (15) for a graceful shutdown first
+            sudo kill -15 "$pid"
+            sleep 2
+            
+            # If the process is still alive, force kill with SIGKILL (9)
+            if ps -p "$pid" > /dev/null; then
+                log_debug "Process $pid still alive, forcing kill..."
+                sudo kill -9 "$pid" 2>/dev/null
+            fi
+        fi
+        
+        # Ensure the lock file is removed even if the process exited cleanly
+        log_info "🔓 Removing lock file to proceed with update..."
+        sudo rm -f "$lock_file"
+    fi
+}
+
 # --- 1. System Packages ---
 update_os() {
+    # Check the db.lck file if exist remove it
+    handle_pacman_lock
+
     log_info ">>> [STEP 1] Updating System Packages..."
 
     if [[ "$MODE" == "full" ]]; then
@@ -76,7 +113,6 @@ run_maintenance() {
     log_info "🧹 [CLEANUP] Removing old caches and orphaned packages..."
 
     # Cache & Space
-    rm -rf "$REAL_HOME/.cache"/* 2>/dev/null
     sudo paccache -rk 2
 
     # Orphaned Packages

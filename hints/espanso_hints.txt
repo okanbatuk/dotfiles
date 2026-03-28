@@ -141,7 +141,7 @@ ul	sudo usbguard list-devices	View USB devices
 ua	sudo usbguard allow-device	Allow USB device
 zen	zen_hints	Zen Browser shortcuts
 zhints	zen_hints	Zen Browser shortcuts
-surp	😱	Emoji: Scared
+scared	😱	Emoji: Scared
 wow	😮	Emoji: Surprised
 mind	🤯	Emoji: Mind blown
 flush	😳	Emoji: Flushed

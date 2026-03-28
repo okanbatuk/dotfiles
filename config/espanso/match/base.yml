@@ -508,7 +508,7 @@ matches:
     replace: "zen_hints"
 
   # --- EMOJIS: Emotions & Reactions ---
-  - trigger: ":surp"
+  - trigger: ":scared"
     replace: "😱"
   - trigger: ":wow"
     replace: "😮"
