@@ -98,6 +98,11 @@ myip	curl -s https://ipinfo.io/ip	Show public IP
 port	sudo lsof -i :	Find process on port
 pingg	ping 8.8.8.8	Ping Google DNS
 http	python3 -m http.server 8000	Quick HTTP server
+son	sync-on	Start Syncthing service
+soff	sync-off	Stop Syncthing service
+sweb	sync-web	Open Syncthing Web UI in browser
+sync	sync-stat	Check Syncthing service status
+aegis	Aegis > Export > JSON > Encrypt: OFF	Aegis export reminder
 pyt	python3	Run Python 3
 pyvers	python3 --version	Show Python version
 pipins	pip install	Install python package

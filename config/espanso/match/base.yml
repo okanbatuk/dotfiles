@@ -328,6 +328,22 @@ matches:
   - trigger: ":http"
     replace: "python3 -m http.server 8000"
 
+  # --- Syncthing & 2FA Workflow ---
+  - trigger: ":son"
+    replace: "sync-on"
+
+  - trigger: ":soff"
+    replace: "sync-off"
+
+  - trigger: ":sync"
+    replace: "sync-stat"
+
+  - trigger: ":sweb"
+    replace: "sync-web"
+
+  - trigger: ":aegis"
+    replace: "Aegis > Export > JSON > Encrypt: OFF > Save to Syncthing"
+
   # --- Python ---
   - trigger: ":pyt"
     replace: "python3 "
