@@ -1,0 +1,52 @@
+function 2fa() {
+    local AEGIS_DIR="/home/myrn/dotfiles/backups/aegis"
+    local AEGIS_JSON=$(fd . "$AEGIS_DIR" --type f --extension json --absolute-path --changed-within 1year --exec ls -t | head -n 1)
+
+    if [[ -z "$AEGIS_JSON" ]]; then
+        echo "❌ Error: No .json backup found in $AEGIS_DIR"
+        return 1
+    fi
+
+    # 🧬 Get All Entries (Formatted for FZF: "Label | Secret")
+    local ALL_ENTRIES
+    ALL_ENTRIES=$(jq -r '.. | .entries? // empty | .[] | "\(.issuer) (\(.name)) | \(.info.secret)"' "$AEGIS_JSON" | sort)
+
+    local SELECTED
+    if [[ -n "$1" ]]; then
+        # 🔍 Search mode: Filter entries by argument first
+        local SEARCH_RESULTS=$(echo "$ALL_ENTRIES" | grep -i "$1")
+        local COUNT=$(echo "$SEARCH_RESULTS" | grep -c ".*" || echo 0)
+
+        if [[ $COUNT -eq 0 ]]; then
+            echo "🚫 Error: No service matching '$1' found."
+            return 1
+        elif [[ $COUNT -eq 1 ]]; then
+            SELECTED="$SEARCH_RESULTS"
+        else
+            # Multiple matches: Use FZF but hide the Secret column from display
+            # --with-nth=1: Only show the part before the pipe (|)
+            SELECTED=$(echo "$SEARCH_RESULTS" | fzf --with-nth=1 --delimiter='\|' --prompt="🔍 Multiple matches, select one: " --height=40% --reverse --border)
+        fi
+    else
+        # 📋 List mode: Show everything, but hide Secrets
+        SELECTED=$(echo "$ALL_ENTRIES" | fzf --with-nth=1 --delimiter='\|' --prompt="🔍 Select Service: " --height=40% --reverse --border)
+    fi
+
+    # Exit if nothing selected
+    [[ -z "$SELECTED" ]] && return 0
+
+    # 🛠️ Extract Label and Secret from the selected line
+    local LABEL=$(echo "$SELECTED" | cut -d'|' -f1 | xargs)
+    local SECRET=$(echo "$SELECTED" | cut -d'|' -f2 | xargs)
+
+    # 🔢 Generate TOTP
+    local CODE=$(oathtool --totp -b "$SECRET")
+
+    # 📋 Clipboard & Output
+    if command -v xclip >/dev/null; then
+        echo -n "$CODE" | xclip -selection clipboard
+        echo "✅ [$LABEL] Code copied to clipboard: $CODE"
+    else
+        echo "🔢 [$LABEL] Code: $CODE"
+    fi
+}
