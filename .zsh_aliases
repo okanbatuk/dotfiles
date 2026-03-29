@@ -1,7 +1,6 @@
 # ~/.zsh_aliases - Command shortcuts and security wrappers
 
 # --- 🛡️ Guardian & Security Controls ---
-# 'sudo ' with a space allows alias expansion for the next command
 alias sudo="sudo "
 
 # --- 📦 Package Manager Guards (Avoid Root Pollution) ---
@@ -17,11 +16,10 @@ alias gem="$SCRIPTS_DIR/.guard.sh gem"
 alias windsurf='windsurf --ozone-platform=wayland'
 alias code='code --ozone-platform=wayland'
 
-# --- 🔐 Security & Hardware Control --- (Webcam & Bluetooth & Fingerprint Sensor)
+# --- 🔐 Security & Hardware Control ---
 alias cam-off='sudo usbguard block-device id "$ID_WEBCAM"'
 alias cam-on='sudo usbguard allow-device id "$ID_WEBCAM"'
 alias bt-off='sudo systemctl stop bluetooth && sudo usbguard block-device id $ID_BLUETOOTH'
-
 alias bt-on='sudo usbguard allow-device id $ID_BLUETOOTH && sudo systemctl start bluetooth'
 alias fp-off='sudo usbguard block-device id $ID_FINGERPRINT'
 alias fp-on='sudo usbguard allow-device id $ID_FINGERPRINT'
@@ -39,7 +37,7 @@ alias get-timers='systemctl list-timers --all '
 alias reload='source ~/.zshrc'
 alias psr='gnome-extensions disable pop-shell@system76.com && gnome-extensions enable pop-shell@system76.com'
 
-# --- 🎨 Modern CLI Replacements (Eza & Bat) ---
+# --- 🎨 Modern CLI Replacements ---
 alias cat='bat --paging=never'
 alias less='bat'
 alias ls='eza --group-directories-first --icons=auto'
@@ -47,6 +45,7 @@ alias ll='eza -al --icons=auto --git'
 alias free='free -m -h'
 alias df='duf'
 alias fo='fd --type f | fzf --preview "bat --color=always --style=numbers --line-range :500 {}" | xargs -r handlr open'
+alias tfa='2fa'
 
 # --- 🔍 Search & Filter ---
 alias grep='grep --color=auto'
@@ -70,13 +69,17 @@ alias gp='git push'
 alias gpl='git pull'
 alias gl='git log --oneline --graph --all'
 alias gac='git add . && git commit -m'
-alias gcan='git commit --amend --no-edit' # Quick fix for last commit
-alias gacan='git add . && git commit --amend --no-edit' # Add all and amend
+alias gcan='git commit --amend --no-edit'
+alias gacan='git add . && git commit --amend --no-edit'
 alias gco='git checkout'
-alias gcb='git checkout -b' # Create and switch to new branch
+alias gcb='git checkout -b'
 alias gb='git branch'
-alias grs='git restore --staged' # Unstage files
-alias gclean='git fetch --prune && git branch -vv | grep ": gone]" | awk "{print \$1}" | xargs -r git branch -d' # Cleanup merged branches
+alias grs='git restore --staged'
+alias gclean='git fetch --prune && git branch -vv | grep ": gone]" | awk "{print \$1}" | xargs -r git branch -d'
 
-# --- 🌐 Network ---
+# --- 🌐 Network & Syncthing ---
 alias myip='curl ifconfig.me'
+alias sync-on='systemctl --user start syncthing.service && echo "🔄 Syncthing is STARTING..."'
+alias sync-off='systemctl --user stop syncthing.service && echo "🛑 Syncthing is STOPPED."'
+alias sync-stat='systemctl --user status syncthing.service'
+alias sync-web='o http://localhost:8384'
