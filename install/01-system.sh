@@ -30,12 +30,12 @@ DEPENDENCIES=(
     base-devel git docker docker-compose rustup util-linux perl
     unzip zip gnupg pinentry
     # --- Modern CLI Tools ---
-    eza bat fzf ripgrep fastfetch fd jq tldr starship zoxide handlr
+    eza bat fzf ripgrep fastfetch fd jq tldr starship zoxide handlr lsof
     # --- Shell Enhancements ---
     zsh zsh-autosuggestions zsh-syntax-highlighting
     # --- Multimedia & UI ---
     tesseract-data-eng tesseract-data-tur
-    alacritty drawing zathura zathura-pdf-mupdf mpv yt-dlp
+    alacritty drawing zathura zathura-pdf-mupdf mpv yt-dlp libnotify
     # --- System Tools ---
     smartmontools pacman-contrib
     # --- Fonts & UI Elements ---

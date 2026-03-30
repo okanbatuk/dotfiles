@@ -9,57 +9,61 @@ My personal dotfiles and automation scripts for a consistent, reproducible devel
 
 ```bash
 dotfiles/
-├── logs/                 # Centralized logs for all automation
-│   ├── custom/           # Logs for user-defined manual scripts
-│   ├── setup/            # Detailed logs for each setup.sh execution session
-│   ├── state/            # Persistence layer tracking completed installation tasks (.done files)
-│   ├── updates/          # System update history
-│   ├── maintenance/      # Shutdown & cleanup diagnostics
-│   └── storage/          # S.M.A.R.T. health & disk usage reports
-├── install/              # Modular Bootstrap Tasks (Orchestrated by setup.sh)
-│   ├── 01-system.sh      # Core dependencies (base-devel, git, curl, unzip)
-│   ├── 02-dev-env.sh     # FNM, Node.js (LTS), Bun, Global Shims (nopt, semver) & Editors
-│   ├── 03-links.sh       # Core dotfiles and .config/ app linking
-│   ├── 04-zsh-config.sh  # .zshrc sourcing logic & function loader
-│   ├── 05-git.sh         # Personal Git identity & GPG setup
-│   ├── 06-zed-conf.sh    # External Zed editor configuration
-│   ├── 07-scripts.sh     # Automation scripts linking (~/scripts)
-│   └── 08-local-env.sh   # Machine-specific tweaks
-├── functions/            # Modular Zsh Functions (Auto-loaded)
-│   ├── dckr              # Pro Docker manager
-│   ├── matches           # Espanso search
-│   ├── fnote             # Interactive Note Navigator (fzf + bat)
-│   ├── jlog              # Smart log viewer (jlog)
-│   ├── ilog              # Terminal session logger & cleaner
-│   ├── projtree          # Modern project tree
-│   ├── chmod             # Recursive permission guard
-│   ├── chown             # Recursive ownership guard
-│   ├── dprune            # Prune safety with container summary
-│   ├── mv                # Overwrite protection for moving
-│   ├── cp                # Overwrite protection for copies
-│   ├── rm                # Safe 'rm' wrapper (strips -f, enforces interaction)
-│   ├── gpush             # Safe 'git' wrapper (handles safe force pushing)
-│   └── ...               # (One file per function)
-├── config/               # App-specific configurations (Linked to ~/.config)
-│   ├── alacritty/        # GPU terminal settings
-│   ├── nvim/             # Neovim environment
-│   └── systemd/          # System-level update & maintenance units (linked to /etc)
-│   └── ...               # (espanso, mpv, zathura, Code)
-├── scripts/              # Internal automation scripts
-│   ├── guard.sh          # Security Interceptor for high-risk commands
-│   └── update.sh         # Maintenance orchestrator with Pacman lock handling
-│   ├── shutdown.sh       # Deep-cleans system caches and manages poweroff
-│   ├── disk-report.sh    # S.M.A.R.T. health analysis & usage reports
-│   └── ...               # (shutdown, disk-report, get-info)
-├── hints/                # Tab-separated lookup tables for fzf-powered hint utilities
-├── .zshrc                # Main Zsh entry point
-├── .zsh_aliases          # Custom aliases (including Guardian redirects)
-├── .zsh_notes            # Knowledge base aliases
-├── .zshenv               # Environment variables
-├── .gitconfig            # Global git settings (UI, aliases)
-├── core.sh               # Shared logic, Notification Engine & Logging API (Source of Truth)
-├── setup.sh              # Main Orchestrator (Orchestrates /install scripts)
-└── README.md             # This documentation
+├── 📂 logs/                 # Centralized logs for all automation
+│   ├── 📝 custom/           # Logs for user-defined manual scripts
+│   ├── 🚀 setup/            # Detailed logs for each setup.sh execution session
+│   ├── 💾 state/            # Persistence layer tracking completed tasks (.done files)
+│   ├── 🔄 updates/          # System update history
+│   ├── 🧹 maintenance/      # Shutdown & cleanup diagnostics
+│   └── 🩺 storage/          # S.M.A.R.T. health & disk usage reports
+├── ⚙️ install/              # Modular Bootstrap Tasks (Orchestrated by setup.sh)
+│   ├──  01-system.sh       # Core dependencies (base-devel, lsof, libnotify)
+│   ├── 🛠️ 02-system-conf.sh # System-level tweaks & hardware-specific configs
+│   ├──  03-dev-env.sh      # JS/TS (FNM, Bun), Editors (Zed,  ), & Espanso-Wayland
+│   ├── 🔗 04-links.sh       # Symlink management for core dotfiles & .config/
+│   ├── 🐚 05-zsh-config.sh  # Zsh environment, function loading & shell optimization
+│   ├──  06-git.sh          # Identity, GPG setup & safe aliases
+│   ├──  07-zed-conf.sh     # Automated Zed editor configuration
+│   ├── 📜 08-scripts.sh     # Deployment of automation & maintenance scripts
+│   └── 🏠 09-local-env.sh   # Machine-specific overrides
+├── 🛡️ functions/            # Modular Zsh Functions (Auto-loaded)
+│   ├── 🔑 2fa               # Interactive TOTP generator (alias: tfa)
+│   ├── 🔍 als_hints         # Interactive Alias search & execute (alias: ah)
+│   ├── ⌨️ esp_hints         # Interactive Espanso search (alias: eh)
+│   ├── 💡 zen_hints         # Zen Browser shortcut lookup (alias: zh)
+│   ├── 🌐 port              # Quick process-to-port audit (e.g., port 3000)
+│   ├── 🐳 dckr              # Docker management
+│   ├── ✍️ fnote              # Interactive Note Navigator (fzf + bat)
+│   ├──   jlog              # Smart log viewer (jlog)
+│   ├──   ilog              # Terminal session logger & cleaner
+│   ├── 🌲 fulltree/projtree #  Modern tree views with auto-ignore logic (alias: ft & pt)
+│   ├── 🔒 safety-wrappers/  # Guardian System: Intercepts dangerous commands
+│   │   ├── 🗑️ rm            # Prevents 'rm -rf /' & strips force flags for interaction
+│   │   ├── 🔐 chmod/chown   # Prompts for confirmation on recursive (-R) operations
+│   │   ├── 📋 cp/mv         # Interactively prevents accidental file overwrites
+│   │   └──  gpush          # Intercepts 'git push -f', enforces --force-with-lease
+│   │   └── 🐳 dprune        # Intercepts 'docker system prune', shows active containers before cleanup
+│   └── ...                  # (One file per function)
+├── ⚙️ config/                # App-specific configurations (Linked to ~/.config)
+│   ├──  alacritty/         # GPU terminal settings
+│   ├──  nvim/              # Neovim environment
+│   └── ⚙️ systemd/           # System-level update & maintenance units (linked to /etc)
+│   └── ...                  # (espanso, mpv, zathura, Code)
+├── 🔧 scripts/              # Internal automation scripts
+│   ├── 🛡️ guard.sh          #  Security Interceptor for high-risk commands
+│   └── 🔄 update.sh         # Maintenance orchestrator with Pacman lock handling
+│   ├── 🧹 shutdown.sh       # Deep-cleans system caches and manages poweroff
+│   ├── 🩺 disk-report.sh    # S.M.A.R.T. health analysis & usage reports
+│   └── ...                  # (get-info)
+├── 🧠 hints/                # Tab-separated lookup tables for fzf-powered hint utilities
+├── 󱆃 .zshrc                 # Main Zsh entry point
+├── 🔗 .zsh_aliases          # Custom aliases (including Guardian redirects)
+├── ✍️ .zsh_notes             # Knowledge base aliases
+├── 🔑 .zshenv               # Environment variables
+├── 🌐 .gitconfig            # Global git settings (UI, aliases)
+├── 🎯 core.sh               # Shared logic, Notification Engine & Logging API (Source of Truth)
+├── ⚡ setup.sh               # Main Orchestrator (Orchestrates /install scripts)
+└── 📄 README.md             # This documentation
 ```
 
 ## 🚀 Maintenance & System Automation
@@ -75,6 +79,7 @@ dotfiles/
 - **`update.sh`**: `Smart Maintenance Orchestrator`. Beyond simple updates, it implements:
   - **`handle_pacman_lock`**: Automatically detects and terminates processes (like Pamac or Pacman) holding the `db.lck` file to prevent update failures.
   - **`run_maintenance`**: Performs intelligent cleanup, including removing `node_modules` in project directories that haven't been modified in **7 days**.
+  - **`Shell Bootstrap Optimization`**: Added explicit `zshenv` sourcing in `zshrc` to ensure environment variables are consistent across all sub-shells and non-interactive sessions.
 
 | Command      | Target Script  | Description                                                                                                                       |
 | ------------ | -------------- | --------------------------------------------------------------------------------------------------------------------------------- |
@@ -106,23 +111,24 @@ To maintain high security while allowing automation:
 
 Modern CLI tools, custom functions, and quick-access configuration shortcuts.
 
-| Command    | Type     | Description                                                                                                                                                                                                                               |
-| ---------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `dckr`     | Function | **Advanced Docker Management:** A modular CLI tool for rapid container workflows. Supports interactive image/container selection via `fzf`, automatic `.env` loading, port mapping, and `docker-compose` integration with smart defaults. |
-| `projtree` | Function | Modern tree view with auto-ignores (`node_modules`, `.git`, `dist`). Supports `-p` for **path**, `-d` for **depth**, `-i` for **ignore patterns** with interactive tab-completion (multi-flag support & auto-strips path prefix).         |
-| `fulltree` | Function | Advanced tree view all files. Supports `-p` for **path**, `-d` for **depth**, `-i` for **ignore patterns** with interactive tab-completion (multi-flag support & auto-strips path prefix).                                                |
-
-| `2fa` | `functions` | Interactive TOTP generator using `fzf` and Aegis JSON backups. |
-| `esp_hints` | Function | Interactive Espanso trigger search using `fzf`. |
-| `jlog` | Function | **Smart Journalctl Viewer:** Modern interface for systemd logs with shorthand support. Features real-time watching (`-n`), time-based filtering (e.g., `1h`, `10m`, `today`), and colored boot log inspection. |
-| `ilog` | Function | **Session Recording:** Use `-r` to start recording the current terminal session to a timestamped log file. Use `-c <file>` to clean ANSI escape codes from a log, converting it into a readable text format using `perl`. |
-| `pdf` | Function | Opens a PDF file using **Zathura** in the background. Redirects all output to `/dev/null` and uses `disown` to keep the process alive even after closing the terminal. |
-| `fnote` | Function | **Interactive Note Navigator:** `find` and `fzf` to search through your entire knowledge base. Supports instant bat previews for text files and opens `.pdf`, `.doc`, `.docx` via `handlr`. |
-| `cp` / `mv` | Function | **Overwrite Protection:** Checks if the target exists and prompts for confirmation before replacing files. |
-| `chmod` / `chown` | Function | **Recursive Guard:** Requires explicit confirmation when using the `-R` flag to prevent mass permission drifts. |
-| `rm -f` | Function | **Safety Wrapper:** Automatically strips `-f` / `--force` flags in interactive mode to prevent accidental mass deletions. |
-| `git push -f` | Function | **Force-With-Lease:** Intercepts force push to use `--force-with-lease`, protecting remote history from accidental overwrites. |
-| `docker system prune` | Function | **Prune Safety:** Displays a summary of all containers before cleanup to prevent data loss. |
+| Command                            | Type      | Description                                                                                                                                                                                                                               |
+| ---------------------------------- | --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `dckr`                             | Function  | **Advanced Docker Management:** A modular CLI tool for rapid container workflows. Supports interactive image/container selection via `fzf`, automatic `.env` loading, port mapping, and `docker-compose` integration with smart defaults. |
+| `pt` ( `projtree` )                | Function  | Modern tree view with auto-ignores (`node_modules`, `.git`, `dist`). Supports `-p` for **path**, `-d` for **depth**, `-i` for **ignore patterns** with interactive tab-completion (multi-flag support & auto-strips path prefix).         |
+| `ft` ( `fulltree` )                | Function  | Advanced tree view all files. Supports `-p` for **path**, `-d` for **depth**, `-i` for **ignore patterns** with interactive tab-completion (multi-flag support & auto-strips path prefix).                                                |
+| `tfa` ( `2fa` )                    | Functions | Interactive TOTP generator using `fzf` and Aegis JSON backups.                                                                                                                                                                            |
+| `eh` ( `esp_hints` )               | Function  | Interactive Espanso trigger search using `fzf`.                                                                                                                                                                                           |
+| `ah` ( `als-hints` )               | Function  | **Interactive Alias Search:** Search and execute terminal aliases with category-aware `fzf` filtering.                                                                                                                                    |
+| `port`                             | Function  | **Quick Port Audit:** A shorthand for `sudo lsof -i :$1` to quickly identify processes holding a specific network port.                                                                                                                   |
+| `jlog`                             | Function  | **Smart Journalctl Viewer:** Modern interface for systemd logs with shorthand support. Features real-time watching (`-n`), time-based filtering (e.g., `1h`, `10m`, `today`), and colored boot log inspection.                            |
+| `ilog`                             | Function  | **Session Recording:** Use `-r` to start recording the current terminal session to a timestamped log file. Use `-c <file>` to clean ANSI escape codes from a log, converting it into a readable text format using `perl`.                 |
+| `pdf`                              | Function  | Opens a PDF file using **Zathura** in the background. Redirects all output to `/dev/null` and uses `disown` to keep the process alive even after closing the terminal.                                                                    |
+| `fnote`                            | Function  | **Interactive Note Navigator:** `find` and `fzf` to search through your entire knowledge base. Supports instant bat previews for text files and opens `.pdf`, `.doc`, `.docx` via `handlr`.                                               |
+| `cp` / `mv`                        | Function  | **Overwrite Protection:** Checks if the target exists and prompts for confirmation before replacing files.                                                                                                                                |
+| `chmod` / `chown`                  | Function  | **Recursive Guard:** Requires explicit confirmation when using the `-R` flag to prevent mass permission drifts.                                                                                                                           |
+| `rm -f`                            | Function  | **Safety Wrapper:** Automatically strips `-f` / `--force` flags in interactive mode to prevent accidental mass deletions.                                                                                                                 |
+| `git push -f`                      | Function  | **Force-With-Lease:** Intercepts force push to use `--force-with-lease`, protecting remote history from accidental overwrites.                                                                                                            |
+| `dclean` ( `docker system prune` ) | Function  | **Prune Safety:** Displays a summary of all containers before cleanup to prevent data loss.                                                                                                                                               |
 
 > ### **⚙️ Function Loading Strategy**
 >
@@ -210,15 +216,15 @@ This will:
   - `eza`: A modern replacement for `ls`, used by `projtree` and `fulltree`.
   - `bat`: A `cat` clone with syntax highlighting for better code reading.
   - `fzf`: Command-line fuzzy finder, essential for `dckr` and matches functions.
-  - **`fuser`**: Required by `handle_pacman_lock` to identify processes holding the package manager lock.
-  - **`fd`**: Essential for high-performance recursive cleanup of `node_modules`.
-  - `ripgrep`(rg): Ultra-fast text search within projects.
+  - `fuser`: Required by `handle_pacman_lock` to identify processes holding the package manager lock.
+  - `fd`: Essential for high-performance recursive cleanup of `node_modules`.
+  - `ripgrep`(rg): Ultra-fast text search within projects. Now acts as the primary engine for **category-aware** filtering in `esp_hints` and `als_hints`.
   - `jq`: Command-line JSON processor for handling API and config data.
+  - `lsof`: List Open Files. Essential for `port` function to identify which process is occupying a specific network port.
   - `tldr`: Simplified and community-driven man pages.
   - `handlr`: A smarter alternative to `xdg-utils` for opening files and managing default apps.
   - `fastfetch`: Migrated from neofetch for near-instant reporting and this tool use by the `:ff` expansion.
   - `unzip` & `zip`: Required for Bun and FNM installation scripts.
-
 - **Docker Ecosystem:**
   - `docker` & `docker-compose`: The core engine required for the `dckr` management function.
 - **JavaScript/TypeScript Ecosystem:**
@@ -242,11 +248,20 @@ This will:
   - `util-linux`: Required for the `script` command (used by `rec` alias and `ilog`).
   - `perl`: Required for regex-based log cleaning in `ilog`.
   - `pacman-contrib`: Essential for system maintenance tasks like `paccache`.
+  - `libnotify`: Sends native desktop notification. Used by `core.sh`.
 - **Fonts & Symbols:**
   - `ttf-jetbrains-mono-nerd`: Developer-focused font with icons, required to correctly display symbols in the terminal.
   - `ttf-nerd-fonts-symbols-common`: Common symbols for Nerd Font users to ensure cross-app icon compatibility.
   - `noto-fonts-emoji`: Google Noto emoji fonts for full emoji support within the terminal and apps.
 - **Operating System:** Optimized for **Arch Linux** or **Manjaro**.
+
+## 🔍 Interactive Search & Hints
+
+The dotfiles now feature advanced lookup utilities powered by `fzf` and `ripgrep`. These tools use a **Category-Aware Regex** to isolate searches within specific functional domains.
+
+- **`ah` (als_hints)**: Parses `.zsh_aliases` dynamically. Use `CTRL-G` to filter by category (e.g., Git, Docker, Dev).
+- **`eh` (esp_hints)**: Searches Espanso triggers with real-time preview of the expansion action and description.
+- **`zh` (zen_hints)**: Fast lookup for Zen Browser shortcuts and custom workflows.
 
 ## 📊 Logging & Maintenance
 
@@ -280,6 +295,10 @@ To maintain a "Clean OS" philosophy, I've implemented a robust Command Intercept
    - **Docker Cleanup**: `docker system prune` displays a summary of active containers and images before performing a destructive cleanup.
 3. **GPG TTY Integration**: Automatically exports `export GPG_TTY=$(tty)` in `.zshenv` to ensure `pinentry` correctly prompts for passphrases during Git operations, even in nested or multiplexed terminal sessions.
 
+> 💡 **Logic Migration**:
+>
+> To improve startup latency and centralize command management, several high-frequency triggers were migrated from **Espanso** to native **Zsh Aliases**. This ensures zero-latency expansion and better integration with shell history.
+
 > 💡 **Pro Tip: Bypassing the Guardian**
 >
 > If you need to execute the original system binary without Guardian interference (e.g., inside a non-interactive script), simply prefix the command with `command`.
@@ -308,24 +327,24 @@ When you run `setup.sh`, it will check if `~/.gitconfig.local` exists. If not, i
 
 ## 🛠️ Tools Used
 
-- **OS**: Manjaro Linux
-- **Shell**: Zsh (with custom sources for aliases, functions, and env)
-- **Terminal**: Alacritty (Configured with FiraCode Nerd Font)
+- **OS**:  Manjaro Linux
+- **Shell**: 󱆃 Zsh (with custom sources for aliases, functions, and env)
+- **Terminal**:  Alacritty (Configured with FiraCode Nerd Font)
 - **Viewers & Players**:
   - **Drawing**: Image editing application for creating and modifying bitmap image.
-  - **Zathura**: Minimalist PDF viewer with auto-fit logic.
+  - **Zathura**: 📄 Minimalist PDF viewer with auto-fit logic.
   - **MPV**: High-performance media player with `yt-dlp` integration.
 - **Editors**:
-  - **Primary**: **Zed** (High-performance editor with modular config).
-  - **Secondary**: **Neovim** (Custom Lua-based environment with Vim keybindings).
+  - **Primary**:  **Zed** (High-performance editor with modular config).
+  - **Secondary**:  **Neovim** (Custom Lua-based environment with Vim keybindings).
 - **Security & Privacy**:
-  - **Aegis Authenticator**: Open-source 2FA management (Android).
-  - **Syncthing**: P2P file synchronization for encrypted backups and shared assets.
-  - **USBGuard**: Device authorization framework to block unauthorized USB entities.
-- **Runtimes**: **Node.js** (managed via FNM) and **Bun** for high-performance scripting.
-- **Desktop**: **GNOME** with `libnotify` for automated system feedback.
+  - 🔑 **Aegis Authenticator**: Open-source 2FA management (Android).
+  - 📄 **Syncthing**: P2P file synchronization for encrypted backups and shared assets.
+  - 🛡️ **USBGuard**: Device authorization framework to block unauthorized USB entities.
+- **Runtimes**:  **Node.js** (managed via FNM) and **Bun** for high-performance scripting.
+- 💻 **Desktop**: **GNOME** with `libnotify` for automated system feedback.
 - **Automation**: Bash, symlinks, and Espanso for text expansion.
-- **Font & Symbols**: FiraCode Nerd Font (Retina)
+- ✍️ **Font & Symbols**: FiraCode Nerd Font (Retina)
 
 ## 📜 License
 
