@@ -36,33 +36,8 @@ matches:
   - trigger: ":git"
     replace: "o https://github.com/okanbatuk"
 
-  - trigger: ":ff"
-    replace: "fastfetch"
-
-  - trigger: ":op"
-    replace: "xdg-open ."
-
-  - trigger: ":zed"
-    replace: "zeditor "
-
-  - trigger: ":wind"
-    replace: "windsurf "
-
   - trigger: ":go"
     replace: "google.com"
-
-  - trigger: ":alsa"
-    replace: "alsamixer"
-
-  # --- Path & Navigation ---
-  - trigger: ":proj"
-    replace: "~/Desktop/Projects/"
-
-  - trigger: ":priv"
-    replace: "~/Desktop/Private/"
-
-  - trigger: ":conf"
-    replace: "~/.config"
 
   # --- Config ---
   - trigger: ":zsh"
@@ -75,80 +50,11 @@ matches:
     replace: "espconf"
 
   # --- Git Workflow "Magic" ---
-  - trigger: ":gs "
-    replace: "git status "
-
-  - trigger: ":gc "
-    replace: "git commit -m '"
-
-  - trigger: ":gca"
-    replace: "git commit -ma '"
-
-  - trigger: ":gbr"
-    replace: "git branch"
-
-  - trigger: ":gundo"
-    replace: "git reset --soft HEAD~1" # Undo last commit, keep changes
-
-  - trigger: ":gam"
-    replace: "git commit --amend -m '"
-
-  - trigger: ":gcln"
-    replace: "git branch --merged | grep -v \"\\*\" | xargs -n 1 git branch -d" # Delete local branches already merged into current
-
-  - trigger: ":gup"
-    replace: "git remote update && git status -uno" # Fetch remote updates and show status without untracked files
-
-  - trigger: ":gcb"
-    replace: "git checkout -b '" # Create a new branch and switch to it immediately
-
-  - trigger: ":gco"
-    replace: "git checkout '" # Switch to an existing branch or restore working tree files
-
-  - trigger: ":gp "
-    replace: "git push"
-
-  - trigger: ":gpf"
-    replace: "git push --force-with-lease"
-
-  - trigger: ":gpull"
-    replace: "git pull"
-
-  - trigger: ":gpo"
-    replace: "git pull origin $(git branch --show-current)" # Automatically pulls updates from the remote counterpart of your currently active branch.
-
-  - trigger: ":gr "
-    replace: "git restore " # Discard changes in local files or restore them from the index
-
-  - trigger: ":gl"
-    replace: "git log --oneline -10"
-
-  - trigger: ":gd "
-    replace: "git diff " # Show changes between the working directory and the index
-
-  - trigger: ":gdc"
-    replace: "git diff --cached" # Show changes that are staged for the next commit
-
-  - trigger: ":gstash"
-    replace: "git stash push -m '" # Save local changes to a temporary storage with a descriptive message
-
-  - trigger: ":gsp"
-    replace: "git stash pop" # Remove the latest stashed state and apply it to the working directory
-
-  - trigger: ":gtag"
-    replace: "git tag '" # Create a specific point in the repository history as being important (usually for releases)
-
-  - trigger: ":gfetch"
-    replace: "git fetch --prune" # Download objects/refs from remote and remove any local tracking branches that no longer exist on remote
-
-  - trigger: ":greb"
-    replace: "git rebase -i HEAD~" # Open interactive rebase to squash or edit recent commits
-
   - trigger: ":gign"
-    replace: "curl -s https://www.toptal.com/developers/gitignore/api/$|$ >> .gitignore" # Generate .gitignore via Toptal API
+    replace: "curl -s https://www.toptal.com/developers/gitignore/api/$|$ >> .gitignore"
 
   - trigger: ":gh"
-    replace: "{{output}}" # Get the 7-character short SHA of the current commit
+    replace: "{{output}}"
     vars:
       - name: output
         type: shell
@@ -157,271 +63,35 @@ matches:
 
   # --- Backend & API Development ---
   - trigger: ":json"
-    replace: "JSON.stringify(data, null, 2)" # Pretty print JSON
+    replace: "JSON.stringify(data, null, 2)"
 
   - trigger: ":clg"
-    replace: "console.log('🚀 ~ file: , line: ', )" # Enhanced logging for debugging
+    replace: "console.log('🚀 ~ file: , line: ', )"
 
   - trigger: ":header"
     replace: "Authorization: Bearer "
 
   - trigger: ":base64"
-    replace: 'echo -n "$|$ " | base64' # Base64 encoding utility
+    replace: 'echo -n "$|$ " | base64'
 
-  - trigger: ":nr"
-    replace: "npm run "
-
-  - trigger: ":br"
-    replace: "bun run "
-
-  - trigger: ":ni "
-    replace: "npm install "
-
-  - trigger: ":bi"
-    replace: "bun install"
-
-  - trigger: ":badd"
-    replace: "bun add "
-
-  - trigger: ":nid"
-    replace: "npm install -D "
-
-  - trigger: ":nig"
-    replace: "npm install -g "
-
-  # --- Docker & K8s Ops ---
-  - trigger: ":dps"
-    replace: "docker ps"
-
-  - trigger: ":dr"
-    replace: "docker run "
-
-  - trigger: ":ds "
-    replace: "docker stop "
-
-  - trigger: ":dlogs"
-    replace: "docker logs -f "
-
+  # --- Docker ---
   - trigger: ":dex"
-    replace: "docker exec -it $|$ /bin/sh" # Open an interactive shell inside a running container
-
-  - trigger: ":dstats"
-    replace: "docker stats"
-
-  - trigger: ":dclean"
-    replace: "docker system prune -af --volumes" # Fully wipe unused Docker data, images, and volumes
-
-  - trigger: ":dbuild"
-    replace: "docker build -t "
-
-  - trigger: ":dc"
-    replace: "docker-compose "
-
-  - trigger: ":kaf"
-    replace: "kubectl apply -f "
-
-  - trigger: ":kgn"
-    replace: "kubectl get nodes"
-
-  - trigger: ":kgp"
-    replace: "kubectl get pods"
-
-  - trigger: ":kgs"
-    replace: "kubectl get svc"
-
-  - trigger: ":kdp"
-    replace: "kubectl describe pod "
-
-  - trigger: ":kl"
-    replace: "kubectl logs -f "
+    replace: "docker exec -it $|$ /bin/sh"
 
   # --- Docker Lab (dlab) ---
-  - trigger: ":dlup"
-    replace: "dlab -ub -n "
-
-  - trigger: ":dls"
-    replace: "dlab -s -n "
-
-  - trigger: ":dlt"
-    replace: "dlab -t -n "
-
-  - trigger: ":dlr"
-    replace: "dlab -r -n "
-
-  - trigger: ":dlx "
-    replace: "dlab -x -n "
-
   - trigger: ":dlxu"
     replace: "dlab -x $|$ -n "
 
-  - trigger: ":dll"
-    replace: "dlab -l -n "
-
-  - trigger: ":dlp"
-    replace: "dlab -p"
-
   # --- Manjaro & System Care ---
-  - trigger: ":pac"
-    replace: "sudo pacman -Syu"
-
-  - trigger: ":psearch"
-    replace: "pacman -Ss "
-
-  - trigger: ":orp"
-    replace: "pacman -Qdt"
-
-  - trigger: ":mirrors"
-    replace: "sudo pacman-mirrors --fasttrack 10 && sudo pacman -Syyu"
-
-  - trigger: ":y "
-    replace: "yay -Sua"
-
-  - trigger: ":temp"
-    replace: "watch sensors" # Monitor hardware temperatures and fan speeds in real-time
-
-  - trigger: ":path"
-    replace: "echo $PATH | tr ':' '\\n'" # Readable PATH environment variable
-
-  - trigger: ":sstat"
-    replace: "systemctl status "
-
-  - trigger: ":ss "
-    replace: "sudo systemctl start "
-
-  - trigger: ":sstop"
-    replace: "sudo systemctl stop "
-
-  - trigger: ":sr "
-    replace: "sudo systemctl restart "
-
   - trigger: ":stime"
     replace: "get-timers"
 
-  - trigger: ":sl "
-    replace: "sudo journalctl -u "
+  - trigger: ":jl"
+    replace: "jlog-size"
 
-  # --- Network & Security ---
-  - trigger: ":fw "
-    replace: "sudo ufw status"
-
-  - trigger: ":fwa"
-    replace: "sudo ufw allow "
-
-  - trigger: ":fwe"
-    replace: "sudo ufw enable"
-
-  - trigger: ":fwd"
-    replace: "sudo ufw disable"
-
-  - trigger: ":fbs"
-    replace: "sudo fail2ban-client status" # Check Fail2Ban status and list banned IP addresses
-
-  - trigger: ":myip"
-    replace: "curl -s https://ipinfo.io/ip"
-
-  - trigger: ":port"
-    replace: "sudo lsof -i :" # Find which process is occupying a specific network port
-
-  - trigger: ":pingg"
-    replace: "ping 8.8.8.8"
-
-  - trigger: ":http"
-    replace: "python3 -m http.server 8000"
-
-  # --- Syncthing & 2FA Workflow ---
-  - trigger: ":son"
-    replace: "sync-on"
-
-  - trigger: ":soff"
-    replace: "sync-off"
-
-  - trigger: ":sync"
-    replace: "sync-stat"
-
-  - trigger: ":sweb"
-    replace: "sync-web"
-
+  # --- 2FA Workflow ---
   - trigger: ":aegis"
     replace: "Aegis > Export > JSON > Encrypt: OFF > Save to Syncthing"
-
-  # --- Python ---
-  - trigger: ":pyt"
-    replace: "python3 "
-
-  - trigger: ":pyvers"
-    replace: "python3 --version"
-
-  - trigger: ":pipins"
-    replace: "pip install "
-
-  - trigger: ":pipf"
-    replace: "pip freeze > requirements.txt" # Export all installed Python packages and their versions to a file for reproducibility
-
-  - trigger: ":venv"
-    replace: "python3 -m venv venv && source venv/bin/activate" # Create a new virtual environment and activate it in one command
-
-  - trigger: ":activate"
-    replace: "source venv/bin/activate"
-
-  # --- File Ops ---
-  - trigger: ":cmx"
-    replace: "chmod +x "
-
-  - trigger: ":big10"
-    replace: "du -ah . | sort -rh | head -n 10" # List the 10 largest files/folders in the directory
-
-  - trigger: ":dir"
-    replace: "du -sh */ | sort -rh"
-
-  - trigger: ":ds1"
-    replace: "dust -d 1 " # Show visual disk usage tree limited to depth 1
-
-  - trigger: ":ds2"
-    replace: "dust -d 2 " # Show visual disk usage tree limited to depth 2
-
-  - trigger: ":ft"
-    replace: "fulltree "
-
-  - trigger: ":pt"
-    replace: "projtree "
-
-  - trigger: ":findf"
-    replace: "find . -type f -name '*"
-
-  - trigger: ":findd"
-    replace: "find . -type d -name '*"
-
-  - trigger: ":fdf"
-    replace: "fd -t f $|$" # Search for files only
-
-  - trigger: ":fdd"
-    replace: "fd -t d $|$" # Search for directories only
-
-  - trigger: ":fda"
-    replace: "fd -IH $|$" # Include hidden and ignored files in search
-
-  # --- Compression ---
-  - trigger: ":tar"
-    replace: "tar -czvf "
-
-  - trigger: ":untar"
-    replace: "tar -xzvf "
-
-  - trigger: ":zip"
-    replace: "zip -r "
-
-  - trigger: ":unzip"
-    replace: "unzip "
-
-  # --- Disk & Mem ---
-  - trigger: ":disk"
-    replace: "df -h"
-
-  - trigger: ":mem"
-    replace: "free -h"
-
-  - trigger: ":top"
-    replace: "htop"
 
   # --- Date & Time & Shell ---
   - trigger: ":date"
@@ -468,60 +138,6 @@ matches:
         params:
           layout: horizontal
           label: "Path under ~/Desktop"
-
-  - trigger: ":res"
-    replace: "reload"
-
-  - trigger: ":ex"
-    replace: "exit"
-
-  # --- Sys Info ---
-  - trigger: ":si "
-    replace: "inxi -Fxzc0"
-
-  - trigger: ":fi "
-    replace: "get-info --full"
-
-  - trigger: ":mi "
-    replace: "get-info"
-
-  - trigger: ":li "
-    replace: "get-info --light"
-
-  - trigger: ":size"
-    replace: "du -sh "
-
-  - trigger: ":ls"
-    replace: "journalctl --disk-usage"
-
-  - trigger: ":curlj"
-    replace: "curl -s "
-
-  - trigger: ":ul "
-    replace: "sudo usbguard list-devices" # View authorized/blocked USB devices via USBGuard
-
-  - trigger: ":ua "
-    replace: "sudo usbguard allow-device "
-
-  # --- Espanso Triggers ---
-  - trigger: ":esps"
-    replace: "espanso start"
-
-  - trigger: ":espr"
-    replace: "espanso restart"
-
-  - trigger: ":esp "
-    replace: "esp_hints"
-
-  - trigger: ":ehints"
-    replace: "esp_hints"
-
-  # --- Zen Browser Shortcuts ---
-  - trigger: ":zen"
-    replace: "zen_hints"
-
-  - trigger: ":zhints"
-    replace: "zen_hints"
 
   # --- EMOJIS: Emotions & Reactions ---
   - trigger: ":scared"
@@ -570,6 +186,10 @@ matches:
     replace: "⚠️"
   - trigger: ":fire"
     replace: "🔥"
+  - trigger: ":freeze"
+    replace: "🧊"
+  - trigger: ":res"
+    replace: "🔄"
   - trigger: ":info"
     replace: "ℹ️"
   - trigger: ":gear"
@@ -581,7 +201,41 @@ matches:
   - trigger: ":bug"
     replace: "🐛"
 
-    # --- EMOJIS: Actions & Media ---
+    # --- EMOJIS: Apps & Libs ---
+  - trigger: ":igit"
+    replace: ""
+  - trigger: ":node"
+    replace: ""
+  - trigger: ":ts"
+    replace: ""
+  - trigger: ":js "
+    replace: ""
+  - trigger: ":rust"
+    replace: "🦀"
+  - trigger: ":docker"
+    replace: "🐳"
+  - trigger: ":db"
+    replace: "󰆼"
+  - trigger: ":pg"
+    replace: "🐘"
+  - trigger: ":redis"
+    replace: ""
+
+  # --- EMOJIS: Backend ---
+  - trigger: ":queue"
+    replace: "📨"
+  - trigger: ":test"
+    replace: "🧪"
+  - trigger: ":bench"
+    replace: "⏱️"
+  - trigger: ":env"
+    replace: "🔑"
+  - trigger: ":health"
+    replace: "🩺"
+  - trigger: ":schema"
+    replace: "📐"
+
+  # --- EMOJIS: Actions & Media ---
   - trigger: ":clean"
     replace: "🧹"
   - trigger: ":play"
@@ -618,7 +272,7 @@ matches:
   # --- EMOJIS: Flags ---
   - trigger: ":tr"
     replace: "🇹🇷"
-  - trigger: ":en"
+  - trigger: ":en "
     replace: "🇬🇧"
   - trigger: ":us"
     replace: "🇺🇸"
@@ -645,6 +299,20 @@ matches:
   - trigger: ":bolt"
     replace: "⚡"
 
+    # --- EMOJIS: Performance & Security ---
+  - trigger: ":cpu"
+    replace: "💻"
+  - trigger: ":mem"
+    replace: "🧠"
+  - trigger: ":speed"
+    replace: "⚡"
+  - trigger: ":key"
+    replace: "🔑"
+  - trigger: ":shield"
+    replace: "🛡️"
+  - trigger: ":auth"
+    replace: "🛂"
+
   # --- EMOJIS: Communication & Feedback ---
   - trigger: ":mail"
     replace: "✉️"
@@ -652,16 +320,20 @@ matches:
     replace: "📩"
   - trigger: ":warn2"
     replace: "❗"
-  - trigger: ":que"
+  - trigger: ":danger"
+    replace: "☢️"
+  - trigger: ":que "
     replace: "❓"
   - trigger: ":100"
     replace: "💯"
 
   # --- EMOJIS: Objects & System ---
-  - trigger: ":db"
+  - trigger: ":store"
     replace: "🗄️"
-  - trigger: ":doc"
+  - trigger: ":doc "
     replace: "📄"
+  - trigger: ":folder"
+    replace: "📂"
   - trigger: ":box"
     replace: "📦"
   - trigger: ":search"
@@ -670,4 +342,54 @@ matches:
     replace: "👤"
   - trigger: ":link"
     replace: "🔗"
+  - trigger: ":net"
+    replace: "🌐"
+
+  # --- EMOJIS: Linux, OS & Terminal ---
+  - trigger: ":manj"
+    replace: ""
+  - trigger: ":linux"
+    replace: ""
+  - trigger: ":tux"
+    replace: "🐧"
+  - trigger: ":term"
+    replace: ""
+  - trigger: ":zsh"
+    replace: "󱆃"
+  - trigger: ":root"
+    replace: "⚡"
+  - trigger: ":sudo"
+    replace: "🛡️"
+  - trigger: ":bin"
+    replace: "⚙️"
+  - trigger: ":dir"
+    replace: ""
+  - trigger: ":home"
+    replace: ""
+  - trigger: ":conf"
+    replace: "🔧"
+  - trigger: ":pck"
+    replace: "📦"
+
+  # --- EMOJIS: Extended Dev & OS ---
+  - trigger: ":aws"
+    replace: "󰸏"
+  - trigger: ":kube"
+    replace: "󱄄"
+  - trigger: ":k8s"
+    replace: "⎈"
+  - trigger: ":api"
+    replace: "󰡄"
+  - trigger: ":ijson"
+    replace: ""
+  - trigger: ":bat"
+    replace: "󰓏"
+  - trigger: ":fzf"
+    replace: ""
+  - trigger: ":ssh"
+    replace: "󰣀"
+  - trigger: ":md"
+    replace: ""
+  - trigger: ":nvim"
+    replace: ""
   # And much more! For more information, visit the docs: https://espanso.org/docs/
