@@ -2,8 +2,9 @@
 
 # 🔄 Path & Environment
 typeset -U path PATH
+[[ -f "$HOME/.zshenv" ]] && source "$HOME/.zshenv"
 
-# ⚡ Initialize Completion System (Sadece bir kez çağrılması yeterlidir)
+# ⚡ Initialize Completion System
 autoload -Uz compinit
 if [[ -n ${ZDOTDIR:-$HOME}/.zcompdump(#qN.m-1) ]]; then
   compinit -C
@@ -12,17 +13,17 @@ else
 fi
 autoload -Uz bashcompinit && bashcompinit
 
-# 🧠 Load Alias & Env Variables files
-[[ -f "$HOME/.zsh_aliases" ]] && source "$HOME/.zsh_aliases"
-[[ -f "$HOME/.zsh_notes" ]] && source "$HOME/.zsh_notes"
-
 # Load custom functions from the modular directory
 if [ -d "$HOME/.zsh_functions.d" ]; then
-  for func_file in "$HOME/.zsh_functions.d"/*; do
-    # Only source if it's a file and readable
-    [ -f "$func_file" ] && source "$func_file"
-  done
+    for func_file in "$HOME/.zsh_functions.d"/*(N); do
+        # Only source if it's a file and readable
+        [ -f "$func_file" ] && source "$func_file"
+    done
 fi
+
+# 🧠 Load Aliases
+[[ -f "$HOME/.zsh_aliases" ]] && source "$HOME/.zsh_aliases"
+[[ -f "$HOME/.zsh_notes" ]] && source "$HOME/.zsh_notes"
 
 # Register file/directory completion for the 'o' alias (handlr open wrapper)
 o() { handlr open "$@" }
@@ -64,14 +65,11 @@ zstyle ':completion:*' menu select
 zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
 zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
 
-# 🚀 Initializers (Sıralama önemlidir)
-# FNM: Node.js versiyonunu dizine göre otomatik değiştirir [cite: 1, 10]
+# 🚀 Initializers
+# FNM: Node.js version manager
 if command -v fnm &> /dev/null; then
   eval "$(fnm env --use-on-cd --shell zsh)"
 fi
-
-# Bun Completions
-[ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
 
 # Prompt & Navigation
 export STARSHIP_ZLE_KEYMAP_SELECT=0
@@ -85,5 +83,5 @@ xhost +local:root > /dev/null 2>&1
 preexec() { print -Pn "\e]0;$1\a" }
 precmd() { print -Pn "\e]0;%n@%m: %~\a" }
 
-# bun completions
-[ -s "/home/myrn/.bun/_bun" ] && source "/home/myrn/.bun/_bun"
+# Bun completions
+[ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"

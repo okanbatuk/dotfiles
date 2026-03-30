@@ -1,0 +1,8 @@
+# --- 🌐 Network & Connectivity ---
+port() {
+    if [[ -n "$1" ]]; then
+        sudo lsof -i :"$1"
+    else
+        echo "Usage: port <number>"
+    fi
+} # Find process by port 🌐
