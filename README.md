@@ -18,7 +18,7 @@ dotfiles/
 │   └── 🩺 storage/          # S.M.A.R.T. health & disk usage reports
 ├── ⚙️ install/              # Modular Bootstrap Tasks (Orchestrated by setup.sh)
 │   ├──  01-system.sh       # Core dependencies (base-devel, lsof, libnotify)
-│   ├── 🛠️ 02-system-conf.sh # System-level tweaks & hardware-specific configs
+│   ├── 🛠️ 02-system-conf.sh # System-level tweaks & hardware-specific configs & GRUB
 │   ├──  03-dev-env.sh      # JS/TS (FNM, Bun), Editors (Zed,  ), & Espanso-Wayland
 │   ├── 🔗 04-links.sh       # Symlink management for core dotfiles & .config/
 │   ├── 🐚 05-zsh-config.sh  # Zsh environment, function loading & shell optimization
@@ -338,13 +338,13 @@ When you run `setup.sh`, it will check if `~/.gitconfig.local` exists. If not, i
   - **Primary**:  **Zed** (High-performance editor with modular config).
   - **Secondary**:  **Neovim** (Custom Lua-based environment with Vim keybindings).
 - **Security & Privacy**:
-  - 🔑 **Aegis Authenticator**: Open-source 2FA management (Android).
-  - 📄 **Syncthing**: P2P file synchronization for encrypted backups and shared assets.
-  - 🛡️ **USBGuard**: Device authorization framework to block unauthorized USB entities.
-- **Runtimes**:  **Node.js** (managed via FNM) and **Bun** for high-performance scripting.
-- 💻 **Desktop**: **GNOME** with `libnotify` for automated system feedback.
+  - **🔑 Aegis Authenticator**: Open-source 2FA management (Android).
+  - **📄 Syncthing**: P2P file synchronization for encrypted backups and shared assets. (Access GUI at `localhost:8384` after setup to pair devices).
+  - **🛡️ USBGuard**: Device authorization framework to block unauthorized USB entities.
+- **Runtimes**: ** Node.js** (managed via FNM) and **Bun** for high-performance scripting.
+- **Desktop**: **💻 GNOME** with `libnotify` for automated system feedback.
 - **Automation**: Bash, symlinks, and Espanso for text expansion.
-- ✍️ **Font & Symbols**: FiraCode Nerd Font (Retina)
+- **Font & Symbols**: ✍️ FiraCode Nerd Font (Retina)
 
 ## 📜 License
 

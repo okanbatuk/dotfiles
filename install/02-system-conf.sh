@@ -12,79 +12,118 @@ SYSTEMD_CONF_DIR="$DOTFILES_DIR/config/systemd"
 SYSTEMD_TARGET_DIR="/etc/systemd/system"
 GRUB_CONFIG="/etc/default/grub"
 
-log_info "Starting dynamic systemd configuration..."
-
-# --- Container Guard ---
-# systemd and GRUB are not available in Docker/container environments.
-# Detect by checking if systemd is PID 1 — if not, skip gracefully.
-if [ ! -d /run/systemd/system ]; then
-    log_warn "⚠️  Container environment detected (systemd not available). Skipping systemd and GRUB configuration."
-    log_info "✅ System configuration task finished (skipped for container)."
-    exit 0
-fi
-
-# --- 1. Dynamic Symlinking ---
+# --- 1. Systemd Unit Orchestration ---
 # Link all files (services, timers, path units) from dotfiles to /etc
-log_debug "Synchronizing all systemd units from $SYSTEMD_CONF_DIR..."
-if [ -d "$SYSTEMD_CONF_DIR" ]; then
-    log_info "Linking all units from $SYSTEMD_CONF_DIR..."
-    for unit_path in "$SYSTEMD_CONF_DIR"/*; do
-        [ -e "$unit_path" ] || continue
-        unit_name=$(basename "$unit_path")
+setup_systemd_units() {
+    log_info "🔗 Linking and activating systemd units..."
 
-        ln -sf "$unit_path" "$SYSTEMD_TARGET_DIR/$unit_name"
-        log_debug "Linked: $unit_name"
-    done
-else
-    log_error "Source directory $SYSTEMD_CONF_DIR not found!"
-    exit 1
-fi
+    if [ -d "$SYSTEMD_CONF_DIR" ]; then
+        for unit_path in "$SYSTEMD_CONF_DIR"/*; do
+            [ -e "$unit_path" ] || continue
+            unit_name=$(basename "$unit_path")
 
-# Reload systemd to recognize new symlinks
-systemctl daemon-reload
+            # Create symlink in /etc/systemd/system
+            ln -sf "$unit_path" "$SYSTEMD_TARGET_DIR/$unit_name"
+            log_debug "Linked: $unit_name"
+        done
 
-# --- 2. Intelligent Activation ---
-log_info "Activating system units..."
-
-# Enable all .timer units dynamically to ensure scheduled tasks are active
-for timer in "$SYSTEMD_CONF_DIR"/*.timer; do
-    [ -e "$timer" ] || continue
-    timer_name=$(basename "$timer")
-    systemctl enable "$timer_name"
-    log_debug "Enabled timer: $timer_name"
-done
-
-# Enable specific services that must run at boot
-# Note: We enable mount-ldm because it's required for disk availability
-# For other services, we decide if they need 'enable' (at boot) or 'start' (now)
-SERVICES_TO_ENABLE=("mount-ldm.service")
-
-for svc in "${SERVICES_TO_ENABLE[@]}"; do
-    if [ -f "$SYSTEMD_TARGET_DIR/$svc" ]; then
-        systemctl enable "$svc"
-        log_debug "Enabled service: $svc"
+        # Reload systemd to recognize new symlinks
+        systemctl daemon-reload
+    else
+        log_warn "⚠️  Systemd config directory not found: $SYSTEMD_CONF_DIR"
+        exit 1
     fi
-done
+}
 
-# Start the timers immediately to ensure they are tracking schedules
-systemctl start update-light.timer update-full.timer 2>/dev/null || true
+# --- 2. Service & Timer Activation ---
+# Enable all .timer units dynamically to ensure scheduled tasks are active
+enable_core_services() {
+    log_info "🚀 Enabling core system services and timers..."
 
-# --- 3. GRUB & Performance Tuning ---
-log_info "Optimizing GRUB for zero-wait boot..."
-if [ -f "$GRUB_CONFIG" ]; then
-    # Set timeout to 0 for instant boot sequence
-    sed -i 's/^GRUB_TIMEOUT=.*/GRUB_TIMEOUT=0/' "$GRUB_CONFIG"
+    # Enable all timers found in the config
+    for timer in "$SYSTEMD_CONF_DIR"/*.timer; do
+        [ -e "$timer" ] || continue
+        timer_name=$(basename "$timer")
+        systemctl enable --now "$timer_name" 2>/dev/null || true
+        log_debug "Enabled timer: $timer_name"
+    done
 
-    # Apply silent boot and performance parameters
-    PERF_CMD="quiet loglevel=3 noplymouth apparmor=1 security=apparmor udev.log_priority=3"
-    sed -i "s|^GRUB_CMDLINE_LINUX_DEFAULT=.*|GRUB_CMDLINE_LINUX_DEFAULT=\"$PERF_CMD\"|" "$GRUB_CONFIG"
+    # Specific services that must run at boot
+    local SERVICES=("mount-ldm.service")
+    for svc in "${SERVICES[@]}"; do
+        if [ -f "$SYSTEMD_TARGET_DIR/$svc" ]; then
+            systemctl enable --now "$svc"
+            log_debug "Enabled: $svc"
+        fi
+    done
 
-    update-grub
-    log_info "✅ GRUB optimized."
-fi
+    # Start the timers immediately to ensure they are tracking schedules
+    systemctl start update-light.timer update-full.timer 2>/dev/null || true
+}
 
-# --- 4. Permissions ---
-# Ensure the backend script for mounting is executable
-[ -f "$DOTFILES_DIR/scripts/mount.sh" ] && chmod +x "$DOTFILES_DIR/scripts/mount.sh"
+# --- 3. syncthing integration ---
+setup_syncthing() {
+    log_info "🔄 configuring syncthing (user service)..."
 
-log_info "✅ System configuration task finished."
+    # check if syncthing binary exists (from 01-system.sh)
+    if command -v syncthing &>/dev/null; then
+        # enable and start syncthing as a user service (best for gnome/home sync)
+        if sudo -u "$REAL_USER" DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/$(id -u "$REAL_USER")/bus" \
+           systemctl --user is-enabled syncthing.service &>/dev/null; then
+            log_debug "✅ Syncthing service is already active."
+        else
+            sudo -u "$REAL_USER" DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/$(id -u "$REAL_USER")/bus" \
+                systemctl --user enable --now syncthing.service
+
+            log_info "🚀 Syncthing user service started."
+            log_info "🔗 Syncthing GUI: ${BLUE}http://localhost:8384${NC} (Pair your devices here)"
+            send_notification "Syncthing" "P2P Synchronization service is now active." "normal" "syncthing"
+        fi
+    else
+        log_error "❌ syncthing package not found. ensure 01-system.sh ran correctly."
+        exit 1
+    fi
+}
+
+# --- 4. GRUB & Performance Tuning ---
+optimize_boot() {
+    log_info "🏎️  Optimizing GRUB performance..."
+
+    if [ -f "$GRUB_CONFIG" ]; then
+        # Instant boot
+        sed -i 's/^GRUB_TIMEOUT=.*/GRUB_TIMEOUT=0/' "$GRUB_CONFIG"
+
+        # Performance & Silent boot parameters
+        local PERF_CMD="quiet loglevel=3 noplymouth apparmor=1 security=apparmor udev.log_priority=3"
+        sed -i "s|^GRUB_CMDLINE_LINUX_DEFAULT=.*|GRUB_CMDLINE_LINUX_DEFAULT=\"$PERF_CMD\"|" "$GRUB_CONFIG"
+
+        # Update GRUB only if changes were made (idempotent check can be added if needed)
+        update-grub
+        log_info "✅ GRUB optimized for speed and silence."
+    fi
+}
+
+# --- Main Execution ---
+main() {
+    log_info "Starting Modular System Configuration..."
+
+    # Container Guard
+    # systemd and GRUB are not available in Docker/container environments.
+    # Detect by checking if systemd is PID 1 — if not, skip gracefully.
+    if [ ! -d /run/systemd/system ]; then
+        log_warn "⚠️  Container environment detected. Skipping systemd/GRUB tasks."
+        exit 0
+    fi
+
+    setup_systemd_units
+    enable_core_services
+    setup_syncthing
+    optimize_boot
+
+    # Ensure the backend script for mounting is executable
+    [ -f "$DOTFILES_DIR/scripts/mount.sh" ] && chmod +x "$DOTFILES_DIR/scripts/mount.sh"
+
+    log_info "✅ System configuration completed successfully."
+}
+
+main "$@"
