@@ -20,14 +20,18 @@ matches:
 
   # But matches can also be dynamic:
 
-  # Print the output of a shell command
+  # Print the current active shell and kernel version
   - trigger: ":shell"
-    replace: "{{output}}"
+    replace: "Shell: {{shell_name}} | Kernel: {{kernel_ver}}"
     vars:
-      - name: output
+      - name: shell_name
         type: shell
         params:
-          cmd: "echo 'Hello from your shell'"
+          cmd: "echo $SHELL | awk -F/ '{print $NF}'"
+      - name: kernel_ver
+        type: shell
+        params:
+          cmd: "uname -r"
 
   # --- Core & Quick Access ---
   - trigger: ":hi"
@@ -174,6 +178,10 @@ matches:
     replace: "🫡"
   - trigger: ":grim"
     replace: "😬"
+  - trigger: ":wink"
+    replace: "😉"
+  - trigger: ":wink2"
+    replace: "😜"
 
   # --- EMOJIS: Technical & Status ---
   - trigger: ":rocket"
@@ -184,6 +192,10 @@ matches:
     replace: "❌"
   - trigger: ":warn1"
     replace: "⚠️"
+  - trigger: ":up"
+    replace: "⬆️"
+  - trigger: ":down"
+    replace: "⬇️"
   - trigger: ":fire"
     replace: "🔥"
   - trigger: ":freeze"
@@ -234,6 +246,10 @@ matches:
     replace: "🩺"
   - trigger: ":schema"
     replace: "📐"
+  - trigger: ":refac"
+    replace: "♻️"
+  - trigger: ":fix"
+    replace: "🛠️"
 
   # --- EMOJIS: Actions & Media ---
   - trigger: ":clean"
@@ -254,9 +270,9 @@ matches:
     replace: "👌"
   - trigger: ":hs"
     replace: "🤝"
-  - trigger: ":up"
+  - trigger: ":tup"
     replace: "👍"
-  - trigger: ":down"
+  - trigger: ":tdown"
     replace: "👎"
   - trigger: ":pray"
     replace: "🙏"
@@ -364,7 +380,7 @@ matches:
     replace: "🐧"
   - trigger: ":term"
     replace: ""
-  - trigger: ":shell"
+  - trigger: ":ishell"
     replace: "🐚"
   - trigger: ":izsh"
     replace: "󱆃"

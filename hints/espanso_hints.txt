@@ -1,6 +1,6 @@
 # --- General: Commands & Shortcuts ---
 espanso	Hi there!	Welcome message
-shell	echo 'Hello from your shell'	Print the output of a shell command
+shell	{{output}}	Show active shell (zsh/bash) and Kernel version
 hi	Hi Okan!	Greeting
 git	o https://github.com/okanbatuk	Open GitHub profile
 go	google.com	Google search
@@ -23,7 +23,7 @@ hm	date +%H:%M	Current time (HH:MM)
 iso	date -Iseconds	ISO 8601 timestamp
 cdir	cd ~/Desktop/{{path}}	Navigate to Desktop path
 
-# --- Emojis: Faces & Reactions ---
+# --- Emojis: Emotions & Reactions ---
 scared	😱	Emoji: Scared
 wow	😮	Emoji: Surprised
 mind	🤯	Emoji: Mind blown
@@ -41,6 +41,8 @@ think	🤔	Emoji: Thinking
 sweat	😅	Emoji: Nervous laugh
 sal	🫡	Emoji: Salute
 grim	😬	Emoji: Grimace
+wink	😉	Emoji: Wink
+wink2	😜	Emoji: Wink with tongue
 
 # --- Emojis: Status & UI ---
 rocket	🚀	Emoji: Rocket
@@ -78,12 +80,12 @@ stop	⏹️	Emoji: Stop
 pause	⏸️	Emoji: Pause
 step	⏭️	Emoji: Next
 
-# --- Emojis: Gestures & People ---
+# --- Emojis: Hand Gestures ---
 point	👉	Emoji: Point
 ok	👌	Emoji: OK
 hs	🤝	Emoji: Handshake
-up	👍	Emoji: Thumbs up
-down	👎	Emoji: Thumbs down
+tup	👍	Emoji: Thumbs up (Updated)
+tdown	👎	Emoji: Thumbs down (Updated)
 pray	🙏	Emoji: Pray
 clap	👏	Emoji: Clap
 wave	👋	Emoji: Wave
@@ -135,7 +137,7 @@ manj		Nerd Font: Manjaro Icon
 linux		Nerd Font: Linux Icon
 tux	🐧	Emoji: Tux Penguin
 term		Nerd Font: Terminal Icon
-shell	🐚	Nerd Font: Shell Icon
+ishell	🐚	Nerd Font: Shell Icon (Updated)
 izsh	󱆃	Nerd Font: Zsh/Shell Icon
 root	⚡	Emoji: Root Access
 sudo	🛡️	Emoji: Sudo / Security
