@@ -28,6 +28,7 @@ dotfiles/
 │   └── 🏠 09-local-env.sh   # Machine-specific overrides
 ├── 🛡️ functions/            # Modular Zsh Functions (Auto-loaded)
 │   ├── 🔑 2fa               # Interactive TOTP generator (alias: tfa)
+│   ├── 🔄 sy                # Unified Syncthing Controller (Toggle On/Off, Dashboard, Status)
 │   ├── 🔍 als_hints         # Interactive Alias search & execute (alias: ah)
 │   ├── ⌨️ esp_hints         # Interactive Espanso search (alias: eh)
 │   ├── 💡 zen_hints         # Zen Browser shortcut lookup (alias: zh)
@@ -114,6 +115,7 @@ Modern CLI tools, custom functions, and quick-access configuration shortcuts.
 | Command                            | Type      | Description                                                                                                                                                                                                                               |
 | ---------------------------------- | --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `dckr`                             | Function  | **Advanced Docker Management:** A modular CLI tool for rapid container workflows. Supports interactive image/container selection via `fzf`, automatic `.env` loading, port mapping, and `docker-compose` integration with smart defaults. |
+| `sy`                               | Function  | **Unified Syncthing Controller:** Smart toggle (On/Off) with integrated dashboard access (`-w`), status checks (`-s`), and force-control flags (`--on`/`--off`).                                                                          |
 | `pt` ( `projtree` )                | Function  | Modern tree view with auto-ignores (`node_modules`, `.git`, `dist`). Supports `-p` for **path**, `-d` for **depth**, `-i` for **ignore patterns** with interactive tab-completion (multi-flag support & auto-strips path prefix).         |
 | `ft` ( `fulltree` )                | Function  | Advanced tree view all files. Supports `-p` for **path**, `-d` for **depth**, `-i` for **ignore patterns** with interactive tab-completion (multi-flag support & auto-strips path prefix).                                                |
 | `tfa` ( `2fa` )                    | Functions | Interactive TOTP generator using `fzf` and Aegis JSON backups.                                                                                                                                                                            |
@@ -339,7 +341,7 @@ When you run `setup.sh`, it will check if `~/.gitconfig.local` exists. If not, i
   - **Secondary**:  **Neovim** (Custom Lua-based environment with Vim keybindings).
 - **Security & Privacy**:
   - **🔑 Aegis Authenticator**: Open-source 2FA management (Android).
-  - **📄 Syncthing**: P2P file synchronization for encrypted backups and shared assets. (Access GUI at `localhost:8384` after setup to pair devices).
+  - **📄 Syncthing**: P2P file synchronization for encrypted backups and shared assets. Managed via the unified `sy` function. Access GUI at `localhost:8384` or simply type `sy -w`.
   - **🛡️ USBGuard**: Device authorization framework to block unauthorized USB entities.
 - **Runtimes**: ** Node.js** (managed via FNM) and **Bun** for high-performance scripting.
 - **Desktop**: **💻 GNOME** with `libnotify` for automated system feedback.

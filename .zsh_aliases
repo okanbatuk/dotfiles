@@ -204,14 +204,10 @@ alias esps='espanso start' # Start Espanso service ▶️
 alias espr='espanso restart' # Restart Espanso service
 
 # --- 🔄 Syncthing Management ---
-alias sync-on='systemctl --user start syncthing.service && echo " Syncthing is STARTING..."' # Start Syncthing service
-alias sync-off='systemctl --user stop syncthing.service && echo " Syncthing is STOPPED."' # Stop Syncthing service
-alias sync-stat='systemctl --user status syncthing.service' # Check Syncthing status
-alias sync-web='o http://localhost:8384' # Open Syncthing Web UI
-alias son='sync-on' # Start Syncthing service
-alias soff='sync-off' # Stop Syncthing service
-alias sweb='sync-web' # Open Syncthing Web UI
-alias ssync='sync-stat' # Check Syncthing status
+alias son='sy --on' # Start Syncthing service
+alias soff='sy --off' # Stop Syncthing service
+alias sweb='sy --web' # Open Syncthing Web UI
+alias ssync='sy --status' # Check Syncthing status
 
 # --- 🌐 Network & Security ---
 alias fw='sudo ufw status' # Check Firewall status

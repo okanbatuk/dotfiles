@@ -1,0 +1,64 @@
+# --- 🔄 Professional Syncthing Controller ---
+
+sy() {
+    local CMD="$1"
+    local IS_ACTIVE=$(systemctl --user is-active syncthing.service)
+
+    # 🛠️ Helper: Unified Information & Roadmap Panel
+    _sy_dashboard_info() {
+        echo -e "\n 📡 \e[1;34mSyncthing Access Panel\e[0m"
+        echo -e "────────────────────────────────────────────────────────"
+        echo -e " 🌐 \e[1mWeb Interface :\e[0m http://localhost:8384"
+        echo -e " ⌨️  \e[1mQuick Access  :\e[0m \e[33msy -w\e[0m (Open Dashboard)"
+        echo -e " 📊 \e[1mHealth Check  :\e[0m \e[33msy -s\e[0m (Status & Logs)"
+        echo -e " ⏹️  \e[1;31mForce Stop    :\e[0m \e[31msy --off\e[0m"
+        echo -e "────────────────────────────────────────────────────────\n"
+    }
+
+    case "$CMD" in
+        # Explicit Start / Ensure Active
+        --on)
+            if [[ "$IS_ACTIVE" != "active" ]]; then
+                systemctl --user start syncthing.service
+                echo -ne " 🚀 \e[1;32mStarting service...\e[0m "
+            else
+                echo -ne " ✨ \e[1;33mAlready activated.\e[0m "
+            fi
+            _sy_dashboard_info
+            ;;
+
+        # Force Stop
+        --off)
+            systemctl --user stop syncthing.service && echo -e " 🔌 \e[1;31mService terminated.\e[0m"
+            ;;
+
+        # Open Web Dashboard
+        -w|--web)
+            o "http://localhost:8384"
+            ;;
+
+        # Detailed Status
+        -s|--status)
+            systemctl --user status syncthing.service
+            ;;
+
+        # Help Menu
+        -h|--help)
+            echo -e "Usage: \e[1msy\e[0m [option]"
+            echo -e "  (no args)  Toggle state (On <-> Off)"
+            echo -e "  --on       Ensure service is running & show info"
+            echo -e "  --off      Force stop the service"
+            echo -e "  -w, --web  Launch dashboard"
+            echo -e "  -s, --stat Systemctl status"
+            ;;
+
+        # Default Toggle Logic
+        *)
+            if [[ "$IS_ACTIVE" == "active" ]]; then
+                $0 --off # Call itself with --off flag
+            else
+                $0 --on  # Call itself with --on flag
+            fi
+            ;;
+    esac
+}
