@@ -83,5 +83,5 @@ xhost +local:root > /dev/null 2>&1
 preexec() { print -Pn "\e]0;$1\a" }
 precmd() { print -Pn "\e]0;%n@%m: %~\a" }
 
-# Bun completions
-[ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
+# bun completions
+[ -s "/home/myrn/.bun/_bun" ] && source "/home/myrn/.bun/_bun"
