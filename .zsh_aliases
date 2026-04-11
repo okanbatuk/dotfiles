@@ -30,7 +30,7 @@ alias fgrep='grep -F --color=auto' # Fixed grep (No regex) 🔍
 alias search='rg --smart-case --stats' # Detailed search with statistics 📊
 alias h='history | fzf' # Search command history with fzf 
 alias p='cd $(fd -t d | fzf)' # Interactive directory jumper with fzf 
-alias v='nvim $(fd -t f | fzf)' # Find and open file in Neovim with fzf 
+alias vo='nvim $(fd -t f | fzf)' # Find and open file in Neovim with fzf 
 alias fo='fd --type f | fzf | xargs -r handlr open' # Find and open file with fzf 
 
 # --- 📂 File & Directory Operations ---
@@ -53,6 +53,7 @@ alias tarx='tar -xzvf' # Extract a tar.gz archive
 alias zipr='zip -r' # Create a recursive zip archive
 
 # --- 🖥️ Disk, Memory & System Info ---
+alias tf='tail -f' # Follow file output in real-time
 alias disk='df -h' # Show disk space usage in human-readable format
 alias mem='free -h' # Show memory usage in human-readable format
 alias top='htop' # Interactive process viewer (Modern top)
@@ -123,6 +124,7 @@ alias gl='git log --oneline --graph --all' # Visual Git  log graph 📊
 alias gc='git commit -m' # Git  commit w/ message
 alias ga='git add' # Git  add
 alias gac='git add . && git commit -m' # Git  add all and commit
+alias gcm='git commit --amend' # Amend the last commit
 alias gcan='git commit --amend --no-edit' # Amend last commit (no edit)
 alias gcanp='git commit --amend --no-edit && gpf' # Amend last commit (no edit)
 alias gacan='git add . && git commit --amend --no-edit' # Git  Add all and amend last commit
@@ -131,6 +133,7 @@ alias gco='git checkout' # Switch branch or restore files
 alias gcb='git checkout -b' # Create and switch to new branch
 alias gb='git branch' # List local branches
 alias grs='git restore --staged' # Unstage files
+alias gbr='git branch --sort=-committerdate' # List branches sorted by last commit date
 alias gundo='git reset --soft HEAD~1' # Git  Undo last commit (keep changes)
 alias gam='git commit --amend -m' # Git  Amend last commit with new message
 alias gcln='git branch --merged | grep -v "\*" | xargs -n 1 git branch -d' # Git  Clean merged local branches
@@ -148,6 +151,8 @@ alias ds='docker stop' # Stop a running container 🛑
 alias dstop='docker stop $(docker ps -q)' # Stop all running containers 🛑
 alias dlogs='docker logs -f' # Follow container logs
 alias dstats='docker stats' # Show container resource usage
+alias dcl='docker exec -it $(docker ps -lq) /bin/bash' # Exec into the last started container
+alias di='docker images --format "table {{.Repository}}\t{{.Tag}}\t{{.Size}}"' # List images with size and repository info
 alias dclean='docker system prune -af --volumes' # Nuke all unused docker data
 alias dbuild='docker build -t' # Build image from Dockerfile
 alias drmi='docker rmi $(docker images -q -f "dangling=true")' # Remove dangling images 🧹
@@ -180,6 +185,10 @@ alias bci='bun install --frozen-lockfile' # Clean install with strict lockfile v
 alias ba='bun add' # Add a new runtime dependency to package.json
 alias bad='bun add -d' # Add a new development-only dependency to package.json
 alias nuke='rm -rf node_modules' # Nuke node_modules folder ☢️
+alias port='lsof -i -P -n | grep' # Find which process is using a specific port
+alias ports='netstat -tulanp' # List all listening ports and their processes
+alias killport='fuser -k -n tcp' # Force kill a process on a specific port
+alias jcurl='curl -s "$@" | jq "."' # Fetch and format JSON output with jq
 alias venv='python3 -m venv venv && source venv/bin/activate' # Create/Activate venv
 alias pyv='python3 --version' # Show Python version
 alias pi='pip install' # Install python package 🐍
