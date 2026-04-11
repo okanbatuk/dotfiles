@@ -30,7 +30,7 @@ alias fgrep='grep -F --color=auto' # Fixed grep (No regex) 🔍
 alias search='rg --smart-case --stats' # Detailed search with statistics 📊
 alias h='history | fzf' # Search command history with fzf 
 alias p='cd $(fd -t d | fzf)' # Interactive directory jumper with fzf 
-alias vo='nvim $(fd -t f | fzf)' # Find and open file in Neovim with fzf 
+alias v='nvim $(fd -t f -H | fzf)' # Find and open file (including hidden) in Neovim with fzf
 alias fo='fd --type f | fzf | xargs -r handlr open' # Find and open file with fzf 
 
 # --- 📂 File & Directory Operations ---
@@ -105,7 +105,6 @@ alias fp-on='sudo usbguard allow-device id $ID_FINGERPRINT' # Enable Fingerprint
 
 # ---  Development Tools ---
 alias n='nvim' # Open Neovim 
-alias v='nvim' # Open Neovim   (shortcut)
 alias zed='zeditor' # Open Zed Editor
 alias code='code --ozone-platform=wayland' # Open VS Code (Wayland)
 alias windsurf='windsurf --ozone-platform=wayland' # Open Windsurf IDE
@@ -185,9 +184,8 @@ alias bci='bun install --frozen-lockfile' # Clean install with strict lockfile v
 alias ba='bun add' # Add a new runtime dependency to package.json
 alias bad='bun add -d' # Add a new development-only dependency to package.json
 alias nuke='rm -rf node_modules' # Nuke node_modules folder ☢️
-alias port='lsof -i -P -n | grep' # Find which process is using a specific port
-alias ports='netstat -tulanp' # List all listening ports and their processes
-alias killport='fuser -k -n tcp' # Force kill a process on a specific port
+alias lp='lsof -nP -i -sTCP:LISTEN' # List all processes listening on ports (TCP/UDP)
+alias kport='fuser -k -n tcp' # Force kill a process on a specific port (Kill Port)
 alias jcurl='curl -s "$@" | jq "."' # Fetch and format JSON output with jq
 alias venv='python3 -m venv venv && source venv/bin/activate' # Create/Activate venv
 alias pyv='python3 --version' # Show Python version
