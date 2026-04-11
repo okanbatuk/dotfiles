@@ -9,8 +9,14 @@ source "$DOTFILES_DIR/core.sh" || { echo "Error: core.sh not found"; exit 1; }
 
 # --- Setup logging ---
 setup_env() {
+    # 1. Create a unique timestamp for the file name (Year-Month-Day_Hour-Minute-Second)
+    local timestamp=$(date +"%Y-%m-%d_%H-%M-%S")
+
+    # 2. Build the dynamic log name
+    local log_name="disk-report-${timestamp}.log"
+
     # Initialize storage log directory and file
-    prepare_logging "storage" "disk-report-$(date +%Y-%m-%d_%H-%M-%S).log"
+    prepare_logging "storage" "$log_name"
 
     # Redirect all output to both log file and terminal
     exec > >(tee -a "$CURRENT_LOG_FILE") 2>&1

@@ -12,15 +12,24 @@ setup_env() {
     MODE="light"
     [[ "$1" == "--full" ]] && MODE="full"
 
-    prepare_logging "updates" "update-$(date +%Y-%m-%d)-$MODE.log"
+    # 1. Create a unique timestamp for the file name (Year-Month-Day_Hour-Minute-Second)
+    local timestamp=$(date +"%Y-%m-%d_%H-%M-%S")
 
+    # 2. Build the dynamic log name
+    local log_name="update-${timestamp}-${MODE}.log"
+
+    # 3. Pass it to core.sh function as it is
+    prepare_logging "updates" "$log_name"
+
+    # Redirect all output (stdout & stderr) to this new unique file
     exec > >(tee -a "$CURRENT_LOG_FILE") 2>&1
+
     log_info "===== UPDATE STARTED AT $(date) [Mode: $MODE] ====="
     log_debug "Mode: $MODE | User: $REAL_USER | Home: $REAL_HOME"
 }
 
 # --- 🛡️ Pacman Lock Management ---
-# Checks for existing pacman database locks and resolves conflicts
+# Checks for existing pacman database locks and manages conflicts intelligently
 handle_pacman_lock() {
     local lock_file="/var/lib/pacman/db.lck"
 
@@ -28,29 +37,42 @@ handle_pacman_lock() {
         log_warn "⚠️ Pacman lock file detected: $lock_file"
 
         # Identify the process ID (PID) holding the lock file
-        # fuser returns the PID of the process using the specified file
         local pid=$(sudo fuser "$lock_file" 2>/dev/null | awk '{print $NF}')
 
         if [[ -n "$pid" ]]; then
-            # Get the command name of the blocking process for logging
+            # Get the command name of the blocking process
             local process_name=$(ps -p "$pid" -o comm=)
-            log_info "🛑 Found active process '$process_name' (PID: $pid) holding the lock. Terminating..."
 
-            # Send SIGTERM (15) for a graceful shutdown first
+            # Check if the lock is held by our own Full Update service
+            # If update-full is active, the light update should yield to prevent corruption
+            if systemctl is-active -q update-full.service; then
+                log_info "🛡️ Full update is currently in progress. Light update will exit to avoid conflict."
+                send_notification "Update Deferred" "Light update skipped because a Full update is running. ⏳" "low"
+                exit 0
+            fi
+
+            # If the lock is held by system auto-updaters (e.g., PackageKit, Discover), terminate it
+            log_info "🛑 Found active system process '$process_name' (PID: $pid). Terminating to take control..."
+
+            # Graceful termination first
             sudo kill -15 "$pid"
             sleep 2
 
-            # If the process is still alive, force kill with SIGKILL (9)
+            # Force kill if still alive
             if ps -p "$pid" > /dev/null; then
                 log_debug "Process $pid still alive, forcing kill..."
                 sudo kill -9 "$pid" 2>/dev/null
             fi
         fi
 
-        # Ensure the lock file is removed even if the process exited cleanly
-        log_info "🔓 Removing lock file to proceed with update..."
+        # Remove the lock file to proceed with our controlled script execution
+        log_info "🔓 Removing lock file to proceed with custom update script..."
         sudo rm -f "$lock_file"
-        send_notification "Security Alert" "A blocking process ($process_name) was terminated to proceed with update. 🛡️" "critical" "dialog-warning"
+
+        # Notify only if we had to forcibly kill a third-party system process
+        if [[ "$process_name" != "pacman" && "$process_name" != "yay" ]]; then
+            send_notification "Security Alert" "External process ($process_name) was terminated to prioritize your update script. 🛡️" "normal" "dialog-warning"
+        fi
     fi
 }
 

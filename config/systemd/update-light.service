@@ -2,7 +2,7 @@
 Description=Daily Light System Update
 After=network-online.target
 Wants=network-online.target
-Conflicts=update-full.service
+ConditionPathExists=!/run/systemd/units/invocation:update-full.service
 
 [Service]
 Type=oneshot

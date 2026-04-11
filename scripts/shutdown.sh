@@ -14,8 +14,14 @@ setup_env() {
     # Determine if shutdown is required via parameter or prompt
     [[ "$1" =~ ^[YyNn]$ ]] && SHUTDOWN_CHOICE="$1" || { log_info "Shutdown after cleanup? (Yy/Nn):"; read -r SHUTDOWN_CHOICE; }
 
-    # Initialize log directory and file
-    prepare_logging "maintenance" "shutdown-cleanup-$(date +%Y-%m-%d).log"
+    # 1. Create a unique timestamp for the file name (Year-Month-Day_Hour-Minute-Second)
+    local timestamp=$(date +"%Y-%m-%d_%H-%M-%S")
+
+    # 2. Build the dynamic log name for shutdown/maintenance
+    local log_name="shutdown-cleanup-${timestamp}.log"
+
+    # Initialize log directory and file via core.sh
+    prepare_logging "maintenance" "$log_name"
 
     # Redirect all output to log file and terminal
     exec > >(tee -a "$CURRENT_LOG_FILE") 2>&1
