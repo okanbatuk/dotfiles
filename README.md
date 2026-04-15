@@ -30,6 +30,7 @@ dotfiles/
 │   ├── 🔑 2fa               # Interactive TOTP generator (alias: tfa)
 │   ├── ⏰ alarm             # High-precision alarm function with fzf support
 │   ├── 🔄 sy                # Unified Syncthing Controller (Toggle On/Off, Dashboard, Status)
+│   ├── ⚡ run_script         # Central Dispatcher for dynamic script execution
 │   ├── 🔍 als_hints         # Interactive Alias search & execute (alias: ah)
 │   ├── ⌨️ esp_hints         # Interactive Espanso search (alias: eh)
 │   ├── 💡 zen_hints         # Zen Browser shortcut lookup (alias: zh)
@@ -43,7 +44,7 @@ dotfiles/
 │   │   ├── 🗑️ rm            # Prevents 'rm -rf /' & strips force flags for interaction
 │   │   ├── 🔐 chmod/chown   # Prompts for confirmation on recursive (-R) operations
 │   │   ├── 📋 cp/mv         # Interactively prevents accidental file overwrites
-│   │   └──  gpush          # Intercepts 'git push -f', enforces --force-with-lease
+│   │   ├──  gpush          # Intercepts 'git push -f', enforces --force-with-lease
 │   │   └── 🐳 dprune        # Intercepts 'docker system prune', shows active containers before cleanup
 │   └── ...                  # (One file per function)
 ├── ⚙️ config/                # App-specific configurations (Linked to ~/.config)
@@ -170,6 +171,8 @@ The `setup.sh` script follows a robust execution order to ensure system integrit
 - **Transient Timers:** Uses `systemd-run --user` for persistence; alarms trigger even if the terminal is closed.
 - **Clock Accuracy:** Configured with `AccuracySec=1ms` to bypass Linux kernel timer coalescing (slack), ensuring zero-delay triggers.
 - **Session Bridge:** Uses a standalone D-Bus bridge to reach the GNOME notification server from background units.
+- **Dynamic Command Dispatching**: Migrated brittle path-based aliases to a centralized `_run_script` dispatcher, ensuring consistent behavior and proper syntax highlighting across different machines.
+- **Syntax Highlighting Optimization**: By using functions for script wrappers, the shell now provides immediate visual feedback (green color) for custom dotfile commands.
 
 ## 🚀 Installation
 
@@ -296,6 +299,7 @@ All scripts automatically generate logs in the `~/dotfiles/logs/` directory.
 To maintain a "Clean OS" philosophy, I've implemented a robust Command Interceptor (Guardian):
 
 1. **Passive Guards (`.guard.sh`)**: Intercepts package manager commands (e.g., `npm -g`, `pip`) to prevent root pollution in `$HOME`. It blocks execution if certain blacklist criteria are met.
+   - **Fail-Fast Check**: Now verifies if the binary (e.g., `npm`, `yarn`) exists in the system before performing security checks, preventing internal shell `exec` errors.
 2. **Interactive Guards (Functions)**: High-risk system commands are wrapped in Zsh functions that enforce safety logic before execution:
    - **Git Safe Push**: Automatically converts `git push -f` to `--force-with-lease`. It also blocks direct pushes to `main`/`master` without explicit `y/n` confirmation.
    - **Recursive Safety**: Commands like `chmod -R` and `chown -R` trigger a Guardian warning, requiring manual confirmation to prevent mass permission drifts.

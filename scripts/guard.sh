@@ -24,6 +24,14 @@ BLACKLIST=(
     "chown -R root"
 )
 
+# --- Check if the command exists in the system ---
+check_command_exists() {
+    if ! command -v "$1" &> /dev/null; then
+        echo -e "❌ Error: Command '$1' not found in your system."
+        exit 127 # Standard "command not found" exit code
+    fi
+}
+
 # --- Check if the command is blacklisted ---
 check_blacklist() {
     local cmd_to_run="$*"
@@ -37,6 +45,10 @@ check_blacklist() {
 }
 
 # --- Guard Logic ---
+# First, check if the binary even exists
+check_command_exists "$1"
+
+# Then, proceed with root pollution check
 if [ "$EUID" -eq 0 ]; then
     if ! check_blacklist "$@"; then
         echo -e "\n🛑 ${RED}GUARD: Operation Blocked!${NC}"

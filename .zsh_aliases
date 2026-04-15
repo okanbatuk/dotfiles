@@ -4,13 +4,13 @@
 alias sudo='sudo ' # Allow aliases to be sudo-ed
 
 # --- 📦 Package Manager Guards (Avoid Root Pollution) ---
-alias npm='$SCRIPTS_DIR/.guard.sh npm' # Guard npm against root pollution
-alias pnpm='$SCRIPTS_DIR/.guard.sh pnpm' # Guard pnpm against root pollution
-alias yarn='$SCRIPTS_DIR/.guard.sh yarn' # Guard yarn against root pollution
-alias bun='$SCRIPTS_DIR/.guard.sh bun' # Guard bun against root pollution
-alias cargo='$SCRIPTS_DIR/.guard.sh cargo' # Guard cargo against root pollution
-alias pip='$SCRIPTS_DIR/.guard.sh pip' # Guard pip against root pollution
-alias gem='$SCRIPTS_DIR/.guard.sh gem' # Guard gem against root pollution
+alias npm="$SCRIPTS_DIR/.guard.sh npm" # Guard npm against root pollution
+alias pnpm="$SCRIPTS_DIR/.guard.sh pnpm" # Guard pnpm against root pollution
+alias yarn="$SCRIPTS_DIR/.guard.sh yarn" # Guard yarn against root pollution
+alias bun="$SCRIPTS_DIR/.guard.sh bun" # Guard bun against root pollution
+alias cargo="$SCRIPTS_DIR/.guard.sh cargo" # Guard cargo against root pollution
+alias pip="$SCRIPTS_DIR/.guard.sh pip" # Guard pip against root pollution
+alias gem="$SCRIPTS_DIR/.guard.sh gem" # Guard gem against root pollution
 
 # --- 📂 Navigation & Listing & Search 🔍 ---
 alias ..='cd ..' # Go up one 
@@ -57,7 +57,6 @@ alias tf='tail -f' # Follow file output in real-time
 alias disk='df -h' # Show disk space usage in human-readable format
 alias mem='free -h' # Show memory usage in human-readable format
 alias top='htop' # Interactive process viewer (Modern top)
-alias get-info='$SCRIPTS_DIR/.get-info.sh' # System hardware/OS summary
 alias di='get-info --full' # Detailed hardware/OS info
 alias si='get-info' # Standard hardware/OS info
 alias li='get-info --light' # Minimal hardware/OS info
@@ -69,13 +68,6 @@ alias ul='sudo usbguard list-devices' # List USB devices (Security)
 alias ua='sudo usbguard allow-device' # Allow a specific USB device
 
 # --- ⚙️ System Maintenance ---
-alias upfull='$SCRIPTS_DIR/.update.sh --full' # Full system maintenance (Weekly)
-alias up='$SCRIPTS_DIR/.update.sh --light' # Light system update
-alias sd='$SCRIPTS_DIR/.shutdown.sh' # Safe system cleanup and shutdown 🧹
-alias sdy='$SCRIPTS_DIR/.shutdown.sh y' # Safe shutdown with cleaning 🧹
-alias sdn='$SCRIPTS_DIR/.shutdown.sh n' # Safe clean (No shutdown) 🧹
-alias dmount='$SCRIPTS_DIR/.mount.sh' # Mount defined drives
-alias dreport='$SCRIPTS_DIR/.disk-report.sh' # Generate disk usage report
 alias sys-err='journalctl -p 3 -xb' # Show high priority system errors 🚨
 alias free='free -m -h' # Show RAM usage (Human readable)
 alias df='duf' # Show disk usage (Modern df)
@@ -151,7 +143,7 @@ alias dstop='docker stop $(docker ps -q)' # Stop all running containers 🛑
 alias dlogs='docker logs -f' # Follow container logs
 alias dstats='docker stats' # Show container resource usage
 alias dcl='docker exec -it $(docker ps -lq) /bin/bash' # Exec into the last started container
-alias di='docker images --format "table {{.Repository}}\t{{.Tag}}\t{{.Size}}"' # List images with size and repository info
+alias dil='docker images --format "table {{.Repository}}\t{{.Tag}}\t{{.Size}}"' # List images with size and repository info
 alias dclean='docker system prune -af --volumes' # Nuke all unused docker data
 alias dbuild='docker build -t' # Build image from Dockerfile
 alias drmi='docker rmi $(docker images -q -f "dangling=true")' # Remove dangling images 🧹
@@ -189,7 +181,7 @@ alias kport='fuser -k -n tcp' # Force kill a process on a specific port (Kill Po
 alias jcurl='curl -s "$@" | jq "."' # Fetch and format JSON output with jq
 alias venv='python3 -m venv venv && source venv/bin/activate' # Create/Activate venv
 alias pyv='python3 --version' # Show Python version
-alias pi='pip install' # Install python package 🐍
+alias pi='pip install' # Install python package unalias npm pnpm yarn bun cargo pip gem sdy up upf dmount dreport 2>/dev/null🐍
 alias pyact='source venv/bin/activate' # Activate python virtual environment 🐍
 alias pf='pip freeze > requirements.txt' # Freeze python dependencies 🧊
 
