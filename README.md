@@ -114,6 +114,7 @@ Modern CLI tools, custom functions, and quick-access configuration shortcuts.
 
 | Command                            | Type      | Description                                                                                                                                                                                                                               |
 | ---------------------------------- | --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `alarm`                            | Function  | **High-Precision Reminder System.** Supports `-t/--time`, `-m/--message`, and `-l/--list`. Integrated with systemd-run and GNOME notifications.                                                                                           |
 | `dckr`                             | Function  | **Advanced Docker Management:** A modular CLI tool for rapid container workflows. Supports interactive image/container selection via `fzf`, automatic `.env` loading, port mapping, and `docker-compose` integration with smart defaults. |
 | `sy`                               | Function  | **Unified Syncthing Controller:** Smart toggle (On/Off) with integrated dashboard access (`-w`), status checks (`-s`), and force-control flags (`--on`/`--off`).                                                                          |
 | `pt` ( `projtree` )                | Function  | Modern tree view with auto-ignores (`node_modules`, `.git`, `dist`). Supports `-p` for **path**, `-d` for **depth**, `-i` for **ignore patterns** with interactive tab-completion (multi-flag support & auto-strips path prefix).         |
@@ -164,6 +165,9 @@ The `setup.sh` script follows a robust execution order to ensure system integrit
 - **Modern Tooling Suite**: Transitioned to **Biome** for ultra-fast formatting and linting, fully integrated into the **Zed** and **Neovim** LSP workflows.
 - **Self-Healing Updates**: The maintenance suite now includes **`handle_pacman_lock`**, which proactively resolves database locks by identifying and terminating blocking PID processes, ensuring non-blocking automation.
 - **Desktop-Integrated Feedback**: Background tasks now communicate via the GNOME notification area using a custom D-Bus session bridge, providing real-time status updates without terminal interaction.
+- **Transient Timers:** Uses `systemd-run --user` for persistence; alarms trigger even if the terminal is closed.
+- **Clock Accuracy:** Configured with `AccuracySec=1ms` to bypass Linux kernel timer coalescing (slack), ensuring zero-delay triggers.
+- **Session Bridge:** Uses a standalone D-Bus bridge to reach the GNOME notification server from background units.
 
 ## 🚀 Installation
 
@@ -345,6 +349,7 @@ When you run `setup.sh`, it will check if `~/.gitconfig.local` exists. If not, i
   - **🛡️ USBGuard**: Device authorization framework to block unauthorized USB entities.
 - **Runtimes**: ** Node.js** (managed via FNM) and **Bun** for high-performance scripting.
 - **Desktop**: **💻 GNOME** with `libnotify` for automated system feedback.
+  - **Custom UI Feedback**: Integrated "Times Up!" notifications with critical urgency and dedicated system audio alerts via `paplay`.
 - **Automation**: Bash, symlinks, and Espanso for text expansion.
 - **Font & Symbols**: ✍️ FiraCode Nerd Font (Retina)
 
