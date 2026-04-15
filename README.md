@@ -28,6 +28,7 @@ dotfiles/
 │   └── 🏠 09-local-env.sh   # Machine-specific overrides
 ├── 🛡️ functions/            # Modular Zsh Functions (Auto-loaded)
 │   ├── 🔑 2fa               # Interactive TOTP generator (alias: tfa)
+│   ├── ⏰ alarm             # High-precision alarm function with fzf support
 │   ├── 🔄 sy                # Unified Syncthing Controller (Toggle On/Off, Dashboard, Status)
 │   ├── 🔍 als_hints         # Interactive Alias search & execute (alias: ah)
 │   ├── ⌨️ esp_hints         # Interactive Espanso search (alias: eh)
@@ -54,6 +55,7 @@ dotfiles/
 │   ├── 🛡️ guard.sh          #  Security Interceptor for high-risk commands
 │   └── 🔄 update.sh         # Maintenance orchestrator with Pacman lock handling
 │   ├── 🧹 shutdown.sh       # Deep-cleans system caches and manages poweroff
+│   ├── 🔔 .alarm-notify.sh  # Background notification worker for alarms
 │   ├── 🩺 disk-report.sh    # S.M.A.R.T. health analysis & usage reports
 │   └── ...                  # (get-info)
 ├── 🧠 hints/                # Tab-separated lookup tables for fzf-powered hint utilities
@@ -114,7 +116,7 @@ Modern CLI tools, custom functions, and quick-access configuration shortcuts.
 
 | Command                            | Type      | Description                                                                                                                                                                                                                               |
 | ---------------------------------- | --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `alarm`                            | Function  | **High-Precision Reminder System.** Supports `-t/--time`, `-m/--message`, and `-l/--list`. Integrated with systemd-run and GNOME notifications.                                                                                           |
+| `alarm`                            | Function  | **Advanced CLI Alarm:** High-precision (`1ms`) reminders using `systemd-run`. Supports `-t, -m, -l`, interactive FZF removal (`-r`), and short syntax (e.g., `alarm 5m "msg"`). Integrated with GNOME notifications and audio alerts.     |
 | `dckr`                             | Function  | **Advanced Docker Management:** A modular CLI tool for rapid container workflows. Supports interactive image/container selection via `fzf`, automatic `.env` loading, port mapping, and `docker-compose` integration with smart defaults. |
 | `sy`                               | Function  | **Unified Syncthing Controller:** Smart toggle (On/Off) with integrated dashboard access (`-w`), status checks (`-s`), and force-control flags (`--on`/`--off`).                                                                          |
 | `pt` ( `projtree` )                | Function  | Modern tree view with auto-ignores (`node_modules`, `.git`, `dist`). Supports `-p` for **path**, `-d` for **depth**, `-i` for **ignore patterns** with interactive tab-completion (multi-flag support & auto-strips path prefix).         |

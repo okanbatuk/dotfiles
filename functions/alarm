@@ -1,53 +1,89 @@
 # Location: ~/dotfiles/functions/alarm
-# Purpose: Professional CLI tool for high-precision systemd timers
+# Purpose: Professional high-precision alarm system with FZF integration
 
 function alarm() {
-    # Color definitions using raw ANSI codes for maximum independence
     local C_BLUE='\033[1;34m'
     local C_GREEN='\033[1;32m'
+    local C_YELLOW='\033[1;33m'
     local C_RED='\033[1;31m'
-    local C_NC='\033[0m' # No Color
+    local C_NC='\033[0m'
 
-    # Default internal values
-    local opt_time="15m"
-    local opt_msg=""
+    local opt_time=()
+    local opt_msg=()
     local opt_list=0
     local opt_help=0
+    local opt_remove=0
 
-    # Advanced flag parsing using zparseopts for dual-interface (-t / --time)
+    # Parse flags
     zparseopts -D -E \
         t:=opt_time -time:=opt_time \
         m:=opt_msg -message:=opt_msg \
         l=opt_list -list=opt_list \
+        r=opt_remove -remove=opt_remove \
         h=opt_help -help=opt_help
 
-    # Standardized help menu
-    local usage="Usage: alarm [options] [message]
-
-Options:
-  -t, --time <dur>     Time duration (e.g., 5s, 10m, 1h). Default: 15m
-  -m, --message <msg>  Alarm message (Can also be passed as last argument)
-  -l, --list           List active alarms (Sorted by proximity)
-  -h, --help           Show this help message"
-
+    # --- Help Menu Logic ---
     if [[ -n "$opt_help" ]]; then
-        echo "$usage"
+        echo -e "${C_BLUE}Alarm System CLI${C_NC} - High-precision systemd-run reminders"
+        echo -e ""
+        echo -e "${C_YELLOW}USAGE:${C_NC}"
+        echo -e "  alarm [options] [time] [message]"
+        echo -e ""
+        echo -e "${C_YELLOW}OPTIONS:${C_NC}"
+        echo -e "  -t, --time <dur>     Time duration (e.g., 5s, 10m, 1h). Default: 15m"
+        echo -e "  -m, --message <msg>  Custom alarm message"
+        echo -e "  -l, --list           Display active alarms"
+        echo -e "  -r, --remove         Interactive removal using FZF"
+        echo -e "  -h, --help           Show this technical manual"
+        echo -e ""
+        echo -e "${C_YELLOW}EXAMPLES:${C_NC}"
+        echo -e "  alarm -t 10m -m \"Pizza\"    Explicit flags"
+        echo -e "  alarm 5m \"Coffee\"          Short syntax (Time then Message)"
+        echo -e "  alarm 30s                  Ultra short (Time only)"
         return 0
     fi
 
-    # --- Active Alarms Listing Logic ---
-    if [[ -n "$opt_list" ]]; then
-        echo -e "${C_BLUE}#   TRIGGER TIME          MESSAGE${C_NC}"
-        echo -e "------------------------------------------------------------"
+    # --- Interactive Remove Mode ---
+    if [[ -n "$opt_remove" ]]; then
+        if ! command -v fzf >/dev/null; then
+            echo -e "${C_RED}❌ Error:${C_NC} 'fzf' is not installed."
+            return 1
+        fi
 
+        local selection=$(systemctl --user list-timers "alarm-*" --no-legend | sort -k1,2 | while read -r line; do
+            [[ -z "$line" ]] && continue
+            local next_run=$(echo "$line" | awk '{print $1" "$2" "$3}')
+            local unit=$(echo "$line" | awk '{print $NF}')
+            local clean_id=$(echo "$unit" | sed 's/alarm-//;s/\.timer//;s/\.service//')
+            local desc=$(systemctl --user show "$unit" --property=Description --value | sed 's/Alarm: //')
+            echo "$clean_id | $next_run | $desc"
+        done | fzf --header "Select Alarm to Remove" --height 40% --reverse --border)
+
+        if [[ -n "$selection" ]]; then
+            local target_id=$(echo "$selection" | awk '{print $1}')
+            local unit="alarm-${target_id}.timer"
+
+            if systemctl --user stop "$unit" &>/dev/null; then
+                echo -e "${C_GREEN}🗑️  Alarm ${target_id} has been removed.${C_NC}"
+            else
+                echo -e "${C_RED}❌ Error:${C_NC} Could not stop unit ${unit}."
+            fi
+        fi
+        return 0
+    fi
+
+    # --- List Mode ---
+    if [[ -n "$opt_list" ]]; then
+        echo -e "${C_BLUE}#   ID            TRIGGER TIME          MESSAGE${C_NC}"
+        echo -e "------------------------------------------------------------"
         local count=1
-        # Fetch active alarm timers and sort manually by timestamp
         systemctl --user list-timers "alarm-*" --no-legend | sort -k1,2 | while read -r line; do
             [[ -z "$line" ]] && continue
             local next_run=$(echo "$line" | awk '{print $1" "$2" "$3}')
             local unit=$(echo "$line" | awk '{print $NF}')
+            local clean_id=$(echo "$unit" | sed 's/alarm-//;s/\.timer//;s/\.service//')
             local desc=$(systemctl --user show "$unit" --property=Description --value | sed 's/Alarm: //')
-            printf "${C_GREEN}%-3s${C_NC} %-20s %s\n" "$count." "$next_run" "$desc"
+            printf "${C_GREEN}%-3s${C_NC} %-13s %-20s %s\n" "$count." "$clean_id" "$next_run" "$desc"
             ((count++))
         done
         [[ $count -eq 1 ]] && echo "No active alarms found."
@@ -55,20 +91,24 @@ Options:
     fi
 
     # --- Core Execution Logic ---
-    # Extract time value from array
-    local val_time=${opt_time[-1]:-$opt_time}
 
-    # Smart Message Handling: Use -m flag, or fallback to leftover arguments, or default
-    local flag_msg=${opt_msg[-1]}
+    # 1. Determine Time: Priority: -t flag > first argument ($1) > default 15m
+    local val_time="${opt_time[-1]:-${1:-15m}}"
+
+    # If time came from $1, shift arguments so $* becomes just the message
+    if [[ -z "${opt_time[-1]}" && -n "$1" ]]; then
+        shift
+    fi
+
+    # 2. Determine Message: Priority: -m flag > remaining arguments ($*) > default
+    local flag_msg="${opt_msg[-1]}"
     local leftover_msg="$*"
     local final_msg="${flag_msg:-${leftover_msg:-General Reminder}}"
 
-    # Generate unique unit name and resolve script path
     local alarm_id=$(date +%s)
     local unit_name="alarm-${alarm_id}"
     local script_path="$HOME/scripts/.alarm-notify.sh"
 
-    # Deploy transient systemd timer with high accuracy
     if systemd-run --user \
         --unit="$unit_name" \
         --description="Alarm: $final_msg" \
@@ -77,9 +117,9 @@ Options:
         --property="KillMode=process" \
         --collect \
         "$script_path" "$final_msg" 2>/dev/null; then
-        echo -e "${C_GREEN}✅ Alarm set:${C_NC} '$final_msg' in $val_time."
+        echo -e "${C_GREEN}✅ Alarm set:${C_NC} '$final_msg' in $val_time. (ID: $alarm_id)"
     else
-        echo -e "${C_RED}❌ Error:${C_NC} Invalid time format '$val_time'. Use 5s, 10m, 1h etc."
+        echo -e "${C_RED}❌ Error:${C_NC} Invalid time format '$val_time'."
         return 1
     fi
 }
