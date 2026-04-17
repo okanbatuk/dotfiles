@@ -68,6 +68,7 @@ alias ul='sudo usbguard list-devices' # List USB devices (Security)
 alias ua='sudo usbguard allow-device' # Allow a specific USB device
 
 # --- ⚙️ System Maintenance ---
+alias rfs='refresh-system' # Refresh systemd daemons and Zsh completion cache
 alias sys-err='journalctl -p 3 -xb' # Show high priority system errors 🚨
 alias free='free -m -h' # Show RAM usage (Human readable)
 alias df='duf' # Show disk usage (Modern df)

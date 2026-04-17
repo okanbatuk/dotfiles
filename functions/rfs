@@ -1,0 +1,14 @@
+# --- 🔄 System & Shell Refresher ---
+# Reloads systemd daemons, clears Zsh completion cache, and re-initializes shell environment
+refresh-system() {
+    echo -e "\e[34m[INFO]\e[0m Re-indexing systemd daemons..."
+    sudo systemctl daemon-reload
+
+    echo -e "\e[34m[INFO]\e[0m Clearing Zsh completion cache..."
+    rm -f ~/.zcompdump
+
+    echo -e "\e[34m[INFO]\e[0m Re-initializing completion system..."
+    autoload -Uz compinit && compinit
+
+    echo -e "\e[32m[SUCCESS]\e[0m System and Shell index refreshed."
+}

@@ -28,6 +28,7 @@ dotfiles/
 │   └── 🏠 09-local-env.sh   # Machine-specific overrides
 ├── 🛡️ functions/            # Modular Zsh Functions (Auto-loaded)
 │   ├── 🔑 2fa               # Interactive TOTP generator (alias: tfa)
+│   ├── 🔄 rfs               # System & Shell Refresher (systemd & zsh cache)
 │   ├── ⏰ alarm             # High-precision alarm function with fzf support
 │   ├── 🔄 sy                # Unified Syncthing Controller (Toggle On/Off, Dashboard, Status)
 │   ├── ⚡ run_script         # Central Dispatcher for dynamic script execution
@@ -117,6 +118,7 @@ Modern CLI tools, custom functions, and quick-access configuration shortcuts.
 
 | Command                            | Type      | Description                                                                                                                                                                                                                               |
 | ---------------------------------- | --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `rfs`( `refresh-system`)           | Function  | **System & Shell Refresher:** Reloads systemd daemons, clears Zsh completion cache (`.zcompdump`), and re-initializes the completion system for instant Tab-access to new services/commands.                                              |
 | `alarm`                            | Function  | **Advanced CLI Alarm:** High-precision (`1ms`) reminders using `systemd-run`. Supports `-t, -m, -l`, interactive FZF removal (`-r`), and short syntax (e.g., `alarm 5m "msg"`). Integrated with GNOME notifications and audio alerts.     |
 | `dckr`                             | Function  | **Advanced Docker Management:** A modular CLI tool for rapid container workflows. Supports interactive image/container selection via `fzf`, automatic `.env` loading, port mapping, and `docker-compose` integration with smart defaults. |
 | `sy`                               | Function  | **Unified Syncthing Controller:** Smart toggle (On/Off) with integrated dashboard access (`-w`), status checks (`-s`), and force-control flags (`--on`/`--off`).                                                                          |
