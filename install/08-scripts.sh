@@ -1,4 +1,4 @@
-#!/bin/bas#!/bin/bash
+#!/bin/bash
 # 08-scripts.sh - Linking and hardening custom automation scripts
 # Manages user-level script access and ensures secure file permissions.
 

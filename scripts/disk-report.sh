@@ -46,7 +46,7 @@ check_disk_health() {
             if sudo smartctl -A "$dev_path" | grep -q "Reallocated_Sector_Ct"; then
                 local bad_sectors=$(sudo smartctl -A "$dev_path" | grep "Reallocated_Sector_Ct" | awk '{print $10}')
                 if [[ "$bad_sectors" -eq 0 ]]; then
-                    echo -e "  - Surface Condition: ${GREEN}Perfect (0 bad sectors)${NC}"
+                    log_success "  - Surface Condition: ${GREEN}Perfect (0 bad sectors)${NC}"
                 else
                     log_warn "⚠️  WARNING: $bad_sectors reallocated sectors detected on $dev_path!"
                 fi
@@ -75,7 +75,7 @@ main() {
     # Rotation is handled globally by prepare_logging in core.sh,
     # but specific directory cleanup can be added here if needed.
 
-    log_info "===== DISK REPORT GENERATED SUCCESSFULLY ====="
+    log_success "===== DISK REPORT GENERATED SUCCESSFULLY ====="
     log_info "Log location: ${YELLOW}$CURRENT_LOG_FILE${NC}"
 }
 

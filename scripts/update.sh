@@ -52,7 +52,7 @@ handle_pacman_lock() {
             fi
 
             # If the lock is held by system auto-updaters (e.g., PackageKit, Discover), terminate it
-            log_info "🛑 Found active system process '$process_name' (PID: $pid). Terminating to take control..."
+            log_success "🛑 Found active system process '$process_name' (PID: $pid). Terminating to take control..."
 
             # Graceful termination first
             sudo kill -15 "$pid"
@@ -89,14 +89,14 @@ update_os() {
     fi
 
     log_info "📦 [PACMAN] Running system upgrade..."
-    sudo pacman -Syyu --noconfirm
+    sudo pacman -Syyu --noconfirm && log_success "📦 [PACMAN] System packages updated."
 
     log_info "📦 [YAY] Running AUR upgrade (as user)..."
-    run_as_user "yay -Syu --noconfirm --needed"
+    run_as_user "yay -Syu --noconfirm --needed" && log_success "📦 [YAY] Packages updated."
 
     if command -v flatpak >/dev/null 2>&1; then
         log_info "📦 [FLATPAK] Checking for updates..."
-        flatpak update -y
+        flatpak update -y && log_success "📦 [FLATPAK] Runtimes updated."
     fi
 }
 
@@ -106,12 +106,12 @@ update_tooling() {
 
     if command -v bun >/dev/null 2>&1; then
         log_info "🚀 [BUN] Upgrading..."
-        run_as_user bun upgrade
+        run_as_user bun upgrade && log_success "🚀 [BUN] Runtime upgraded."
     fi
 
     if command -v rustup >/dev/null 2>&1; then
         log_info "🦀 [RUST] Updating stable toolchain..."
-        run_as_user rustup update stable
+        run_as_user rustup update stable && log_success "🦀 [RUST] Toolchain updated."
     fi
 
     if command -v fnm >/dev/null 2>&1 && command -v npm >/dev/null 2>&1; then
@@ -121,7 +121,7 @@ update_tooling() {
         run_as_user bash -c "eval \"\$(fnm env)\" && \
                     npm install -g npm@latest --silent && \
                     npm update -g --no-audit --no-fund && \
-                    npm cache verify"
+                    npm cache verify" && log_success "🟢 [NPM/FNM] Global NPM packages updated for $current_node."
     fi
 }
 
@@ -141,6 +141,7 @@ run_maintenance() {
     # Orphaned Packages
     local orphans=$(pacman -Qdtq)
     [[ -n "$orphans" ]] && sudo pacman -Rs $orphans --noconfirm
+    log_success "✅ System package cache and orphans cleaned."
 
     log_info "🧹 [CLEANUP] Removing node_modules in Projects..."
     # Node Modules Cleanup (Desktop/Projects)
@@ -148,7 +149,10 @@ run_maintenance() {
     if [ -d "$PROJECTS_DIR" ] && command -v fd >/dev/null 2>&1; then
         log_debug "Scanning $PROJECTS_DIR for node_modules to delete..."
         run_as_user fd -H -t d node_modules "$PROJECTS_DIR" --changed-before 7d -x rm -rf
+        log_success "✅ Old node_modules directories purged from projects."
     fi
+
+    log_success "✅ Deep maintenance cycle finished successfully."
 }
 
 # --- 4. Health & Security Controls ---
@@ -156,8 +160,8 @@ check_health() {
     log_info ">>> Security & Health Checks"
 
     # Security
-    systemctl is-active -q ufw && log_info "  ✅ UFW active"
-    systemctl is-active -q usbguard && log_info "  ✅ USBGuard active$"
+    systemctl is-active -q ufw && log_success "  ✅ UFW active"
+    systemctl is-active -q usbguard && log_success "  ✅ USBGuard active$"
 
     # Space Check
     local root_available=$(df -h / | awk 'NR==2 {print $4}')
@@ -181,7 +185,7 @@ main() {
     run_maintenance
     check_health
 
-    log_info "===== UPDATE ENDED AT $(date) ====="
+    log_success "===== UPDATE COMPLETED SUCCESSFULLY AT $(date) ====="
     log_info "Log location: ${YELLOW}$CURRENT_LOG_FILE${NC}"
 
     # Notify completion based on mode

@@ -3,7 +3,10 @@
 # Shared environment variables, global constants, and helper functions.
 
 # --- User & Directory Context (Defensive Assignment) ---
+# Dynamically resolve the real user, even when running via sudo
 : "${REAL_USER:=${SUDO_USER:-${USER:-$(id -u -n)}}}"
+
+# Resolve the target user's home directory via system database
 : "${REAL_HOME:=$(getent passwd "$REAL_USER" | cut -d: -f6)}"
 : "${DOTFILES_DIR:="$REAL_HOME/dotfiles"}"
 
@@ -12,11 +15,11 @@
 : "${LOG_DIR:="$DOTFILES_DIR/logs"}"
 : "${SS_DIR:="$REAL_HOME/Pictures/Screenshots"}"
 
-# Exporting for sub-shells
+# Export variables for use in sub-shells and child scripts
 export REAL_USER REAL_HOME DOTFILES_DIR SCRIPTS_DIR LOG_DIR SS_DIR
 
 # --- 🔍 Debug Mode Detection ---
-# Scans all arguments passed to the calling script for --debug
+# Scans all arguments passed to the calling script for --debug or -d
 DEBUG_MODE=false
 for arg in "$@"; do
   if [[ "$arg" == "--debug" || "$arg" == "-d" ]]; then
@@ -26,26 +29,29 @@ for arg in "$@"; do
 done
 export DEBUG_MODE
 
+# --- 🐳 Docker Environment Detection ---
+# Checks for the existence of .dockerenv to identify containerized environments
+IS_DOCKER=false
+if [ -f /.dockerenv ]; then
+    IS_DOCKER=true
+fi
+export IS_DOCKER
+
 # --- 🎨 Common UI Colors ---
 export BLUE='\033[1;34m'
 export GREEN='\033[1;32m'
+export CYAN='\033[1;36m'
 export RED='\033[1;31m'
 export YELLOW='\033[1;33m'
-export PURPLE='\033[1;35m' # Used for Debug
-export NC='\033[0m'
+export PURPLE='\033[1;35m' # Used for Debug logs
+export NC='\033[0m' # No Color
 
 # --- 📝 Logging Methods ---
-
-log_info() { echo -e "\n${GREEN}[INFO]${NC} $*"; }
+log_success() { echo -e "\n${GREEN}[SUCCESS]${NC} $*"; }
+log_info() { echo -e "\n${CYAN}[INFO]${NC} $*"; }
 log_warn() { echo -e "\n${YELLOW}[WARN]${NC} $*"; }
 log_error() { echo -e "\n${RED}[ERROR]${NC} $*"; }
-
-# Only outputs if --debug flag is present
-log_debug() {
-    if [[ "$DEBUG_MODE" == true ]]; then
-        echo -e "\n${PURPLE}[DEBUG]${NC} $*"
-    fi
-}
+log_debug()   { [[ "$DEBUG_MODE" == true ]] && echo -e "${PURPLE}[DEBUG]${NC} $*"; }
 
 # --- 🛠️ Utility: prepare_logging ---
 # Handles directory creation, ownership, and rotation in one go
@@ -79,6 +85,7 @@ prepare_logging() {
 }
 
 # --- 🛠️ Utility: run_as_user ---
+# Ensures a command is executed as the real user instead of root
 run_as_user() {
     local target_user="${REAL_USER:-$USER}"
     # Resolve the target user's home directory via system database to avoid SUDO_HOME mismatches
@@ -96,9 +103,13 @@ run_as_user() {
 }
 
 # --- 🔔 Notification System ---
-# Sends desktop notifications from systemd services or scripts
+# Sends desktop notifications from systemd services or automation scripts
+# Skips execution if no display is available (e.g., in Docker or SSH)
 # Usage: send_notification "Title" "Message" "normal|critical" "icon_name"
 send_notification() {
+    # Fail-safe: No display means no notification engine is available
+    [[ -z "$DISPLAY" ]] && return 0
+
     local title="${1:-System Notification}"
     local message="${2:-No message provided}"
     local urgency="${3:-normal}"

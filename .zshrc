@@ -1,18 +1,20 @@
 # ~/.zshrc
 
-# 🔄 Path & Environment
+# --- 🔄 Path & Environment ---
+# Ensure unique PATH entries and load environment variables
 typeset -U path PATH
 [[ -f "$HOME/.zshenv" ]] && source "$HOME/.zshenv"
 
-# ⚡ Initialize Completion System
+# Initialize completion system with caching
 autoload -Uz compinit
-if [[ -n ${ZDOTDIR:-$HOME}/.zcompdump(#qN.m-1) ]]; then
+if [[ -n ${ZDOTDIR:-$HOME}/.zcompdump(\#qN.m-1) ]]; then
   compinit -C
 else
   compinit
 fi
 autoload -Uz bashcompinit && bashcompinit
 
+# --- 🧠 Core Environment & Functions ---
 # Load custom functions from the modular directory
 if [ -d "$HOME/.zsh_functions.d" ]; then
     for func_file in "$HOME/.zsh_functions.d"/*(N); do
@@ -21,32 +23,34 @@ if [ -d "$HOME/.zsh_functions.d" ]; then
     done
 fi
 
-# 🧠 Load Aliases
+# Load Aliases and personal notes
 [[ -f "$HOME/.zsh_aliases" ]] && source "$HOME/.zsh_aliases"
 [[ -f "$HOME/.zsh_notes" ]] && source "$HOME/.zsh_notes"
 
-# Register file/directory completion for the 'o' alias (handlr open wrapper)
-o() { handlr open "$@" }
-compdef _files o
-
-# 🧩 Manjaro & FZF
+# --- 🧩 Plugins & Highlighting ---
+# Source Manjaro defaults, FZF, and syntax plugins [cite: 7]
 [[ -e /usr/share/zsh/manjaro-zsh-prompt ]] && source /usr/share/zsh/manjaro-zsh-prompt
 source /usr/share/fzf/key-bindings.zsh
 source /usr/share/fzf/completion.zsh
-
-# 🧩 Plugins & Highlighting
 source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
 source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=8'
 
-# 📁 History & Completion
+# --- ⚡ Completion System ---
+# Advanced Completion Styles
+zstyle ':completion:*' menu select
+zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
+zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
+
+# --- 📁 History Management ---
 HISTFILE=~/.zsh_history
 HISTSIZE=10000
 SAVEHIST=10000
 setopt HIST_IGNORE_ALL_DUPS INC_APPEND_HISTORY SHARE_HISTORY
 setopt auto_cd correct nocaseglob
 
-# ⌨️ Vim-Style & Smart History Search
+# --- ⌨️ Navigation & Keybindings ---
+# Vim-style history search [cite: 7]
 autoload -Uz up-line-or-beginning-search down-line-or-beginning-search
 zle -N up-line-or-beginning-search
 zle -N down-line-or-beginning-search
@@ -60,12 +64,11 @@ bindkey '^W' backward-kill-word
 
 WORDCHARS='*?_-.[]~=&;!#$%^(){}<>'
 
-# 📁 Advanced Completion Styles
-zstyle ':completion:*' menu select
-zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
-zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
+# Title Hooks (Kept separate as requested)
+preexec() { print -Pn "\e]0;$1\a" }
+precmd() { print -Pn "\e]0;%n@%m: %~\a" }
 
-# 🚀 Initializers
+# --- 🚀 External Tool Initializers ---
 # FNM: Node.js version manager
 if command -v fnm &> /dev/null; then
   eval "$(fnm env --use-on-cd --shell zsh)"
@@ -76,12 +79,12 @@ export STARSHIP_ZLE_KEYMAP_SELECT=0
 eval "$(starship init zsh)"
 eval "$(zoxide init zsh)"
 
-# 🔒 Misc & Security
+# Security fix for Root X11 access
 xhost +local:root > /dev/null 2>&1
 
-# Terminal Title Integration
-preexec() { print -Pn "\e]0;$1\a" }
-precmd() { print -Pn "\e]0;%n@%m: %~\a" }
+# Register file/directory completion for the 'o' alias (handlr open wrapper)
+o() { handlr open "$@" }
+compdef _files o
 
-# bun completions
+# Bun completions
 [ -s "/home/myrn/.bun/_bun" ] && source "/home/myrn/.bun/_bun"

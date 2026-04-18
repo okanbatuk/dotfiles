@@ -61,6 +61,7 @@ cleanup_system() {
     log_info "🧹 Cleaning old temporary files..."
     log_debug "Using systemd-tmpfiles for safe cleanup of /tmp"
     sudo systemd-tmpfiles --clean 2>/dev/null || true
+    log_success "✅ System level maintenance tasks finalized."
 }
 
 # --- 2. User & Desktop Maintenance ---
@@ -71,9 +72,10 @@ clean_user_space() {
     if [ -d "$SS_DIR" ]; then
         log_info "📸 Cleaning old screenshots in $SS_DIR..."
         run_as_user "find \"$SS_DIR\" -type f -name \"Screenshot*\" -mmin +1440 -delete 2>/dev/null"
+        log_success "✅ Old screenshots purged from $SS_DIR."
     fi
 
-    log_debug "User space cleanup completed for $REAL_USER."
+    log_success "✅ User space cleanup completed for $REAL_USER."
 }
 
 # --- 3. Developer Tooling Cleanup ---
@@ -84,6 +86,7 @@ clean_dev_tools() {
     log_info "🧹 Cleaning NPM & Bun caches..."
     log_debug "Removing NPM cacache and Bun install cache for $REAL_USER"
     run_as_user "rm -rf $REAL_HOME/.npm/_cacache $REAL_HOME/.bun/install/cache 2>/dev/null"
+    log_success "✅ Dev-tooling caches (NPM/Bun) cleared."
 
     # 2. Flatpak
     if command -v flatpak >/dev/null 2>&1; then
@@ -93,6 +96,7 @@ clean_dev_tools() {
         sudo flatpak uninstall --unused -y 2>/dev/null || true
         log_debug "Clearing Flatpak app caches in $REAL_HOME/.var/app"
         run_as_user "rm -rf $REAL_HOME/.var/app/*/cache 2>/dev/null"
+        log_success "✅ Flatpak runtimes and app caches optimized."
     fi
 }
 
@@ -105,13 +109,14 @@ manage_logs() {
     if [ -d "$CUSTOM_LOG_DIR" ]; then
         log_info "🧹 Wiping custom session logs..."
         log_debug "Removing directory: $CUSTOM_LOG_DIR"
-        rm -rf "$CUSTOM_LOG_DIR"
+        rm -rf "$CUSTOM_LOG_DIR" && log_success "Custom session logs wiped successfully."
+        log_success "✅ Log rotation complete. Maintenance logs older than 30 days removed."
     fi
 }
 
 # --- Final Execution ---
 finalize() {
-    log_info "===== CLEANUP ENDED AT $(date) ====="
+    log_success "===== CLEANUP COMPLETED SUCCESSFULLY AT $(date) ====="
     log_info "Log location: ${YELLOW}$CURRENT_LOG_FILE${NC}"
 
     # Execute poweroff if confirmed
@@ -122,7 +127,7 @@ finalize() {
         sleep 5
         sudo systemctl poweroff
     else
-        log_info "✅ Maintenance complete. Staying online."
+        log_success "✅ Maintenance complete. System remains online."
         log_debug "Shutdown was declined or not requested. Context: $REAL_USER"
     fi
 }
