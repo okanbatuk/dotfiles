@@ -1,36 +1,36 @@
 # --- Git Destructive & Force Operations ---
-git reset --hard
-git rebase -i
-git clean -fd
-git push --force
-gpf           # Alias for git push --force-with-lease
-gres          # Alias for git reset --soft (History manipulation)
-greb          # Alias for git rebase -i (History rewrite)
-gresh         # Alias for git reset --hard
-gcl           # Alias for git clean -fd
-gcanp         # Alias for amend + force push
-gacanp        # Alias for stage all + amend + force push
+git reset --hard#Irreversible: Overwrites all local changes and matches the remote HEAD.
+git rebase -i#Risk: Rewrites commit history; can cause complex conflicts in shared branches.
+git clean -fd#Danger: Permanently removes untracked files and directories from your workspace.
+git push --force#Critical: Overwrites remote history. Potential to delete colleagues work.
+gpf#Alias for force-with-lease: Still risky as it pushes local history to remote.
+gres#History manipulation: Soft reset can lead to messy staging area if not careful.
+greb#Interactive rebase alias: High risk of losing work during conflict resolution.
+gresh#Hard reset alias: Immediate loss of all uncommitted code.
+gcl#Clean alias: Deletes untracked assets that might not be backed up.
+gcanp#Amend + Force push: Double risk of rewriting local and remote history.
+gacanp#Stage + Amend + Force push: Nukes current state and forces it to remote.
 
 # --- System High-Risk & Permissions ---
-chmod -R
-chown -R
-rm -rf
-mv /
-shred
-nuke          # Alias for rm -rf node_modules (risk of wrong directory)
+chmod -R#Recursive permissions: Can break system security or render services unreadable.
+chown -R#Recursive ownership: Can lock you out of your own files or break system daemons.
+rm -rf#The Nuke: Permanently deletes files and folders without moving to trash.
+mv /#Critical: Moving system root or top-level dirs will cause immediate system failure.
+shred#Security: Overwrites file data multiple times; absolutely impossible to recover.
+nuke#Alias for rm -rf node_modules: Dangerous if run in the wrong parent directory.
 
 # --- Docker & Database Destruction ---
-docker system prune
-docker volume rm
-docker-compose down -v
-dclean        # Alias for docker system prune -af --volumes (Nuke everything)
-dlt           # Alias for dlab full teardown (images, volumes)
-dlr           # Alias for dlab reset (teardown + rebuild)
-drmi          # Alias for removing dangling images
-dropdb
+docker system prune#Cleanup: Deletes all stopped containers, unused networks, and dangling images.
+docker volume rm#Data Loss: Permanently deletes persistent data stored in Docker volumes.
+docker-compose down -v#Cleanup: Stops containers and removes all associated volumes (data loss).
+dclean#Docker Nuke: Clears everything including non-dangling images and volumes.
+dlt#Teardown: Destroys lab environment including persistent storage.
+dlr#Reset: Full wipe and rebuild of the local development lab.
+drmi#Cleanup: Removes images; might trigger re-downloading of large layers.
+dropdb#Database: Permanently deletes the specified database and all its tables.
 
 # --- System Services & Network ---
-fwd           # Alias for sudo ufw disable (Firewall shutdown)
-sstop         # Alias for sudo systemctl stop (Critical services)
-cam-off       # Hardware disable
-bt-off        # Hardware disable
+fwd#Firewall: Disabling UFW exposes your system to direct network attacks.
+sstop#Service Stop: Stopping critical systemd units can hang the OS or crash apps.
+cam-off#Hardware: Disables camera interface via kernel module or system toggle.
+bt-off#Hardware: Disables Bluetooth stack; will disconnect all wireless peripherals.

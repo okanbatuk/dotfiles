@@ -7,7 +7,7 @@
 DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
 source "$DOTFILES_DIR/core.sh" || { echo "Error: core.sh not found"; exit 1; }
 
-# Resolve list file path
+# Resolve list file path and target command
 LIST_FILE="$DOTFILES_DIR/hints/danger_zone.list"
 CMD_TO_CHECK="$*"
 
@@ -35,7 +35,7 @@ fi
 
 # Stage 2: Semantic Validation (Mandatory Patterns)
 # Ensure the guard actually protects against the most critical commands
-MANDATORY_PATTERNS=("rm -rf" "git reset --hard" "docker system prune")
+MANDATORY_PATTERNS=("rm -rf" "chmod -R" "chown -R" "git reset --hard" "docker system prune")
 missing_patterns=()
 
 for pattern in "${MANDATORY_PATTERNS[@]}"; do
@@ -55,19 +55,37 @@ if [[ ${#missing_patterns[@]} -ne 0 ]]; then
     exit 1
 fi
 
-# Read validated patterns into array for the interceptor logic
-mapfile -t DANGER_ZONE < <(echo "$VALID_CONTENT")
+# --- Interceptor Logic ---
+# Iterate through each line to find matches against the current command buffer
+while read -r line; do
+    # Split line by '#' to separate pattern and description
+    current_pattern="${line%%#*}"
+    current_desc="${line#*#}"
 
-# Iterate through patterns to find matches
-for danger in "${DANGER_ZONE[@]}"; do
-    if [[ "$CMD_TO_CHECK" == *"$danger"* ]]; then
+    # Pure Bash Trim: Removes leading/trailing whitespace without process overhead
+    # This method is immune to single/double quote issues
+    current_pattern="${current_pattern#"${current_pattern%%[![:space:]]*}"}"
+    current_pattern="${current_pattern%"${current_pattern##*[![:space:]]}"}"
+
+    current_desc="${current_desc#"${current_desc%%[![:space:]]*}"}"
+    current_desc="${current_desc%"${current_desc##*[![:space:]]}"}"
+
+    # Check if the command buffer contains the dangerous pattern
+    if [[ "$CMD_TO_CHECK" == *"$current_pattern"* ]]; then
         log_warn "DESTRUCTIVE ACTION DETECTED"
         log_info "Command: ${RED}$CMD_TO_CHECK${NC}"
-        log_info "Pattern matched: ${CYAN}$danger${NC}\n"
+        log_info "Pattern: ${CYAN}$current_pattern${NC}"
 
-        # User confirmation with standard prompt
+        # Display the description if it exists and is unique
+        if [[ -n "$current_desc" && "$current_desc" != "$current_pattern" ]]; then
+            log_info "Risk Detail: ${YELLOW}$current_desc${NC}"
+        fi
+        echo -e "" # Visual spacing
+
+        # User confirmation via TTY to handle Zsh widget context
         echo -n -e "${YELLOW}[?]${NC} Are you absolutely sure? (y/n): "
         read -r choice < /dev/tty
+        echo -e "" # Visual spacing
 
         case "$choice" in
             [yY]* )
@@ -75,11 +93,11 @@ for danger in "${DANGER_ZONE[@]}"; do
                 exit 0
                 ;;
             * )
-                log_error "Execution blocked by Safety Guard."
-                exit 2
+                log_info "Operation aborted by user. Safety Guard stand-by."
+                exit 2 # Signal Zsh widget to clear the buffer
                 ;;
         esac
     fi
-done
+done <<< "$VALID_CONTENT"
 
 exit 0 # No danger patterns found, safe to proceed
