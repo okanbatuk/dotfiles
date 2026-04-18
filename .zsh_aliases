@@ -2,6 +2,8 @@
 
 # --- 🛡️ Guardian & Security Controls ---
 alias sudo='sudo ' # Allow aliases to be sudo-ed
+alias chmod="$SCRIPTS_DIR/.guard.sh chmod" # Guard chmod against dangerous permission changes 🛡️
+alias chown="$SCRIPTS_DIR/.guard.sh chown" # Guard chown against dangerous ownership changes 🛡️
 
 # --- 📦 Package Manager Guards (Avoid Root Pollution) ---
 alias npm="$SCRIPTS_DIR/.guard.sh npm" # Guard npm against root pollution

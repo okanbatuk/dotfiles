@@ -9,66 +9,66 @@ My personal dotfiles and automation scripts for a consistent, reproducible devel
 
 ```bash
 dotfiles/
-├── 📂 logs/                 # Centralized logs for all automation
-│   ├── 📝 custom/           # Logs for user-defined manual scripts
-│   ├── 🚀 setup/            # Detailed logs for each setup.sh execution session
-│   ├── 💾 state/            # Persistence layer tracking completed tasks (.done files)
-│   ├── 🔄 updates/          # System update history
-│   ├── 🧹 maintenance/      # Shutdown & cleanup diagnostics
-│   └── 🩺 storage/          # S.M.A.R.T. health & disk usage reports
-├── ⚙️ install/              # Modular Bootstrap Tasks (Orchestrated by setup.sh)
-│   ├──  01-system.sh       # Core dependencies (base-devel, lsof, libnotify)
-│   ├── 🛠️ 02-system-conf.sh # System-level tweaks & hardware-specific configs & GRUB
-│   ├──  03-dev-env.sh      # JS/TS (FNM, Bun), Editors (Zed,  ), & Espanso-Wayland
-│   ├── 🔗 04-links.sh       # Symlink management for core dotfiles & .config/
-│   ├── 🐚 05-zsh-config.sh  # Zsh environment, function loading & shell optimization
-│   ├──  06-git.sh          # Identity, GPG setup & safe aliases
-│   ├──  07-zed-conf.sh     # Automated Zed editor configuration
-│   ├── 📜 08-scripts.sh     # Deployment of automation & maintenance scripts
-│   └── 🏠 09-local-env.sh   # Machine-specific overrides
-├── 🛡️ functions/            # Modular Zsh Functions (Auto-loaded)
-│   ├── 🔑 2fa               # Interactive TOTP generator (alias: tfa)
-│   ├── 🔄 rfs               # System & Shell Refresher (systemd & zsh cache)
-│   ├── ⏰ alarm             # High-precision alarm function with fzf support
-│   ├── 🔄 sy                # Unified Syncthing Controller (Toggle On/Off, Dashboard, Status)
-│   ├── ⚡ run_script         # Central Dispatcher for dynamic script execution
-│   ├── 🔍 als_hints         # Interactive Alias search & execute (alias: ah)
-│   ├── ⌨️ esp_hints         # Interactive Espanso search (alias: eh)
-│   ├── 💡 zen_hints         # Zen Browser shortcut lookup (alias: zh)
-│   ├── 🌐 port              # Quick process-to-port audit (e.g., port 3000)
-│   ├── 🐳 dckr              # Docker management
-│   ├── ✍️ fnote              # Interactive Note Navigator (fzf + bat)
-│   ├──   jlog              # Smart log viewer (jlog)
-│   ├──   ilog              # Terminal session logger & cleaner
-│   ├── 🌲 fulltree/projtree #  Modern tree views with auto-ignore logic (alias: ft & pt)
-│   ├── 🔒 safety-wrappers/  # Guardian System: Intercepts dangerous commands
-│   │   ├── 🗑️ rm            # Prevents 'rm -rf /' & strips force flags for interaction
-│   │   ├── 🔐 chmod/chown   # Prompts for confirmation on recursive (-R) operations
-│   │   ├── 📋 cp/mv         # Interactively prevents accidental file overwrites
-│   │   ├──  gpush          # Intercepts 'git push -f', enforces --force-with-lease
-│   │   └── 🐳 dprune        # Intercepts 'docker system prune', shows active containers before cleanup
-│   └── ...                  # (One file per function)
-├── ⚙️ config/                # App-specific configurations (Linked to ~/.config)
-│   ├──  alacritty/         # GPU terminal settings
-│   ├──  nvim/              # Neovim environment
-│   └── ⚙️ systemd/           # System-level update & maintenance units (linked to /etc)
-│   └── ...                  # (espanso, mpv, zathura, Code)
-├── 🔧 scripts/              # Internal automation scripts
-│   ├── 🛡️ guard.sh          #  Security Interceptor for high-risk commands
-│   └── 🔄 update.sh         # Maintenance orchestrator with Pacman lock handling
-│   ├── 🧹 shutdown.sh       # Deep-cleans system caches and manages poweroff
-│   ├── 🔔 .alarm-notify.sh  # Background notification worker for alarms
-│   ├── 🩺 disk-report.sh    # S.M.A.R.T. health analysis & usage reports
-│   └── ...                  # (get-info)
-├── 🧠 hints/                # Tab-separated lookup tables for fzf-powered hint utilities
-├── 󱆃 .zshrc                 # Main Zsh entry point
-├── 🔗 .zsh_aliases          # Custom aliases (including Guardian redirects)
-├── ✍️ .zsh_notes             # Knowledge base aliases
-├── 🔑 .zshenv               # Environment variables
-├── 🌐 .gitconfig            # Global git settings (UI, aliases)
-├── 🎯 core.sh               # Shared logic, Notification Engine & Logging API (Source of Truth)
-├── ⚡ setup.sh               # Main Orchestrator (Orchestrates /install scripts)
-└── 📄 README.md             # This documentation
+├── 📂 logs/                      # Centralized logs for all automation
+│   ├── 📝 custom/                # Logs for user-defined manual scripts
+│   ├── 🚀 setup/                 # Detailed logs for each setup.sh execution session
+│   ├── 💾 state/                 # Persistence layer tracking completed tasks (.done files)
+│   ├── 🔄 updates/               # System update history
+│   ├── 🧹 maintenance/           # Shutdown & cleanup diagnostics
+│   └── 🩺 storage/               # S.M.A.R.T. health & disk usage reports
+├── ⚙️ install/                    # Modular Bootstrap Tasks (Orchestrated by setup.sh)
+│   ├──  01-system.sh            # Core dependencies (base-devel, lsof, libnotify)
+│   ├── 🛠️ 02-system-conf.sh      # System-level tweaks & hardware-specific configs & GRUB
+│   ├──  03-dev-env.sh           # JS/TS (FNM, Bun), Editors (Zed,  ), & Espanso-Wayland
+│   ├── 🔗 04-links.sh            # Symlink management for core dotfiles & .config/
+│   ├── 🐚 05-zsh-config.sh       # Zsh environment, function loading & shell optimization
+│   ├──  06-git.sh               # Identity, GPG setup & safe aliases
+│   ├──  07-zed-conf.sh          # Automated Zed editor configuration
+│   ├── 📜 08-scripts.sh          # Deployment of automation & maintenance scripts
+│   └── 🏠 09-local-env.sh        # Machine-specific overrides
+├── 🛡️ functions/                 # Modular Zsh Functions (Auto-loaded)
+│   ├── 🔑 2fa                    # Interactive TOTP generator (alias: tfa)
+│   ├── 🔄 rfs                    # System & Shell Refresher (systemd & zsh cache)
+│   ├── ⏰ alarm                  # High-precision alarm function with fzf support
+│   ├── 🔄 sy                     # Unified Syncthing Controller (Toggle On/Off, Dashboard, Status)
+│   ├── ⚡ run_script              # Central Dispatcher for dynamic script execution
+│   ├── 🔍 als_hints              # Interactive Alias search & execute (alias: ah)
+│   ├── ⌨️ esp_hints              # Interactive Espanso search (alias: eh)
+│   ├── 💡 zen_hints              # Zen Browser shortcut lookup (alias: zh)
+│   ├── 🌐 port                   # Quick process-to-port audit (e.g., port 3000)
+│   ├── 🐳 dckr                   # Docker management
+│   ├── ✍️ fnote                   # Interactive Note Navigator (fzf + bat)
+│   ├──   jlog                   # Smart log viewer (jlog)
+│   ├──   ilog                   # Terminal session logger & cleaner
+│   ├── 🌲 fulltree/projtree      #  Modern tree views with auto-ignore logic (alias: ft & pt)
+│   ├── 🔒 safety-wrappers/       # Guardian System: Intercepts dangerous commands
+│   │   ├── 🗑️ rm                 # Prevents 'rm -rf /' & strips force flags for interaction
+│   │   ├── 📋 cp/mv              # Interactively prevents accidental file overwrites
+│   │   ├──  gpush               # Intercepts 'git push -f', enforces --force-with-lease
+│   │   └── 🛡️ safety_guard.zsh   # Core ZLE widget for real-time command interception
+│   └── ...                       # (One file per function)
+├── ⚙️ config/                    # App-specific configurations (Linked to ~/.config)
+│   ├──  alacritty/              # GPU terminal settings
+│   ├──  nvim/                   # Neovim environment
+│   └── ⚙️ systemd/               # System-level update & maintenance units (linked to /etc)
+│   └── ...                       # (espanso, mpv, zathura, Code)
+├── 🔧 scripts/                   # Internal automation scripts
+│   ├── 🛠️ confirm.sh             # Interactive validation engine (Y/N handler)
+│   ├── 🛡️ guard.sh               # Dynamic Security Proxy (The Enforcer)
+│   └── 🔄 update.sh              # Maintenance orchestrator with Pacman lock handling
+│   ├── 🧹 shutdown.sh            # Deep-cleans system caches and manages poweroff
+│   ├── 🔔 .alarm-notify.sh       # Background notification worker for alarms
+│   ├── 🩺 disk-report.sh         # S.M.A.R.T. health analysis & usage reports
+│   └── ...                       # (get-info)
+├── 🧠 hints/                     # Tab-separated lookup tables for fzf-powered hint utilities
+├── 󱆃 .zshrc                      # Main Zsh entry point
+├── 🔗 .zsh_aliases               # Custom aliases (including Guardian redirects)
+├── ✍️ .zsh_notes                  # Knowledge base aliases
+├── 🔑 .zshenv                    # Environment variables
+├── 🌐 .gitconfig                 # Global git settings (UI, aliases)
+├── 🎯 core.sh                    # Shared logic, Notification Engine & Logging API (Source of Truth)
+├── ⚡ setup.sh                    # Main Orchestrator (Orchestrates /install scripts)
+└── 📄 README.md                  # This documentation
 ```
 
 ## 🚀 Maintenance & System Automation
@@ -86,14 +86,14 @@ dotfiles/
   - **`run_maintenance`**: Performs intelligent cleanup, including removing `node_modules` in project directories that haven't been modified in **7 days**.
   - **`Shell Bootstrap Optimization`**: Added explicit `zshenv` sourcing in `zshrc` to ensure environment variables are consistent across all sub-shells and non-interactive sessions.
 
-| Command      | Target Script  | Description                                                                                                                       |
-| ------------ | -------------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| **GUARDIAN** | guard.sh       | **Security Layer:** Intercepts high-risk commands (`npm -g`, `chmod 777`, etc.) to prevent root pollution and system instability. |
-| `up`         | update.sh      | **Mode:** `--light` - Fast daily update: Pacman, Yay, Flatpak, Bun, Rust with boot-time delay protection.                         |
-| `upfull`     | update.sh      | **Mode:** `--full` - Weekly update: Deep maintenance: Mirror refresh, node_modules cleanup, deep info.                            |
-| `get-info`   | get-info.sh    | Comprehensive system status (Light/Full modes).                                                                                   |
-| `dreport`    | disk-report.sh | S.M.A.R.T. disk health analysis & top directory usage.                                                                            |
-| `sd`         | shutdown.sh    | Full system cleanup (journal, cache, temp) with automated log rotation.                                                           |
+| Command      | Target Script  | Description                                                                                                                                                                                |
+| ------------ | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **GUARDIAN** | guard.sh       | **Central Security Proxy:** Intercepts high-risk commands (`npm -g`, `chmod 777`, `chown root`, etc.) using regex-based pattern matching to prevent system-wide damage and root pollution. |
+| `up`         | update.sh      | **Mode:** `--light` - Fast daily update: Pacman, Yay, Flatpak, Bun, Rust with boot-time delay protection.                                                                                  |
+| `upfull`     | update.sh      | **Mode:** `--full` - Weekly update: Deep maintenance: Mirror refresh, node_modules cleanup, deep info.                                                                                     |
+| `get-info`   | get-info.sh    | Comprehensive system status (Light/Full modes).                                                                                                                                            |
+| `dreport`    | disk-report.sh | S.M.A.R.T. disk health analysis & top directory usage.                                                                                                                                     |
+| `sd`         | shutdown.sh    | Full system cleanup (journal, cache, temp) with automated log rotation.                                                                                                                    |
 
 ## 🤖 System Automation (systemd)
 
@@ -116,27 +116,25 @@ To maintain high security while allowing automation:
 
 Modern CLI tools, custom functions, and quick-access configuration shortcuts.
 
-| Command                            | Type      | Description                                                                                                                                                                                                                               |
-| ---------------------------------- | --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `rfs`( `refresh-system`)           | Function  | **System & Shell Refresher:** Reloads systemd daemons, clears Zsh completion cache (`.zcompdump`), and re-initializes the completion system for instant Tab-access to new services/commands.                                              |
-| `alarm`                            | Function  | **Advanced CLI Alarm:** High-precision (`1ms`) reminders using `systemd-run`. Supports `-t, -m, -l`, interactive FZF removal (`-r`), and short syntax (e.g., `alarm 5m "msg"`). Integrated with GNOME notifications and audio alerts.     |
-| `dckr`                             | Function  | **Advanced Docker Management:** A modular CLI tool for rapid container workflows. Supports interactive image/container selection via `fzf`, automatic `.env` loading, port mapping, and `docker-compose` integration with smart defaults. |
-| `sy`                               | Function  | **Unified Syncthing Controller:** Smart toggle (On/Off) with integrated dashboard access (`-w`), status checks (`-s`), and force-control flags (`--on`/`--off`).                                                                          |
-| `pt` ( `projtree` )                | Function  | Modern tree view with auto-ignores (`node_modules`, `.git`, `dist`). Supports `-p` for **path**, `-d` for **depth**, `-i` for **ignore patterns** with interactive tab-completion (multi-flag support & auto-strips path prefix).         |
-| `ft` ( `fulltree` )                | Function  | Advanced tree view all files. Supports `-p` for **path**, `-d` for **depth**, `-i` for **ignore patterns** with interactive tab-completion (multi-flag support & auto-strips path prefix).                                                |
-| `tfa` ( `2fa` )                    | Functions | Interactive TOTP generator using `fzf` and Aegis JSON backups.                                                                                                                                                                            |
-| `eh` ( `esp_hints` )               | Function  | Interactive Espanso trigger search using `fzf`.                                                                                                                                                                                           |
-| `ah` ( `als-hints` )               | Function  | **Interactive Alias Search:** Search and execute terminal aliases with category-aware `fzf` filtering.                                                                                                                                    |
-| `port`                             | Function  | **Quick Port Audit:** A shorthand for `sudo lsof -i :$1` to quickly identify processes holding a specific network port.                                                                                                                   |
-| `jlog`                             | Function  | **Smart Journalctl Viewer:** Modern interface for systemd logs with shorthand support. Features real-time watching (`-n`), time-based filtering (e.g., `1h`, `10m`, `today`), and colored boot log inspection.                            |
-| `ilog`                             | Function  | **Session Recording:** Use `-r` to start recording the current terminal session to a timestamped log file. Use `-c <file>` to clean ANSI escape codes from a log, converting it into a readable text format using `perl`.                 |
-| `pdf`                              | Function  | Opens a PDF file using **Zathura** in the background. Redirects all output to `/dev/null` and uses `disown` to keep the process alive even after closing the terminal.                                                                    |
-| `fnote`                            | Function  | **Interactive Note Navigator:** `find` and `fzf` to search through your entire knowledge base. Supports instant bat previews for text files and opens `.pdf`, `.doc`, `.docx` via `handlr`.                                               |
-| `cp` / `mv`                        | Function  | **Overwrite Protection:** Checks if the target exists and prompts for confirmation before replacing files.                                                                                                                                |
-| `chmod` / `chown`                  | Function  | **Recursive Guard:** Requires explicit confirmation when using the `-R` flag to prevent mass permission drifts.                                                                                                                           |
-| `rm -f`                            | Function  | **Safety Wrapper:** Automatically strips `-f` / `--force` flags in interactive mode to prevent accidental mass deletions.                                                                                                                 |
-| `git push -f`                      | Function  | **Force-With-Lease:** Intercepts force push to use `--force-with-lease`, protecting remote history from accidental overwrites.                                                                                                            |
-| `dclean` ( `docker system prune` ) | Function  | **Prune Safety:** Displays a summary of all containers before cleanup to prevent data loss.                                                                                                                                               |
+| Command                  | Type      | Description                                                                                                                                                                                                                               |
+| ------------------------ | --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `rfs`( `refresh-system`) | Function  | **System & Shell Refresher:** Reloads systemd daemons, clears Zsh completion cache (`.zcompdump`), and re-initializes the completion system for instant Tab-access to new services/commands.                                              |
+| `alarm`                  | Function  | **Advanced CLI Alarm:** High-precision (`1ms`) reminders using `systemd-run`. Supports `-t, -m, -l`, interactive FZF removal (`-r`), and short syntax (e.g., `alarm 5m "msg"`). Integrated with GNOME notifications and audio alerts.     |
+| `dckr`                   | Function  | **Advanced Docker Management:** A modular CLI tool for rapid container workflows. Supports interactive image/container selection via `fzf`, automatic `.env` loading, port mapping, and `docker-compose` integration with smart defaults. |
+| `sy`                     | Function  | **Unified Syncthing Controller:** Smart toggle (On/Off) with integrated dashboard access (`-w`), status checks (`-s`), and force-control flags (`--on`/`--off`).                                                                          |
+| `pt` ( `projtree` )      | Function  | Modern tree view with auto-ignores (`node_modules`, `.git`, `dist`). Supports `-p` for **path**, `-d` for **depth**, `-i` for **ignore patterns** with interactive tab-completion (multi-flag support & auto-strips path prefix).         |
+| `ft` ( `fulltree` )      | Function  | Advanced tree view all files. Supports `-p` for **path**, `-d` for **depth**, `-i` for **ignore patterns** with interactive tab-completion (multi-flag support & auto-strips path prefix).                                                |
+| `tfa` ( `2fa` )          | Functions | Interactive TOTP generator using `fzf` and Aegis JSON backups.                                                                                                                                                                            |
+| `eh` ( `esp_hints` )     | Function  | Interactive Espanso trigger search using `fzf`.                                                                                                                                                                                           |
+| `ah` ( `als-hints` )     | Function  | **Interactive Alias Search:** Search and execute terminal aliases with category-aware `fzf` filtering.                                                                                                                                    |
+| `port`                   | Function  | **Quick Port Audit:** A shorthand for `sudo lsof -i :$1` to quickly identify processes holding a specific network port.                                                                                                                   |
+| `jlog`                   | Function  | **Smart Journalctl Viewer:** Modern interface for systemd logs with shorthand support. Features real-time watching (`-n`), time-based filtering (e.g., `1h`, `10m`, `today`), and colored boot log inspection.                            |
+| `ilog`                   | Function  | **Session Recording:** Use `-r` to start recording the current terminal session to a timestamped log file. Use `-c <file>` to clean ANSI escape codes from a log, converting it into a readable text format using `perl`.                 |
+| `pdf`                    | Function  | Opens a PDF file using **Zathura** in the background. Redirects all output to `/dev/null` and uses `disown` to keep the process alive even after closing the terminal.                                                                    |
+| `fnote`                  | Function  | **Interactive Note Navigator:** `find` and `fzf` to search through your entire knowledge base. Supports instant bat previews for text files and opens `.pdf`, `.doc`, `.docx` via `handlr`.                                               |
+| `cp` / `mv`              | Function  | **Overwrite Protection:** Checks if the target exists and prompts for confirmation before replacing files.                                                                                                                                |
+| `rm -f`                  | Function  | **Safety Wrapper:** Automatically strips `-f` / `--force` flags in interactive mode to prevent accidental mass deletions.                                                                                                                 |
+| `git push -f`            | Function  | **Force-With-Lease:** Intercepts force push to use `--force-with-lease`, protecting remote history from accidental overwrites.                                                                                                            |
 
 > ### **⚙️ Function Loading Strategy**
 >
@@ -294,20 +292,26 @@ All scripts automatically generate logs in the `~/dotfiles/logs/` directory.
 
 > ### ⚠️ CRITICAL PRIVILEGE ADVISORY
 >
-> To ensure these safety nets are **never bypassed**, the alias `alias sudo='sudo '` is active in `.zsh_aliases`. This forces Zsh to resolve the command following `sudo`, ensuring that our **Guardian Functions** (`rm`, `chmod`, `gpush`, etc.) are triggered even with elevated privileges.
+> To bypass the "Sudo Barrier" (where sudo ignores user functions), we utilize a **Proxy-based Alias** strategy. By setting `alias sudo='sudo '`, Zsh is forced to resolve the command following `sudo`, ensuring our security layers are never bypassed.
 >
 > **Failing to use this alias or bypassing it with `command sudo` may lead to irreversible system damage.**
 
 To maintain a "Clean OS" philosophy, I've implemented a robust Command Interceptor (Guardian):
 
-1. **Passive Guards (`.guard.sh`)**: Intercepts package manager commands (e.g., `npm -g`, `pip`) to prevent root pollution in `$HOME`. It blocks execution if certain blacklist criteria are met.
-   - **Fail-Fast Check**: Now verifies if the binary (e.g., `npm`, `yarn`) exists in the system before performing security checks, preventing internal shell `exec` errors.
-2. **Interactive Guards (Functions)**: High-risk system commands are wrapped in Zsh functions that enforce safety logic before execution:
-   - **Git Safe Push**: Automatically converts `git push -f` to `--force-with-lease`. It also blocks direct pushes to `main`/`master` without explicit `y/n` confirmation.
-   - **Recursive Safety**: Commands like `chmod -R` and `chown -R` trigger a Guardian warning, requiring manual confirmation to prevent mass permission drifts.
-   - **Data Integrity**: `cp` and `mv` commands check if the target destination already exists and prompt for overwrite confirmation.
-   - **Docker Cleanup**: `docker system prune` displays a summary of active containers and images before performing a destructive cleanup.
-3. **GPG TTY Integration**: Automatically exports `export GPG_TTY=$(tty)` in `.zshenv` to ensure `pinentry` correctly prompts for passphrases during Git operations, even in nested or multiplexed terminal sessions.
+1.  **Interactive Layer (`safety_guard.zsh`):** A ZLE keyboard widget that intercepts patterns like `chmod -R` or `chown -R` before execution. It acts as the first "Are you sure?" checkpoint.
+2.  **Enforcement Layer (`guard.sh`):** A dynamic proxy that uses robust regex pattern matching to block "Danger Zone" commands, even when authorized by the interactive layer.
+    - **Permission Guard:** Blocks `chmod -R 777` to prevent global write access.
+    - **Ownership Guard:** Blocks `chown -R root` to prevent user directory lockouts.
+    - **Pollution Guard:** Blocks `npm -g`, `pip`, etc., under root to keep the OS clean.
+3.  **GPG TTY Integration**: Automatically exports `export GPG_TTY=$(tty)` in `.zshenv` to ensure `pinentry` correctly prompts for passphrases during Git operations, even in nested or multiplexed terminal sessions.
+
+#### **The Validation Engine (The Trio)**
+
+To ensure modularity and high performance, the security layer is decoupled into three specialized units:
+
+- **`safety_guard.zsh` (The Interceptor):** A low-level Zsh Line Editor (ZLE) widget. It captures the buffer exactly when you press `Enter`, scanning for matches before the shell even processes the command.
+- **`confirm.sh` (The Gatekeeper):** A dedicated script designed to handle interactive user validation. It ensures that the terminal session is ready for input (`/dev/tty` redirection) and manages the logic for "Continue or Abort" decisions.
+- **`danger_zone.list` (The Brain):** A centralized configuration file containing sensitive keywords, dangerous flags (like `--no-preserve-root`), and protected system paths. By separating this list, we can update security patterns without touching the core logic of the scripts.
 
 > 💡 **Logic Migration**:
 >

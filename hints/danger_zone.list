@@ -1,0 +1,36 @@
+# --- Git Destructive & Force Operations ---
+git reset --hard
+git rebase -i
+git clean -fd
+git push --force
+gpf           # Alias for git push --force-with-lease
+gres          # Alias for git reset --soft (History manipulation)
+greb          # Alias for git rebase -i (History rewrite)
+gresh         # Alias for git reset --hard
+gcl           # Alias for git clean -fd
+gcanp         # Alias for amend + force push
+gacanp        # Alias for stage all + amend + force push
+
+# --- System High-Risk & Permissions ---
+chmod -R
+chown -R
+rm -rf
+mv /
+shred
+nuke          # Alias for rm -rf node_modules (risk of wrong directory)
+
+# --- Docker & Database Destruction ---
+docker system prune
+docker volume rm
+docker-compose down -v
+dclean        # Alias for docker system prune -af --volumes (Nuke everything)
+dlt           # Alias for dlab full teardown (images, volumes)
+dlr           # Alias for dlab reset (teardown + rebuild)
+drmi          # Alias for removing dangling images
+dropdb
+
+# --- System Services & Network ---
+fwd           # Alias for sudo ufw disable (Firewall shutdown)
+sstop         # Alias for sudo systemctl stop (Critical services)
+cam-off       # Hardware disable
+bt-off        # Hardware disable

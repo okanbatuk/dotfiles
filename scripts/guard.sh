@@ -35,9 +35,9 @@ check_command_exists() {
 # --- Check if the command is blacklisted ---
 check_blacklist() {
     local cmd_to_run="$*"
-
     for blocked in "${BLACKLIST[@]}"; do
-        if [[ "$cmd_to_run" == *"$blocked"* ]]; then
+        local pattern="${blocked// / +}"
+        if echo "$cmd_to_run" | grep -qiE "$pattern"; then
             return 1
         fi
     done
