@@ -38,7 +38,7 @@ function p() {
 
         # Guard 3: Invalid Flag Detection (Fail before starting any process)
         # Check if every char in 'flags' is one of our supported options
-        if [[ ! "$flags" =~ ^[fusior]+$ ]]; then
+        if [[ ! "$flags" =~ ^[fusiorm]+$ ]]; then
             log_error "Invalid Flag: One or more characters in '-$flags' are not supported."
             p --help
             return 1
@@ -69,7 +69,7 @@ function p() {
         fi
 
         # 5. Sudo/Root Check (Optional: For updates and changes)
-        if [[ "$flags" == *u* || "$flags" == *f* || "$flags" == *i* || "$flags" == *r* ]]; then
+        if [[ "$flags" == *u* || "$flags" == *f* || "$flags" == *i* || "$flags" == *r* || "$flags" == *m* ]]; then
             # Only check if we are not already root
             if [[ $EUID -ne 0 ]]; then
               log_info "Privilege Guard: Root access required for this chain. Invoking sudo..."
@@ -84,7 +84,7 @@ function p() {
 
             # Execute the script for the current flag
             # "$0" refers to the script itself
-            "$0" "$flag" "${args[@]}"
+            p "$flag" "${args[@]}"
 
             # CRITICAL: Check the exit status of the previous flag
             # If it's not 0 (success), stop the entire chain immediately
@@ -109,6 +109,12 @@ function p() {
             log_warn "🔄 Forced Upgrade: Refreshing DBs (Syyu)"
             sudo pacman -Syyu
             command -v yay &> /dev/null && yay -Sua
+            ;;
+
+        -m|--mirrors)
+            log_info "🌐 Optimizing mirrors (Fasttrack)..."
+            # Generates a new mirrorlist based on the fastest servers
+            sudo pacman-mirrors --fasttrack 10 && log_success "Mirrors updated successfully."
             ;;
 
         -s|--search)
@@ -144,15 +150,22 @@ function p() {
             echo -e "${YELLOW}Usage:${NC} p [option] [packages]"
             echo -e "\n${YELLOW}Options:${NC}"
             echo -e "  -u   Update system (Repo + AUR)"
-            echo -e "  -f   Force update (Syyu)"
-            echo -e "  -s   Search repositories"
+            echo -e "  -f   Force update (Syyu + Database refresh)"
+            echo -e "  -m   Optimize mirrors (Fasttrack servers)"
+            echo -e "  -s   Search repositories (Pacman & AUR)"
             echo -e "  -i   Install packages"
-            echo -e "  -r   Remove packages + dependencies"
-            echo -e "  -o   Clean orphan packages"
-            echo -e "  -h   Show help menu"
-            echo -e "\n${YELLOW}Combined examples:${NC}"
-            echo -e "  p -ui <pkg>   Update system first, then install <pkg>"
-            echo -e "  p -ru <pkg>   Remove <pkg>, then update system"
+            echo -e "  -r   Remove packages + unused dependencies"
+            echo -e "  -o   Clean orphan packages (Maintenance)"
+            echo -e "  -h   Show this interactive help menu"
+
+            echo -e "\n${YELLOW}Advanced Combined Examples:${NC}"
+            echo -e "  p -mu          Optimize mirrors FIRST, then update system"
+            echo -e "  p -ui <pkg>    Update system, then install <pkg> (Fail-fast)"
+            echo -e "  p -si <pkg>    Search for <pkg>, then install it"
+            echo -e "  p -fi <pkg>   Force update (Syyu) and then install <pkg>"
+            echo -e "  p -rmf <pkg>    Remove <pkg>, then optimize mirrors, then force update"
+
+            echo -e "\n${BLUE}Note:${NC} Chained flags execute in EXACT order. Max 3 flags allowed."
             ;;
 
         *)
