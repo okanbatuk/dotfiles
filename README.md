@@ -31,6 +31,7 @@ dotfiles/
 │   ├── 🔄 rfs                    # System & Shell Refresher (systemd & zsh cache)
 │   ├── ⏰ alarm                  # High-precision alarm function with fzf support
 │   ├── 🔄 sy                     # Unified Syncthing Controller (Toggle On/Off, Dashboard, Status)
+│   ├── 📦 p                      # Advanced Package Manager Wrapper (Yay/Pacman)
 │   ├── ⚡ run_script              # Central Dispatcher for dynamic script execution
 │   ├── 🔍 als_hints              # Interactive Alias search & execute (alias: ah)
 │   ├── ⌨️ esp_hints              # Interactive Espanso search (alias: eh)
@@ -84,6 +85,7 @@ dotfiles/
 - **`update.sh`**: `Smart Maintenance Orchestrator`. Beyond simple updates, it implements:
   - **`handle_pacman_lock`**: Automatically detects and terminates processes (like Pamac or Pacman) holding the `db.lck` file to prevent update failures.
   - **`run_maintenance`**: Performs intelligent cleanup, including removing `node_modules` in project directories that haven't been modified in **7 days**.
+  - **`p` (Package Wrapper)**: `The Atomic Manager`. It treats combined flags as a job queue. It includes a **Safety Guard** (max 3 flags) and a **Conflict Guard** to prevent logic errors like simultaneous install/remove operations.
   - **`Shell Bootstrap Optimization`**: Added explicit `zshenv` sourcing in `zshrc` to ensure environment variables are consistent across all sub-shells and non-interactive sessions.
 
 | Command      | Target Script  | Description                                                                                                                                                                                |
@@ -118,6 +120,7 @@ Modern CLI tools, custom functions, and quick-access configuration shortcuts.
 
 | Command                  | Type      | Description                                                                                                                                                                                                                               |
 | ------------------------ | --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `p`                      | Function  | **Advanced Package Manager:** A smart wrapper for `yay` / `pacman`. Supports **chained flags** (e.g., `-ui`), **fail-fast** execution, and **U+F optimization** (automatically routes `-uf` to force update).                             |
 | `rfs`( `refresh-system`) | Function  | **System & Shell Refresher:** Reloads systemd daemons, clears Zsh completion cache (`.zcompdump`), and re-initializes the completion system for instant Tab-access to new services/commands.                                              |
 | `alarm`                  | Function  | **Advanced CLI Alarm:** High-precision (`1ms`) reminders using `systemd-run`. Supports `-t, -m, -l`, interactive FZF removal (`-r`), and short syntax (e.g., `alarm 5m "msg"`). Integrated with GNOME notifications and audio alerts.     |
 | `dckr`                   | Function  | **Advanced Docker Management:** A modular CLI tool for rapid container workflows. Supports interactive image/container selection via `fzf`, automatic `.env` loading, port mapping, and `docker-compose` integration with smart defaults. |

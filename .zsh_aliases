@@ -31,7 +31,7 @@ alias egrep='grep -E --color=auto' # Extended grep 🔍
 alias fgrep='grep -F --color=auto' # Fixed grep (No regex) 🔍
 alias search='rg --smart-case --stats' # Detailed search with statistics 📊
 alias h='history | fzf' # Search command history with fzf 
-alias p='cd $(fd -t d | fzf)' # Interactive directory jumper with fzf 
+alias pj='cd $(fd -t d | fzf)' # Interactive directory jumper with fzf 
 alias v='nvim $(fd -t f -H | fzf)' # Find and open file (including hidden) in Neovim with fzf
 alias fo='fd --type f | fzf | xargs -r handlr open' # Find and open file with fzf 
 
@@ -69,26 +69,19 @@ alias get-timers='systemctl list-timers --all' # List all active systemd timers
 alias ul='sudo usbguard list-devices' # List USB devices (Security)
 alias ua='sudo usbguard allow-device' # Allow a specific USB device
 
-# --- ⚙️ System Maintenance ---
-alias rfs='refresh-system' # Refresh systemd daemons and Zsh completion cache
-alias sys-err='journalctl -p 3 -xb' # Show high priority system errors 🚨
-alias free='free -m -h' # Show RAM usage (Human readable)
-alias df='duf' # Show disk usage (Modern df)
-alias tfa='2fa' # Generate 2FA tokens
-alias psr='gnome-extensions disable pop-shell@system76.com && gnome-extensions enable pop-shell@system76.com' # Restart Pop Shell extension
-
-# --- 📦 Package Manager & System ---
-alias pac='sudo pacman -Syu' # Update system (Pacman)
-alias psearch='pacman -Ss' # Search for packages 🔍
-alias orp='pacman -Qdt' # List orphan packages
-alias mirrors='sudo pacman-mirrors --fasttrack 10 && sudo pacman -Syyu' # Update mirrors and sync
-alias y='yay -Sua' # Update AUR packages
+# --- ⚙️ System & Maintenance---
 alias temp='watch sensors' # Monitor hardware temperatures
 alias sstat='systemctl status' # Check systemd service status
 alias ss='sudo systemctl start' # Start systemd service ▶️
 alias sstop='sudo systemctl stop' # Stop systemd service 🛑
 alias sr='sudo systemctl restart' # Restart systemd service
 alias sl='sudo journalctl -u' # View service logs (journalctl)
+alias rfs='refresh-system' # Refresh systemd daemons and Zsh completion cache
+alias sys-err='journalctl -p 3 -xb' # Show high priority system errors 🚨
+alias free='free -m -h' # Show RAM usage (Human readable)
+alias df='duf' # Show disk usage (Modern df)
+alias tfa='2fa' # Generate 2FA tokens
+alias psr='gnome-extensions disable pop-shell@system76.com && gnome-extensions enable pop-shell@system76.com' # Restart Pop Shell extension
 
 # ---  Hardware Control ---
 alias cam-off='sudo usbguard block-device id "$ID_WEBCAM"' # Disable Webcam

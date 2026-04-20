@@ -1,0 +1,168 @@
+function p() {
+    # 1. Force resolve DOTFILES_DIR if not present
+    if [[ -z "$DOTFILES_DIR" ]]; then
+        # Use getent for accuracy, fallback to $HOME
+        local r_home=$(getent passwd "$USER" | cut -d: -f6)
+        export DOTFILES_DIR="${r_home:-$HOME}/dotfiles"
+    fi
+
+    # 2. Source core.sh and verify a known function exists
+    if ! command -v log_info &> /dev/null; then
+        source "$DOTFILES_DIR/core.sh" || { echo "Error: core.sh not found at $DOTFILES_DIR"; return 1; }
+    fi
+
+    # Display help if no arguments are provided
+    if [[ -z "$1" ]]; then
+        p --help
+        return 0
+    fi
+
+    # Chained flags parser (Handles -ou, -ui, -ru, -oui, -oru etc.)
+    if [[ "$1" =~ ^-[a-z]{2,}$ ]]; then
+        flags="${1#-}"
+        shift
+        args=("$@")
+
+        # Guard 1: Safety Length (Limit to 3 chars)
+        if [[ ${#flags} -gt 3 ]]; then
+            log_error "Safety Guard: Combined flags cannot exceed 3 characters."
+            p --help
+            return 1
+        fi
+
+        # Guard 2: Immediate Help (If 'h' is anywhere in the string, just show help)
+        if [[ "$flags" == *h* ]]; then
+            p --help
+            return 0
+        fi
+
+        # Guard 3: Invalid Flag Detection (Fail before starting any process)
+        # Check if every char in 'flags' is one of our supported options
+        if [[ ! "$flags" =~ ^[fusior]+$ ]]; then
+            log_error "Invalid Flag: One or more characters in '-$flags' are not supported."
+            p --help
+            return 1
+        fi
+
+        # OPTIMIZATION: If both -u and -f are present, skip -u
+        # -f (Syyu) is a superset of -u (Syu), so running both is redundant.
+        if [[ "$flags" == *u* && "$flags" == *f* ]]; then
+            log_info "Optimization: Both -u and -f detected. Routing directly to Force Update."
+            # Strip 'u' from the flags string
+            flags="${flags//u/}"
+        fi
+
+        # Guard 4: Conflict Guard (Cannot install and remove together)
+        if [[ "$flags" == *i* && "$flags" == *r* ]]; then
+            log_error "Conflict Guard: Cannot use Install (-i) and Remove (-r) together."
+            p --help
+            return 1
+        fi
+
+        # 4. Required Argument Guard (For -i and -r)
+        if [[ "$flags" == *i* || "$flags" == *r* ]]; then
+            if [[ ${#args[@]} -eq 0 ]]; then
+                log_error "Argument Guard: Flags -i or -r require at least one package name."
+                p --help
+                return 1
+            fi
+        fi
+
+        # 5. Sudo/Root Check (Optional: For updates and changes)
+        if [[ "$flags" == *u* || "$flags" == *f* || "$flags" == *i* || "$flags" == *r* ]]; then
+            # Only check if we are not already root
+            if [[ $EUID -ne 0 ]]; then
+              log_info "Privilege Guard: Root access required for this chain. Invoking sudo..."
+              # This triggers sudo once for the entire chain
+              sudo -v || return 1
+            fi
+        fi
+
+        # Processes each flag in the EXACT order provided
+        for (( i=0; i<${#flags}; i++ )); do
+            flag="-${flags:$i:1}"
+
+            # Execute the script for the current flag
+            # "$0" refers to the script itself
+            "$0" "$flag" "${args[@]}"
+
+            # CRITICAL: Check the exit status of the previous flag
+            # If it's not 0 (success), stop the entire chain immediately
+            if [[ $? -ne 0 ]]; then
+                log_error "Chain broken at flag '$flag'. Aborting subsequent operations."
+                return 1
+            fi
+        done
+        return 0
+    fi
+
+    local opt=$1
+    shift
+
+    case "$opt" in
+        -u|--update)
+            log_info "🚀 System Upgrade: Pacman + AUR"
+            command -v yay &> /dev/null && yay -Syu || sudo pacman -Syu
+            ;;
+
+        -f|--force |--force-update)
+            log_warn "🔄 Forced Upgrade: Refreshing DBs (Syyu)"
+            sudo pacman -Syyu
+            command -v yay &> /dev/null && yay -Sua
+            ;;
+
+        -s|--search)
+            log_info "🔍 Searching for: $*"
+            command -v yay &> /dev/null && yay -Ss "$*" || pacman -Ss "$*"
+            ;;
+
+        -i|--install)
+            [[ -z "$*" ]] && { log_error "Install failed: No package specified"; return 1; }
+            command -v yay &> /dev/null && yay -S "$@" || sudo pacman -S "$@"
+            ;;
+
+        -r|--remove)
+            [[ -z "$*" ]] && { log_error "Remove failed: No package specified"; return 1; }
+            log_warn "🗑️ Removing $* and its unused dependencies..."
+            sudo pacman -Rs "$@"
+            ;;
+
+        -o|--orphans)
+            log_info "🧹 Maintenance: Checking for orphan packages..."
+            local orphans=$(pacman -Qtdq)
+            if [[ -n "$orphans" ]]; then
+                echo "$orphans"
+                echo -n -e "${YELLOW}[?]${NC} Remove these orphans? (y/n): "
+                read -r choice < /dev/tty
+                [[ "$choice" == [yY]* ]] && sudo pacman -Rns $(pacman -Qtdq) 2>/dev/null
+            else
+                log_success "✅ System is clean (No orphans)."
+            fi
+            ;;
+
+        -h|--help)
+            echo -e "${YELLOW}Usage:${NC} p [option] [packages]"
+            echo -e "\n${YELLOW}Options:${NC}"
+            echo -e "  -u   Update system (Repo + AUR)"
+            echo -e "  -f   Force update (Syyu)"
+            echo -e "  -s   Search repositories"
+            echo -e "  -i   Install packages"
+            echo -e "  -r   Remove packages + dependencies"
+            echo -e "  -o   Clean orphan packages"
+            echo -e "  -h   Show help menu"
+            echo -e "\n${YELLOW}Combined examples:${NC}"
+            echo -e "  p -ui <pkg>   Update system first, then install <pkg>"
+            echo -e "  p -ru <pkg>   Remove <pkg>, then update system"
+            ;;
+
+        *)
+            # Fallback to standard pacman for unknown flags
+            if [[ "$opt" == -* ]]; then
+                log_error "Unknown option: '$opt'. Type 'p -h' for help."
+                return 1
+            else
+                sudo pacman "$opt" "$@"
+            fi
+            ;;
+    esac
+}
