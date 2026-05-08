@@ -34,10 +34,10 @@ EOF
     # Set restrictive permissions (read/write only for user) as it might contain private data
     chmod 600 "$LOCAL_ENV"
 
-    log_info "✅ Local environment file created successfully at $LOCAL_ENV."
+    log_success "✅ Local environment file created successfully at $LOCAL_ENV."
 else
     # Preserving manual changes is a priority for device-specific configs
     log_debug "ℹ️  $LOCAL_ENV already exists. Skipping creation to preserve your manual changes."
 fi
 
-log_info "✅ Local environment task finished."
+log_success "✅ Local environment task finished."

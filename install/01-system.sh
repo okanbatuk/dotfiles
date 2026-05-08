@@ -57,4 +57,4 @@ for pkg in "${DEPENDENCIES[@]}"; do
     fi
 done
 
-log_info "✅ System dependencies synchronization finished successfully."
+log_success "✅ System dependencies synchronization finished successfully."

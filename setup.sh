@@ -116,7 +116,7 @@ if [[ "$1" == "--auto" ]]; then
     for task in "${tasks[@]}"; do
         run_task "$task"
     done
-    log_info "✨ Setup finished successfully."
+    log_success "✨ Setup finished successfully."
 else
     while true; do
         show_menu
@@ -136,7 +136,7 @@ else
                 for task in "${tasks[@]}"; do
                     run_task "$task"
                 done
-                log_info "✨ All tasks completed."
+                log_success "✨ All tasks completed."
                 break ;;
             [0-9]*)
                 idx=$((choice-1))

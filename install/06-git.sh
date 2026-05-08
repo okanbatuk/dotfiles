@@ -30,7 +30,7 @@ EOF
 
     # Critical: Fix ownership since setup.sh runs as root
     chown "$REAL_USER:$REAL_USER" "$GIT_LOCAL"
-    log_info "✅ Created $GIT_LOCAL with your credentials."
+    log_success "✅ Created $GIT_LOCAL with your credentials."
 else
     log_debug "✅ $GIT_LOCAL already exists."
 fi
@@ -53,4 +53,4 @@ else
     fi
 fi
 
-log_info "✅ Git configuration task finished successfully."
+log_success "✅ Git configuration task finished successfully."

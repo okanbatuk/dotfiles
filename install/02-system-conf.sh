@@ -75,7 +75,7 @@ setup_syncthing() {
             sudo -u "$REAL_USER" DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/$(id -u "$REAL_USER")/bus" \
                 systemctl --user enable --now syncthing.service
 
-            log_info "🚀 Syncthing user service started."
+            log_success "🚀 Syncthing user service started."
             log_info "🔗 Syncthing GUI: ${BLUE}http://localhost:8384${NC} (Pair your devices here)"
             send_notification "Syncthing" "P2P Synchronization service is now active." "normal" "syncthing"
         fi
@@ -99,7 +99,7 @@ optimize_boot() {
 
         # Update GRUB only if changes were made (idempotent check can be added if needed)
         update-grub
-        log_info "✅ GRUB optimized for speed and silence."
+        log_success "✅ GRUB optimized for speed and silence."
     fi
 }
 

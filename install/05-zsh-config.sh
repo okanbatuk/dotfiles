@@ -59,4 +59,4 @@ fi
 # Ensure .zshrc ownership is preserved even if setup.sh runs as root
 chown "$REAL_USER:$REAL_USER" "$ZSHRC"
 
-log_info "✅ Zsh configuration update finished successfully."
+log_success "✅ Zsh configuration update finished successfully."

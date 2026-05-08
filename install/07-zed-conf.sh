@@ -43,8 +43,8 @@ else
 
         # Create symlink as user
         run_as_user ln -sfn "$ZED_TARGET" "$ZED_CONFIG_DIR"
-        log_info "✅ Zed configuration linked successfully."
+        log_success "✅ Zed configuration linked successfully."
     fi
 fi
 
-log_info "✅ Zed configuration task finished."
+log_success "✅ Zed configuration task finished."

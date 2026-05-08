@@ -45,7 +45,7 @@ if [ -d "$SCRIPTS_SOURCE_DIR" ]; then
         fi
     done
     shopt -u nullglob
-    log_info "✅ All scripts have been secured and linked successfully."
+    log_success "✅ All scripts have been secured and linked successfully."
 else
     log_warn "No scripts directory found in $SCRIPTS_SOURCE_DIR. Skipping task."
 fi
