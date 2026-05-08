@@ -1,0 +1,40 @@
+# UFW Management Utility
+# Usage: ufwm [-s status] [-r reload] [-e edit] [-l logs]
+ufwm() {
+    # Detect the real user's home even under sudo
+    local real_user_home
+    real_user_home=$(getent passwd "${SUDO_USER:-$USER}" | cut -d: -f6)
+    local df_path="${real_user_home:-$HOME}/dotfiles"
+
+    # Resolve paths relative to HOME to ensure portability
+    local rules_file="$df_path/hints/ufw_rules.txt"
+    local setup_script="$df_path/install/10-ufw-setup.sh"
+
+    # Helper function for fzf menu
+    _ufwm_menu() {
+        local choice
+        choice=$(echo -e "Status\nReload\nEdit-Rules\nLogs" | fzf --header="UFW Management")
+        case $choice in
+            Status) sudo ufw status verbose ;;
+            Reload) [[ -f "$setup_script" ]] && sudo bash "$setup_script" || echo "Setup script not found at $setup_script" ;;
+            Edit-Rules) [[ -f "$rules_file" ]] && ${EDITOR:-nano} "$rules_file" || echo "Rules file not found at $rules_file" ;;
+            Logs) journalctl -u ufw -f ;;
+        esac
+    }
+
+    # Flag processing
+    if [[ $# -eq 0 ]]; then
+        _ufwm_menu
+        return
+    fi
+
+    while getopts "srel" opt; do
+        case $opt in
+            s) sudo ufw status verbose ;;
+            r) [[ -f "$setup_script" ]] && sudo bash "$setup_script" || echo "Error: $setup_script not found." ;;
+            e) [[ -f "$rules_file" ]] && ${EDITOR:-nano} "$rules_file" || echo "Error: $rules_file not found." ;;
+            l) journalctl -u ufw -f ;;
+            *) echo "Usage: ufwm [-s status] [-r reload] [-e edit] [-l logs]" ;;
+        esac
+    done
+}

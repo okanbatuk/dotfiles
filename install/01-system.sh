@@ -37,7 +37,7 @@ DEPENDENCIES=(
     tesseract-data-eng tesseract-data-tur
     alacritty drawing zathura zathura-pdf-mupdf mpv yt-dlp libnotify
     # --- System Tools ---
-    smartmontools pacman-contrib syncthing
+    smartmontools pacman-contrib syncthing ufw fail2ban
     # --- Fonts & UI Elements ---
     ttf-jetbrains-mono-nerd ttf-nerd-fonts-symbols-common noto-fonts-emoji
 )

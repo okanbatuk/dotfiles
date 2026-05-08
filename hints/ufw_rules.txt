@@ -1,0 +1,14 @@
+# GSConnect & Syncthing
+allow 1714:1764/udp
+allow 1714:1764/tcp
+allow 22000/tcp
+allow 21027/udp
+
+# Local Network Trust
+allow_in_on wlp3s0 from 192.168.1.0/24
+
+# VPN Configuration (Default: false in script)
+# Script only applies these if values are provided below
+vpn_interface wg0
+vpn_endpoint
+vpn_port 51820

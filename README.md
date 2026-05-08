@@ -26,8 +26,10 @@ dotfiles/
 │   ├──  07-zed-conf.sh          # Automated Zed editor configuration
 │   ├── 📜 08-scripts.sh          # Deployment of automation & maintenance scripts
 │   └── 🏠 09-local-env.sh        # Machine-specific overrides
+│   └── 🛡️ 10-ufw-setup.sh        # Automated Security Hardening & UFW setup
 ├── 🛡️ functions/                 # Modular Zsh Functions (Auto-loaded)
 │   ├── 🔑 2fa                    # Interactive TOTP generator (alias: tfa)
+│   ├── 🛡️ ufwm                   # Interactive Firewall management utility
 │   ├── 🔄 rfs                    # System & Shell Refresher (systemd & zsh cache)
 │   ├── ⏰ alarm                  # High-precision alarm function with fzf support
 │   ├── 🔄 sy                     # Unified Syncthing Controller (Toggle On/Off, Dashboard, Status)
@@ -61,7 +63,10 @@ dotfiles/
 │   ├── 🔔 .alarm-notify.sh       # Background notification worker for alarms
 │   ├── 🩺 disk-report.sh         # S.M.A.R.T. health analysis & usage reports
 │   └── ...                       # (get-info)
-├── 🧠 hints/                     # Tab-separated lookup tables for fzf-powered hint utilities
+├── 🧠 hints                      # Tab-separated lookup tables for fzf-powered hint utilities
+│   ├── 🌐 advanced_wg_cs.md      # Advanced WireGuard & Network troubleshooting
+│   ├── ...
+│   └── 📄 ufw_rules.txt          # Pre-defined security rule templates
 ├── 󱆃 .zshrc                      # Main Zsh entry point
 ├── 🔗 .zsh_aliases               # Custom aliases (including Guardian redirects)
 ├── ✍️ .zsh_notes                  # Knowledge base aliases
@@ -118,26 +123,35 @@ To maintain high security while allowing automation:
 
 Modern CLI tools, custom functions, and quick-access configuration shortcuts.
 
-| Command                  | Type      | Description                                                                                                                                                                                                                               |
-| ------------------------ | --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `p`                      | Function  | **Advanced Package Manager:** A smart wrapper for `yay` / `pacman`. Supports **chained flags** (e.g., `-ui`), **fail-fast** execution, and **U+F optimization** (automatically routes `-uf` to force update).                             |
-| `rfs`( `refresh-system`) | Function  | **System & Shell Refresher:** Reloads systemd daemons, clears Zsh completion cache (`.zcompdump`), and re-initializes the completion system for instant Tab-access to new services/commands.                                              |
-| `alarm`                  | Function  | **Advanced CLI Alarm:** High-precision (`1ms`) reminders using `systemd-run`. Supports `-t, -m, -l`, interactive FZF removal (`-r`), and short syntax (e.g., `alarm 5m "msg"`). Integrated with GNOME notifications and audio alerts.     |
-| `dckr`                   | Function  | **Advanced Docker Management:** A modular CLI tool for rapid container workflows. Supports interactive image/container selection via `fzf`, automatic `.env` loading, port mapping, and `docker-compose` integration with smart defaults. |
-| `sy`                     | Function  | **Unified Syncthing Controller:** Smart toggle (On/Off) with integrated dashboard access (`-w`), status checks (`-s`), and force-control flags (`--on`/`--off`).                                                                          |
-| `pt` ( `projtree` )      | Function  | Modern tree view with auto-ignores (`node_modules`, `.git`, `dist`). Supports `-p` for **path**, `-d` for **depth**, `-i` for **ignore patterns** with interactive tab-completion (multi-flag support & auto-strips path prefix).         |
-| `ft` ( `fulltree` )      | Function  | Advanced tree view all files. Supports `-p` for **path**, `-d` for **depth**, `-i` for **ignore patterns** with interactive tab-completion (multi-flag support & auto-strips path prefix).                                                |
-| `tfa` ( `2fa` )          | Functions | Interactive TOTP generator using `fzf` and Aegis JSON backups.                                                                                                                                                                            |
-| `eh` ( `esp_hints` )     | Function  | Interactive Espanso trigger search using `fzf`.                                                                                                                                                                                           |
-| `ah` ( `als-hints` )     | Function  | **Interactive Alias Search:** Search and execute terminal aliases with category-aware `fzf` filtering.                                                                                                                                    |
-| `port`                   | Function  | **Quick Port Audit:** A shorthand for `sudo lsof -i :$1` to quickly identify processes holding a specific network port.                                                                                                                   |
-| `jlog`                   | Function  | **Smart Journalctl Viewer:** Modern interface for systemd logs with shorthand support. Features real-time watching (`-n`), time-based filtering (e.g., `1h`, `10m`, `today`), and colored boot log inspection.                            |
-| `ilog`                   | Function  | **Session Recording:** Use `-r` to start recording the current terminal session to a timestamped log file. Use `-c <file>` to clean ANSI escape codes from a log, converting it into a readable text format using `perl`.                 |
-| `pdf`                    | Function  | Opens a PDF file using **Zathura** in the background. Redirects all output to `/dev/null` and uses `disown` to keep the process alive even after closing the terminal.                                                                    |
-| `fnote`                  | Function  | **Interactive Note Navigator:** `find` and `fzf` to search through your entire knowledge base. Supports instant bat previews for text files and opens `.pdf`, `.doc`, `.docx` via `handlr`.                                               |
-| `cp` / `mv`              | Function  | **Overwrite Protection:** Checks if the target exists and prompts for confirmation before replacing files.                                                                                                                                |
-| `rm -f`                  | Function  | **Safety Wrapper:** Automatically strips `-f` / `--force` flags in interactive mode to prevent accidental mass deletions.                                                                                                                 |
-| `git push -f`            | Function  | **Force-With-Lease:** Intercepts force push to use `--force-with-lease`, protecting remote history from accidental overwrites.                                                                                                            |
+| Command                  | Type     | Description                                                                                                                                                               |
+| ------------------------ | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ah` (`als-hints`)       | Function | **Interactive Alias Search:** Search and execute terminal aliases with category-aware `fzf` filtering.                                                                    |
+| `alarm`                  | Function | **Advanced CLI Alarm:** High-precision (`1ms`) reminders using `systemd-run`. Supports `-t, -m, -l`, interactive FZF removal (`-r`). Integrated with GNOME notifications. |
+| `dckr`                   | Function | **Advanced Docker Management:** Modular CLI for rapid workflows. Supports interactive selection via `fzf`, auto `.env` loading, and smart port mapping.                   |
+| `eh` (`esp_hints`)       | Function | **Espanso Search:** Interactive trigger lookup using `fzf` for quick snippet discovery.                                                                                   |
+| `fnote`                  | Function | **Interactive Note Navigator:** Uses `find` + `fzf` to search knowledge base. Supports `bat` previews and opens binary files via `handlr`.                                |
+| `ft` (`fulltree`)        | Function | **Advanced Tree View:** Displays all files with support for custom paths (`-p`), depth (`-d`), and interactive ignore patterns (`-i`).                                    |
+| `ilog`                   | Function | **Session Recording:** Record terminal sessions (`-r`) or clean ANSI escape codes from existing logs (`-c`) for readable text output.                                     |
+| `jlog`                   | Function | **Smart Journalctl Viewer:** Modern interface for systemd logs. Features real-time watching (`-n`) and time-based filtering (e.g., `1h`, `today`).                        |
+| `p`                      | Function | **Advanced Package Manager:** Smart wrapper for `yay`/`pacman`. Supports **chained flags** (e.g., `-ui`), fail-fast execution, and force-update routing.                  |
+| `pdf`                    | Function | **Background PDF Viewer:** Opens files using **Zathura** in a detached background process to keep the terminal free.                                                      |
+| `port`                   | Function | **Quick Port Audit:** Shorthand for `sudo lsof -i :$1` to identify processes holding specific network ports.                                                              |
+| `pt` (`projtree`)        | Function | **Modern Project Tree:** Clean view with smart auto-ignores (`node_modules`, `.git`). Supports interactive tab-completion for ignore patterns.                            |
+| `rfs` (`refresh-system`) | Function | **System Refresher:** Reloads systemd daemons and clears Zsh completion cache (`.zcompdump`) for instant shell responsiveness.                                            |
+| `sy`                     | Function | **Unified Syncthing Controller:** Smart toggle with dashboard access (`-w`), status checks (`-s`), and force-control flags.                                               |
+| `tfa` (`2fa`)            | Function | **Interactive TOTP Generator:** Securely generates 2FA codes using `fzf` and Aegis JSON backups.                                                                          |
+| `ufwm`                   | Function | **Interactive Firewall Manager:** Comprehensive UFW control menu. Supports status checks, rule editing, log tailing, and automated reloads.                               |
+
+## 🛡️ Safety Wrappers & Guardian Controls
+
+Specialized functions designed to prevent accidental data loss and enforce secure defaults.
+
+| Command            | Target          | Protection Mechanism                                                                                                         |
+| ------------------ | --------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `cp` / `mv`        | Filesystem      | **Overwrite Protection:** Intercepts operations to check if the target exists and prompts for manual confirmation.           |
+| `git push -f`      | Version Control | **Force-With-Lease:** Automatically upgrades standard force pushes to `--force-with-lease` to protect remote branch history. |
+| `rm -f`            | Filesystem      | **Safety Guard:** Strips destructive force flags in interactive modes to prevent accidental mass deletions.                  |
+| `sudo chmod/chown` | Permissions     | **Guardian Shield:** Prevents recursive permission changes on critical system directories (managed via `.guard.sh`).         |
 
 > ### **⚙️ Function Loading Strategy**
 >
@@ -220,6 +234,8 @@ This will:
 - Clone and link [Zed config](https://github.com/okanbatuk/zed-config) from its own repository
 - Link custom scripts to `~/scripts`
 
+> **Note:** The security layer (UFW) is managed via the `10-ufw-setup.sh` script. Once installed, you can use the `ufwm` command to monitor your network security status in real-time.
+
 > 🧪 **Docker Testing**: The repository includes a standardized Docker workflow to verify the "Zero Root Pollution" architecture in a clean Arch Linux environment before deploying to production machines.
 
 > 💡 **VS Code**: Settings and snippets are stored under `config/Code/`. To apply them, manually copy the contents to `~/.config/Code/User/` as needed.
@@ -258,11 +274,13 @@ This will:
   - `gnupg(GPG2)`: Secure communication and commit signing to achieve **Verified** status on GitHub.
   - `pinentry`: A collection of simple PIN or passphrase entry dialogs required for GPG operations.
 - **System & Hardware:**
-  - `smartmontools`: Required for S.M.A.R.T. disk health diagnostics and reporting.
-  - `util-linux`: Required for the `script` command (used by `rec` alias and `ilog`).
-  - `perl`: Required for regex-based log cleaning in `ilog`.
-  - `pacman-contrib`: Essential for system maintenance tasks like `paccache`.
-  - `libnotify`: Sends native desktop notification. Used by `core.sh`.
+  - `fail2ban`: Intrusion prevention framework that protects against brute-force attacks by monitoring logs.
+  - `libnotify`: Sends native desktop notifications. Used by `core.sh` for system feedback.
+  - `pacman-contrib`: Essential for system maintenance tasks like `paccache` and update monitoring.
+  - `perl`: Required for regex-based log cleaning and advanced text processing in `ilog`.
+  - `smartmontools`: Required for S.M.A.R.T. disk health diagnostics and automated reporting.
+  - `ufw`: Uncomplicated Firewall. The core engine for the system's security hardening stack.
+  - `util-linux`: Required for the `script` command (utilized by `rec` alias and `ilog` session recording).
 - **Fonts & Symbols:**
   - `ttf-jetbrains-mono-nerd`: Developer-focused font with icons, required to correctly display symbols in the terminal.
   - `ttf-nerd-fonts-symbols-common`: Common symbols for Nerd Font users to ensure cross-app icon compatibility.
@@ -360,8 +378,11 @@ When you run `setup.sh`, it will check if `~/.gitconfig.local` exists. If not, i
   - **Secondary**:  **Neovim** (Custom Lua-based environment with Vim keybindings).
 - **Security & Privacy**:
   - **🔑 Aegis Authenticator**: Open-source 2FA management (Android).
-  - **📄 Syncthing**: P2P file synchronization for encrypted backups and shared assets. Managed via the unified `sy` function. Access GUI at `localhost:8384` or simply type `sy -w`.
-  - **🛡️ USBGuard**: Device authorization framework to block unauthorized USB entities.
+  - **📄 Syncthing**: P2P file synchronization managed via unified `sy` function.
+  - **🛡️ UFW Hardening**: Automated firewall stack via `10-ufw-setup.sh` with granular rule sets.
+  - **🌐 Network Shield**: Interactive firewall management through the `ufwm` utility.
+  - **⚡ WireGuard Ops**: Advanced VPN configurations and kill-switch logic (documented in `hints/`).
+  - **🔒 USBGuard**: Device authorization framework to block unauthorized USB entities.
 - **Runtimes**: ** Node.js** (managed via FNM) and **Bun** for high-performance scripting.
 - **Desktop**: **💻 GNOME** with `libnotify` for automated system feedback.
   - **Custom UI Feedback**: Integrated "Times Up!" notifications with critical urgency and dedicated system audio alerts via `paplay`.
