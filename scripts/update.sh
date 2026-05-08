@@ -121,7 +121,8 @@ update_tooling() {
         run_as_user bash -c "eval \"\$(fnm env)\" && \
                     npm install -g npm@latest --silent && \
                     npm update -g --no-audit --no-fund && \
-                    npm cache verify" && log_success "🟢 [NPM/FNM] Global NPM packages updated for $current_node."
+                    npm cache verify"
+        log_success "🟢 [NPM/FNM] Global NPM packages updated for $current_node."
     fi
 }
 

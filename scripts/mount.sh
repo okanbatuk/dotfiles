@@ -20,15 +20,16 @@ if mountpoint -q "$MOUNT_POINT"; then
     exit 0
 fi
 
-# Attempt to mount the NTFS volume
-# The service runs as root, so sudo is not required within the script
-if mount "$DEVICE" "$MOUNT_POINT"; then
-    echo "✅ Successfully mounted $DEVICE to $MOUNT_POINT"
+# Attempt to mount the NTFS volume with explicit driver fallback
+# First attempt: ntfs-3g (usually more compatible with LDM/dirty volumes)
+if mount -t ntfs-3g "$DEVICE" "$MOUNT_POINT"; then
+    echo "✅ Successfully mounted $DEVICE to $MOUNT_POINT using ntfs-3g"
+elif mount -t ntfs3 "$DEVICE" "$MOUNT_POINT"; then
+    echo "✅ Successfully mounted $DEVICE to $MOUNT_POINT using ntfs3"
 else
     echo "❌ Failed to mount $DEVICE"
-    # Provide diagnostic information in case of failure
-    # This will be captured in the systemd journal (journalctl -u mount-ldm.service)
-    echo "🔧 Diagnostic: Checking for processes using the device..."
-    fuser -v "$DEVICE" 2>/dev/null
+    # Provide diagnostic information
+    echo "🔧 Diagnostic: Checking dmesg for mount errors..."
+    dmesg | tail -n 15
     exit 1
 fi
