@@ -1,49 +1,65 @@
 als_hints() {
-    # Path to your alias file
     local ALIAS_FILE="$HOME/.zsh_aliases"
     [[ ! -f "$ALIAS_FILE" ]] && { echo "Error: Alias file not found"; return 1; }
 
-    # Prepare data: Extract category headers and assign them to following aliases
+    # Data Structure (Tab-Separated):
+    # $1: Category | $2: Display | $3: Alias | $4: Command | $5: Description
     local data=$(awk -F '=' '
         BEGIN { cat="General" }
-        # Identify category headers like "# --- Category ---"
         /^# ---/ {
             new_cat=$0;
             gsub(/^# --- | ---$/, "", new_cat);
+            # Aggressively remove any leading/trailing quotes from the category name
+            gsub(/^[\047\042]+|[\047\042]+$/, "", new_cat);
             cat=new_cat;
             next
         }
-        # Skip comments and empty lines
         /^#/ || /^$/ { next }
-        # Process lines starting with "alias "
         /^alias / {
             full_line=$0;
             sub(/^alias /, "", full_line);
-            # Split by first "=" to separate alias name and command
-            split(full_line, parts, "=");
-            name=parts[1];
 
-            # Isolate command and description using "#"
-            cmd_with_desc=parts[2];
-            split(cmd_with_desc, cmd_parts, "#");
-            cmd=cmd_parts[1];
-            # Clean quotes and whitespace
-            gsub(/^\047|\047$|^[[:space:]]*|[[:space:]]*$/, "", cmd);
-            desc=cmd_parts[2];
-            gsub(/^[[:space:]]*|[[:space:]]*$/, "", desc);
+            idx = index(full_line, "=");
+            if (idx == 0) next;
 
-            # Format: Category \t Display \t Name \t Command \t Description
-            printf "%s\t-  %-15s ➔  %s\t%s\t%s\t%s\n", cat, name, cmd, name, cmd, desc
+            name = substr(full_line, 1, idx-1);
+            rest = substr(full_line, idx+1);
+
+            # Extract description using the # delimiter
+            d_idx = index(rest, "#");
+            if (d_idx > 0) {
+                raw_cmd = substr(rest, 1, d_idx-1);
+                desc = substr(rest, d_idx+1);
+            } else {
+                raw_cmd = rest;
+                desc = "No description";
+            }
+
+            # 1. Clean whitespace
+            gsub(/^[[:space:]]+|[[:space:]]+$/, "", name);
+            gsub(/^[[:space:]]+|[[:space:]]+$/, "", raw_cmd);
+            gsub(/^[[:space:]]+|[[:space:]]+$/, "", desc);
+
+            # 2. Strip surrounding single/double quotes from Alias, Command, and Description
+            gsub(/^[\047\042]+|[\047\042]+$/, "", name);
+            gsub(/^[\047\042]+|[\047\042]+$/, "", raw_cmd);
+            gsub(/^[\047\042]+|[\047\042]+$/, "", desc);
+
+            # Field 1: Category
+            # Field 2: List Display (uses [ ] to verify trailing spaces)
+            # Field 3: Clean Alias Name
+            # Field 4: Clean Command Name
+            # Field 5: Clean Description
+            printf "%s\t-  %-15s ➔  [%s]\t%s\t%s\t%s\n", cat, name, raw_cmd, name, raw_cmd, desc
         }
     ' "$ALIAS_FILE")
 
-    # Use a temporary file for reliable ripgrep filtering
     local tmp_als="/tmp/als_hints_data"
     echo "$data" > "$tmp_als"
 
     local selected=$(cat "$tmp_als" | fzf --height 75% \
         --reverse \
-        --header "🔍 CTRL-G: Category Mode | CTRL-A: All Fields | ESC: Reset" \
+        --header "🔍 CTRL-G: Category | CTRL-A: All | ESC: Reset" \
         --prompt="Search All Aliases > " \
         --border --ansi --tabstop=15 --delimiter $'\t' \
         --preview-window 'right:45%:border-left' \
@@ -54,32 +70,26 @@ als_hints() {
         --bind "ctrl-g:change-prompt(Category Mode > )+reload(rg --smart-case '^[^\t]*{q}[^\t]*\t' $tmp_als || true)" \
         --bind "ctrl-a:change-prompt(Search All > )+reload(rg --smart-case {q} $tmp_als || true)" \
         --preview '
-            # Parse fields for the preview panel
-            p_cat=$(echo {1} | tr -d "[:cntrl:]")
-            p_alias=$(echo {4} | tr -d "[:cntrl:]")
-            p_cmd=$(echo {5} | tr -d "[:cntrl:]")
-            p_desc=$(echo {6} | tr -d "[:cntrl:]")
-
+            # Field indices are now verified: {1}=Cat, {3}=Alias, {4}=Cmd, {5}=Desc
             echo -e "\n  \033[1;35m📁 Category\033[0m"
-            echo -e "  \033[1;37m[$p_cat]\033[0m"
+            echo -e "  \033[1;37m[{1}]\033[0m"
 
             echo -e "\n  \033[1;34m󰘳 Alias\033[0m"
-            echo -e "  \033[1;37m$p_alias\033[0m"
+            echo -e "  \033[1;37m{3}\033[0m"
 
             echo -e "\n  \033[1;32m󱔗 Command\033[0m"
-            echo -e "  \033[0;37m$p_cmd\033[0m"
+            echo -e "  \033[0;37m[{4}]\033[0m"
 
             echo -e "\n  \033[1;33m󰛨 Description\033[0m"
-            echo -e "  \033[0;37m$p_desc\033[0m"
+            echo -e "  \033[0;37m{5}\033[0m"
         ')
 
-    # Cleanup
     rm -f "$tmp_als"
 
-    # Selection output
+    # Selection Logic: Validated against Field 3 and Field 4
     if [[ -n "$selected" ]]; then
-        local out_alias=$(echo "$selected" | cut -f4)
-        local out_cmd=$(echo "$selected" | cut -f5)
-        echo -e "\033[1;32mSelected:\033[0m $out_alias ➔ $out_cmd"
+        local out_alias=$(echo "$selected" | cut -f3)
+        local out_cmd=$(echo "$selected" | cut -f4)
+        echo -e "\033[1;32mSelected:\033[0m $out_alias ➔ [$out_cmd]"
     fi
 }

@@ -162,8 +162,8 @@ function p() {
             echo -e "  p -mu          Optimize mirrors FIRST, then update system"
             echo -e "  p -ui <pkg>    Update system, then install <pkg> (Fail-fast)"
             echo -e "  p -si <pkg>    Search for <pkg>, then install it"
-            echo -e "  p -fi <pkg>   Force update (Syyu) and then install <pkg>"
-            echo -e "  p -rmf <pkg>    Remove <pkg>, then optimize mirrors, then force update"
+            echo -e "  p -fi <pkg>    Force update (Syyu) and then install <pkg>"
+            echo -e "  p -rmf <pkg>   Remove <pkg>, then optimize mirrors, then force update"
 
             echo -e "\n${BLUE}Note:${NC} Chained flags execute in EXACT order. Max 3 flags allowed."
             ;;

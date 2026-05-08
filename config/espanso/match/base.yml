@@ -37,7 +37,7 @@ matches:
   - trigger: ":hi"
     replace: "Hi Okan!"
 
-  - trigger: ":git"
+  - trigger: ":ghub"
     replace: "o https://github.com/okanbatuk"
 
   - trigger: ":go"
@@ -214,7 +214,7 @@ matches:
     replace: "🐛"
 
     # --- EMOJIS: Apps & Libs ---
-  - trigger: ":igit"
+  - trigger: ":git"
     replace: ""
   - trigger: ":node"
     replace: ""
@@ -250,6 +250,36 @@ matches:
     replace: "♻️"
   - trigger: ":fix"
     replace: "🛠️"
+
+  # --- EMOJIS: Cloud & DevOps ---
+  - trigger: ":cloud"
+    replace: "☁️"
+  - trigger: ":lambda"
+    replace: "λ"
+  - trigger: ":deploy"
+    replace: "🚀"
+
+  # --- EMOJIS: Data Flow & Webhooks ---
+  - trigger: ":stream"
+    replace: "🌊"
+  - trigger: ":hook"
+    replace: "🪝"
+  - trigger: ":sync"
+    replace: "🔃"
+  - trigger: ":async"
+    replace: "⛓️"
+
+    # --- EMOJIS: Status & Monitoring ---
+  - trigger: ":idle"
+    replace: "💤"
+  - trigger: ":busy"
+    replace: "🚧"
+  - trigger: ":off"
+    replace: "🌑"
+  - trigger: ":on"
+    replace: "🟢"
+  - trigger: ":wait"
+    replace: "⏳"
 
   # --- EMOJIS: Actions & Media ---
   - trigger: ":clean"
@@ -328,6 +358,16 @@ matches:
     replace: "🛡️"
   - trigger: ":auth"
     replace: "🛂"
+  - trigger: ":token"
+    replace: "🪙"
+  - trigger: ":hide"
+    replace: "🙈"
+  - trigger: ":audit"
+    replace: "📜"
+  - trigger: ":mig"
+    replace: "󰮗"
+  - trigger: ":perf"
+    replace: "󰓅"
 
   # --- EMOJIS: Communication & Feedback ---
   - trigger: ":mail"

@@ -69,15 +69,21 @@ alias get-timers='systemctl list-timers --all' # List all active systemd timers
 alias ul='sudo usbguard list-devices' # List USB devices (Security)
 alias ua='sudo usbguard allow-device' # Allow a specific USB device
 
-# --- ⚙️ System & Maintenance---
+# --- ⚙️ System & Maintenance ---
 alias temp='watch sensors' # Monitor hardware temperatures
-alias sstat='systemctl status' # Check systemd service status
-alias ss='sudo systemctl start' # Start systemd service ▶️
-alias sstop='sudo systemctl stop' # Stop systemd service 🛑
-alias sr='sudo systemctl restart' # Restart systemd service
-alias sl='sudo journalctl -u' # View service logs (journalctl)
+alias sc='systemctl' # Systemd control command ⚙️
+alias jc='journalctl' # Systemd journal log explorer 🔍
+alias sys='systemctl list-units --type=service | fzf --header="Search Service Status" --preview "systemctl status {1}" | awk "{print \$1}" | xargs -r systemctl status' # Interactive service status picker 
+alias syu='sudo systemctl start' # Start a systemd service (UP) ▶️
+alias syd='sudo systemctl stop' # Stop a systemd service (DOWN) 🛑
+alias syr='sudo systemctl restart' # Restart a systemd service 🔄
+alias syl='sudo journalctl -u' # View specific service logs (Usage: syl docker) 📜
+alias jerr='journalctl -p 3 -xb' # Show high-priority system errors for current boot 🚨
+alias jf='journalctl -f' # Follow system logs in real-time 📡
+alias syf='systemctl --failed' # List all services that failed to start ❌
+alias sya='systemd-analyze blame' # Analyze boot sequence for slow-starting services ⏱️
 alias rfs='refresh-system' # Refresh systemd daemons and Zsh completion cache
-alias sys-err='journalctl -p 3 -xb' # Show high priority system errors 🚨
+alias sye='journalctl -p 3 -xb' # Show high priority system errors 🚨
 alias free='free -m -h' # Show RAM usage (Human readable)
 alias df='duf' # Show disk usage (Modern df)
 alias tfa='2fa' # Generate 2FA tokens

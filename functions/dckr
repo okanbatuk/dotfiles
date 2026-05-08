@@ -1,16 +1,13 @@
 # Docker Interactive Helper: Build, Run, Select, or Stop
-# Supports short-option combining like 'dckr -rp 5000'
 dckr() {
   local mode=""
+  local target_path="."
   local image_name="${PWD##*/}"
-  local port_mapping="8080:8080"
+  local port_mapping=""
   local env_file=""
   local OPTIND opt
 
-  # Auto-detect .env file
-  [[ -f ".env" ]] && env_file="--env-file .env"
-
-  # Parse options
+  # 1. Parse options
   while getopts "brn:p:isedh" opt; do
     case "$opt" in
       b) mode="build" ;;
@@ -20,7 +17,8 @@ dckr() {
       e) mode="export" ;;
       d) mode="delete" ;;
       n) image_name=$OPTARG ;;
-      p) port_mapping=$OPTARG ;;
+      p) target_path=$OPTARG ;;
+      L) port_mapping=$OPTARG ;;
       h)
         echo "Usage: dckr [OPTIONS]"
         echo "  -b             Build image"
@@ -30,22 +28,51 @@ dckr() {
         echo "  -e             Export image to .tar (fzf)"
         echo "  -d             Delete image (fzf)"
         echo "  -n <name>      Custom name"
-        echo "  -p <host:cont> Port mapping (default: 8080:8080)"
+        echo "  -p <path>      Target path/folder (default: .)"
+        echo "  -L <port>      Port mapping"
         return 0
         ;;
     esac
   done
 
-  # --- MODES ---
+  # 2. Context Handling
+  # Change directory to target_path and resolve naming logic
+  if [[ -d "$target_path" ]]; then
+    cd "$target_path" || return 1
 
-  # 1. DELETE MODE
+    # Update image_name only if the user didn't specify a custom name via -n
+    # Checking if -n was in the original arguments
+    if [[ "$*" != *"-n"* ]]; then
+        image_name="${PWD##*/}"
+    fi
+    echo "📂 Context: $PWD (Image: $image_name)"
+  else
+    echo "❌ Error: Path not found: $target_path" >&2
+    return 1
+  fi
+
+  # 3. Environment and Port Normalization
+  # Auto-detect .env file in the current directory
+  [[ -f ".env" ]] && env_file="--env-file .env"
+  [[ "$port_mapping" != *":"* ]] && port_mapping="${port_mapping}:${port_mapping}"
+
+  # Port Logic: Prepare port_arg only if port_mapping is provided
+  local port_arg=""
+  if [[ -n "$port_mapping" ]]; then
+      # If only one port is given (e.g., 8080), mirror it (8080:8080)
+      [[ "$port_mapping" != *":"* ]] && port_mapping="${port_mapping}:${port_mapping}"
+      port_arg="-p $port_mapping"
+  fi
+
+  # --- MODES (Functional Logic) ---
+  # DELETE MODE: Interactive image removal
   if [[ "$mode" == "delete" ]]; then
     local selected=$(docker images --format "{{.Repository}}:{{.Tag}} | {{.ID}}" | grep -v "<none>" | fzf --height 40% --reverse --header "Select image to DELETE" | awk '{print $3}')
     [[ -n "$selected" ]] && echo "🗑️ Deleting image $selected..." && docker rmi "$selected"
     return
   fi
 
-  # 2. EXPORT MODE
+  # EXPORT MODE: Save image to .tar file
   if [[ "$mode" == "export" ]]; then
     local selected=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep -v "<none>" | fzf --height 40% --reverse --header "Select image to EXPORT (.tar)")
     if [[ -n "$selected" ]]; then
@@ -57,7 +84,7 @@ dckr() {
     return
   fi
 
-  # 3. STOP MODE
+  # STOP MODE: Interactive container termination
   if [[ "$mode" == "stop" ]]; then
     local cid=$(docker ps --format "{{.ID}} | {{.Names}} ({{.Image}})" | fzf --height 40% --reverse --header "Select container to STOP" | cut -d' ' -f1)
     [[ -n "$cid" ]] && docker stop "$cid" && echo "🛑 Container $cid stopped."
@@ -65,17 +92,15 @@ dckr() {
   fi
 
   # 4. INTERACTIVE MODE
-  if [[ "$mode" == "interactive" ]]; then
+if [[ "$mode" == "interactive" ]]; then
     local selected=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep -v "<none>" | fzf --height 40% --reverse --header "Run Image (Env: ${env_file:-none})")
-    [[ -n "$selected" ]] && docker run -it --rm ${=env_file} -p "$port_mapping" "$selected"
+    [[ -n "$selected" ]] && docker run -it --rm ${=env_file} ${=port_arg} "$selected"
     return
   fi
 
-  # Normalization and Build/Run
-  [[ "$port_mapping" != *":"* ]] && port_mapping="${port_mapping}:${port_mapping}"
-
   case "$mode" in
     build)
+      echo "🏗️ Building image: $image_name..."
       docker build -t "$image_name" .
       ;;
     run)
@@ -91,13 +116,14 @@ _dckr_completion() {
     _arguments -s -w \
         '-b[Build image]' \
         '-r[Run container]' \
-        '-i[Interactive run selection]' \
-        '-s[Interactive stop selection]' \
+        '-i[Select image to run (fzf)]' \
+        '-s[Select container to stop (fzf)]' \
         '-e[Export image to .tar (fzf)]' \
         '-d[Delete image (fzf)]' \
-        '-n[Custom name]:name:' \
-        '-p[Port mapping]:port:' \
-        '-h[Help]'
+        '-n[Custom image name]:name:' \
+        '-p[Target path/folder (updates context)]:path:_directories' \
+        '-L[Port mapping (default: 8080:8080)]:port:' \
+        '-h[Show help]'
 }
 
 compdef _dckr_completion dckr
