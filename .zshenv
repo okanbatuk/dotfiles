@@ -12,6 +12,8 @@ export SCRIPTS_DIR="$REAL_HOME/scripts"
 # --- Toolchain Paths ---
 export BUN_INSTALL="$REAL_HOME/.bun"
 export CARGO_HOME="$REAL_HOME/.cargo"
+# --- Android SDK ---
+export ANDROID_HOME="$REAL_HOME/.android/sdk"
 export GPG_TTY=$(tty)
 export EDITOR="nvim"
 
@@ -27,6 +29,9 @@ path=(
     "$BUN_INSTALL/bin"
     "$CARGO_HOME/bin"
     "$REAL_HOME/.local/bin"
+    "$ANDROID_HOME/cmdline-tools/latest/bin"
+    "$ANDROID_HOME/platform-tools"
+    "$ANDROID_HOME/emulator"
     "/opt/Windsurf"
     $path
 )
