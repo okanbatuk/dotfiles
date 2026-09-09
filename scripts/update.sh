@@ -1,11 +1,33 @@
 #!/bin/bash
 # update.sh - Advanced functional update & maintenance system
+# Optimized with global error trapping and non-interactive automation.
 
 clear
 # --- Core Environment Import ---
 # Minimal import: Variables come from .zshenv, functions from core.sh
 DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
 source "$DOTFILES_DIR/core.sh" || { echo "Core environment not found"; exit 1; }
+
+# --- 🚨 Error Handling Strategy ---
+# Custom error handler for the update process
+_on_error() {
+    local exit_code=$?
+    local line_number=$1
+    local command="$2"
+
+    # Log the failure with technical details
+    log_error "Critical failure in update script!"
+    log_debug "Exit Code: $exit_code | Line: $line_number | Command: '$command'"
+
+    # Send desktop notification via core.sh utility
+    send_notification "Update Failed" "Error at line $line_number: $command" "critical"
+
+    # Ensure the service signals failure to systemd
+    exit 1
+}
+
+# Set trap to catch any command that returns a non-zero exit status
+trap '_on_error ${LINENO} "$BASH_COMMAND"' ERR
 
 # --- 0. Logging & Mode Setup ---
 setup_env() {
@@ -43,15 +65,17 @@ handle_pacman_lock() {
             # Get the command name of the blocking process
             local process_name=$(ps -p "$pid" -o comm=)
 
-            # Check if the lock is held by our own Full Update service
-            # If update-full is active, the light update should yield to prevent corruption
+            # --- 🛡️ Yield Logic (Conflict Resolution) ---
+            # If the full update service is active, we should yield without error.
+            # This prevents two update processes from fighting over the database.
             if systemctl is-active -q update-full.service; then
                 log_info "🛡️ Full update is currently in progress. Light update will exit to avoid conflict."
                 send_notification "Update Deferred" "Light update skipped because a Full update is running. ⏳" "low"
                 exit 0
             fi
 
-            # If the lock is held by system auto-updaters (e.g., PackageKit, Discover), terminate it
+            # --- 🛑 Forceful Takeover (System Updaters) ---
+            # If the lock is held by generic system updaters (PackageKit, Discover, etc.)
             log_success "🛑 Found active system process '$process_name' (PID: $pid). Terminating to take control..."
 
             # Graceful termination first
@@ -78,10 +102,17 @@ handle_pacman_lock() {
 
 # --- 1. System Packages ---
 update_os() {
+    log_info ">>> [STEP 1] OS Update & Sync [Mode: $MODE]"
+
+    # --- Network Guard ---
+    log_debug "Validating internet connectivity..."
+    if ! ping -c 1 8.8.8.8 &>/dev/null; then
+        log_error "Network is unreachable. Skipping updates."
+        _on_error ${LINENO} "NetworkCheck (No Internet)"
+    fi
+
     # Check the db.lck file if exist remove it
     handle_pacman_lock
-
-    log_info ">>> [STEP 1] Updating System Packages..."
 
     if [[ "$MODE" == "full" ]]; then
         log_info "🌐 [PACMAN] Refreshing mirrors..."
@@ -92,7 +123,8 @@ update_os() {
     sudo pacman -Syyu --noconfirm && log_success "📦 [PACMAN] System packages updated."
 
     log_info "📦 [YAY] Running AUR upgrade (as user)..."
-    run_as_user "yay -Syu --noconfirm --needed" && log_success "📦 [YAY] Packages updated."
+    # Using </dev/null to prevent hanging on interactive prompts (e.g. PGP keys)
+    run_as_user "yay -Syu --noconfirm --needed </dev/null" && log_success "📦 [YAY] Packages updated."
 
     if command -v flatpak >/dev/null 2>&1; then
         log_info "📦 [FLATPAK] Checking for updates..."
@@ -141,7 +173,7 @@ run_maintenance() {
 
     # Orphaned Packages
     local orphans=$(pacman -Qdtq)
-    [[ -n "$orphans" ]] && sudo pacman -Rs $orphans --noconfirm
+    [[ -n "$orphans" ]] && sudo pacman --noconfirm -Rs $orphans </dev/null
     log_success "✅ System package cache and orphans cleaned."
 
     log_info "🧹 [CLEANUP] Removing node_modules in Projects..."

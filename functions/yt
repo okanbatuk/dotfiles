@@ -1,0 +1,125 @@
+# YouTube / Media Downloader Helper using yt-dlp
+yt() {
+  local -A opts
+  zparseopts -D -A opts a v m p: f: n: h
+
+  # 1. Help Check
+  if [[ -n "${opts[(i)-h]}" ]]; then
+    echo "Usage: yt [OPTIONS] <url> [OPTIONS]"
+    echo ""
+    echo "Options:"
+    echo "  -a             Extract audio (Default, format: mp3)"
+    echo "  -v             Download video (format: mp4)"
+    echo "  -m             Interactive audio download with search term (fzf)"
+    echo "  -p <path>      Output directory (Default: ~/Downloads)"
+    echo "  -f <format>    Custom format extension (mp3, m4a, flac, mp4, etc.)"
+    echo "  -n <filename>  Custom output filename (without extension)"
+    echo "  -h             Show help"
+    echo ""
+    echo "Examples:"
+    echo "  # Basic MP3 download (saves to ~/Downloads):"
+    echo "  yt \"https://www.youtube.com/watch?v=xxxxxx\""
+    echo ""
+    echo "  # Single track with custom filename:"
+    echo "  yt -n MySong \"https://www.youtube.com/watch?v=xxxxxx\""
+    echo ""
+    echo "  # Download entire playlist as MP3 to custom directory:"
+    echo "  yt -p ~/Desktop/playlists \"https://www.youtube.com/playlist?list=xxxxxx\""
+    echo ""
+    echo "  # Download high quality video:"
+    echo "  yt -v \"https://www.youtube.com/watch?v=xxxxxx\""
+    return 0
+  fi
+
+  # 2. Conflicting Flags Check
+  if [[ -n "${opts[(i)-a]}" && -n "${opts[(i)-v]}" ]]; then
+    echo "❌ Error: Cannot use -a (audio) and -v (video) flags together." >&2
+    return 1
+  fi
+
+  local mode="audio"
+  [[ -n "${opts[(i)-v]}" ]] && mode="video"
+  [[ -n "${opts[(i)-m]}" ]] && mode="music"
+
+  local raw_output_dir="${opts[-p]:-$HOME/Downloads}"
+  local format="${opts[-f]:-mp3}"
+  local custom_name="${opts[-n]}"
+  local url="$1"
+
+  # Resolve tilde (~) and relative path expansion
+  local output_dir
+  eval "output_dir=$raw_output_dir"
+
+  # Ensure output directory exists
+  if [[ ! -d "$output_dir" ]]; then
+    mkdir -p "$output_dir" || return 1
+  fi
+
+  # 3. Interactive Search Mode (Requires fzf)
+  if [[ "$mode" == "music" ]]; then
+    if ! command -v fzf &>/dev/null; then
+      echo "❌ Error: fzf is required for interactive search mode." >&2
+      return 1
+    fi
+
+    local query
+    read "query?🔍 Search YouTube: "
+    [[ -z "$query" ]] && echo "❌ Empty search query." >&2 && return 1
+
+    echo "🔎 Searching for '$query'..."
+    local selected_id
+    selected_id=$(yt-dlp "ytsearch10:$query" --flat-playlist --print "%(id)s | %(title)s (%(duration_string)s)" | \
+      fzf --height 40% --reverse --header "Select video to download" | awk '{print $1}')
+
+    if [[ -n "$selected_id" ]]; then
+      url="https://www.youtube.com/watch?v=${selected_id}"
+      mode="audio"
+    else
+      echo "⚠️ Cancelled."
+      return 0
+    fi
+  fi
+
+  # Validate URL presence
+  if [[ -z "$url" ]]; then
+    echo "❌ Error: <url> is required." >&2
+    yt -h
+    return 1
+  fi
+
+  # Determine output template
+  local output_template="%(title)s.%(ext)s"
+  if [[ -n "$custom_name" ]]; then
+    output_template="${custom_name}.%(ext)s"
+  fi
+
+  # 4. Execution
+  echo "📂 Target Directory: $output_dir"
+
+  case "$mode" in
+    audio)
+      echo "🎵 Extracting audio ($format)..."
+      yt-dlp -x --audio-format "$format" -P "$output_dir" -o "$output_template" "$url"
+      ;;
+    video)
+      echo "🎬 Downloading video ($format)..."
+      yt-dlp -f "bv*+ba/b" --recode-video "$format" -P "$output_dir" -o "$output_template" "$url"
+      ;;
+    *) yt -h ;;
+  esac
+}
+
+# --- Zsh Completion ---
+_yt_completion() {
+  _arguments -s -w \
+    '-a[Extract audio (default: mp3)]' \
+    '-v[Download video (default: mp4)]' \
+    '-m[Interactive music search (fzf)]' \
+    '-p[Output path (default: ~/Downloads)]:path:_files -/' \
+    '-f[Custom format]:format:(mp3 m4a flac wav mp4 mkv webm)' \
+    '-n[Custom output filename]:filename:' \
+    '-h[Show help]' \
+    '*:URL:_urls'
+}
+
+compdef _yt_completion yt

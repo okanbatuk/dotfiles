@@ -68,11 +68,37 @@ cleanup_system() {
 clean_user_space() {
     log_info ">>> [STEP 2] User Space Cleanup..."
 
-    # Screenshot Cleanup
+    # 1. Screenshot Cleanup
     if [ -d "$SS_DIR" ]; then
         log_info "📸 Cleaning old screenshots in $SS_DIR..."
-        run_as_user "find \"$SS_DIR\" -type f -name \"Screenshot*\" -mmin +1440 -delete 2>/dev/null"
+
+        # Logic: Delete screenshots older than 24 hours (1440 min)
+        if command -v fd &>/dev/null; then
+            log_debug "Using fd for screenshot cleanup..."
+            run_as_user "fd -H -t f '^Screenshot' '$SS_DIR' --changed-before 24h -x rm -f"
+        else
+            log_debug "fd not found, falling back to find..."
+            run_as_user "find '$SS_DIR' -type f -name 'Screenshot*' -mmin +1440 -delete"
+        fi
         log_success "✅ Old screenshots purged from $SS_DIR."
+    fi
+
+    # 2. Dotfiles Temporary Directory Cleanup
+    local dotfiles_tmp="$DOTFILES_DIR/tmp"
+    if [ -d "$dotfiles_tmp" ]; then
+        log_info "🧹 Clearing dotfiles temporary workspace..."
+
+        if command -v fd &>/dev/null; then
+            log_debug "Using fd for tmp cleanup..."
+            # --mindepth 1 ensures we don't delete the root /tmp folder itself
+            run_as_user "fd -H --mindepth 1 . '$dotfiles_tmp' -x rm -rf"
+        else
+            log_debug "fd not found, falling back to find..."
+            run_as_user "find '$dotfiles_tmp' -mindepth 1 -delete"
+        fi
+        log_success "✅ Dotfiles tmp directory cleared."
+    else
+        log_debug "Dotfiles tmp directory not found at $dotfiles_tmp. Skipping."
     fi
 
     log_success "✅ User space cleanup completed for $REAL_USER."
