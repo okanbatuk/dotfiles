@@ -6,6 +6,7 @@ Conflicts=update-light.service
 
 [Service]
 Type=oneshot
+TimeoutStartSec=10m
 User=root
 WorkingDirectory=/home/myrn
 Environment=REAL_USER=myrn

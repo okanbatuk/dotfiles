@@ -181,7 +181,7 @@ run_maintenance() {
     PROJECTS_DIR="$REAL_HOME/Desktop/Projects"
     if [ -d "$PROJECTS_DIR" ] && command -v fd >/dev/null 2>&1; then
         log_debug "Scanning $PROJECTS_DIR for node_modules to delete..."
-        run_as_user fd -H -t d node_modules "$PROJECTS_DIR" --changed-before 7d -x rm -rf
+        run_as_user fd -H -t d node_modules "$PROJECTS_DIR" --changed-before 7d -X rm -rf
         log_success "✅ Old node_modules directories purged from projects."
     fi
 

@@ -109,6 +109,7 @@ alias dps='docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"' # Lis
 # ---  Git Operations ---
 alias gp='git push' # Push local commits to remote repository 📤
 alias gpf='git push --force-with-lease' # Safe-force push (verifies remote state before overwriting) 🛡️
+alias gpu='git push -u origin $(git branch --show-current)' # Push current branch to origin and set upstream 📤
 alias gpl='git pull' # Fetch and merge changes from remote 📥
 alias gl='git log --oneline --graph --all' # Visual branch history with graph view 📊
 alias gc='git commit -m' # Commit staged changes with a message ✍️
