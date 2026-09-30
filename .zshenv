@@ -12,6 +12,8 @@ export SCRIPTS_DIR="$REAL_HOME/scripts"
 # --- Toolchain Paths ---
 export BUN_INSTALL="$REAL_HOME/.bun"
 export CARGO_HOME="$REAL_HOME/.cargo"
+export PNPM_HOME="$REAL_HOME/.local/share/pnpm/bin"
+
 # --- Android SDK ---
 export ANDROID_HOME="$REAL_HOME/.android/sdk"
 export GPG_TTY=$(tty)
@@ -26,6 +28,7 @@ typeset -U path PATH
 path=(
     "$REAL_HOME/.local/share/fnm"
     "$REAL_HOME/.local/share/fnm/node-versions/$(ls $REAL_HOME/.local/share/fnm/node-versions 2>/dev/null | head -n 1)/bin"
+    "$PNPM_HOME"
     "$BUN_INSTALL/bin"
     "$CARGO_HOME/bin"
     "$REAL_HOME/.local/bin"

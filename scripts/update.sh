@@ -141,6 +141,14 @@ update_tooling() {
         run_as_user bun upgrade && log_success "🚀 [BUN] Runtime upgraded."
     fi
 
+    if command -v pnpm >/dev/null 2>&1; then
+            log_info "🟡 [PNPM] Upgrading binary and global packages..."
+            run_as_user "pnpm self-update && \
+                        pnpm update -g && \
+                        pnpm store prune"
+            log_success "🟡 [PNPM] Binary and global packages upgraded."
+        fi
+
     if command -v rustup >/dev/null 2>&1; then
         log_info "🦀 [RUST] Updating stable toolchain..."
         run_as_user rustup update stable && log_success "🦀 [RUST] Toolchain updated."

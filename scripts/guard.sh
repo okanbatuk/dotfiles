@@ -26,6 +26,7 @@ BLACKLIST=(
 
 # --- Check if the command exists in the system ---
 check_command_exists() {
+    # 'command -v' checks PATH directly ignoring shell aliases
     if ! command -v "$1" &> /dev/null; then
         echo -e "❌ Error: Command '$1' not found in your system."
         exit 127 # Standard "command not found" exit code
