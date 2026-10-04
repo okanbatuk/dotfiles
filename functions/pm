@@ -129,6 +129,14 @@ pm() {
             # Route: pm web i -D tailwindcss
             pnpm --filter "$action" add "$@"
             ;;
+          exec|x)
+            # Route: pm web x sanity typegen generate -> pnpm --filter web exec sanity typegen generate
+            pnpm --filter "$action" exec "$@"
+            ;;
+          dlx)
+            # Route: pm web dlx shadcn@latest add button -> pnpm --filter web dlx "$@"
+            pnpm --filter "$action" dlx "$@"
+            ;;
           *)
             pnpm --filter "$action" "$sub_action" "$@"
             ;;
