@@ -64,7 +64,7 @@ if [[ -f "$HOME/.zsh_aliases" ]]; then
     alias_def=$(grep -E "^alias ${base_cmd}=" "$HOME/.zsh_aliases" 2>/dev/null)
 fi
 
-DISPLAY_CMD="$CMD_TO_CHECK"
+alias_value=""
 if [[ -n "$alias_def" ]]; then
     # Extract the value after '=' and strip surrounding quotes
     alias_value="${alias_def#*=}"
@@ -76,9 +76,10 @@ if [[ -n "$alias_def" ]]; then
 
     # Trim trailing whitespace that might remain after removing the comment
     alias_value="${alias_value%"${alias_value##*[![:space:]]}"}"
-
-    DISPLAY_CMD="$CMD_TO_CHECK (alias for: $alias_value)"
 fi
+
+# Display the command as originally entered by the user without alias-for label
+DISPLAY_CMD="$CMD_TO_CHECK"
 
 # --- Interceptor Logic ---
 # Iterate through each line to find matches against the current command buffer
@@ -94,8 +95,8 @@ while read -r line; do
     current_desc="${current_desc#"${current_desc%%[![:space:]]*}"}"
     current_desc="${current_desc%"${current_desc##*[![:space:]]}"}"
 
-    # Check if the command buffer contains the dangerous pattern
-    if [[ "$CMD_TO_CHECK" == *"$current_pattern"* ]]; then
+    # Check if the command buffer or the expanded alias contains the dangerous pattern
+    if [[ "$CMD_TO_CHECK" == *"$current_pattern"* ]] || [[ -n "$alias_value" && "$alias_value" == *"$current_pattern"* ]]; then
         log_warn "DESTRUCTIVE ACTION DETECTED"
         log_info "Command: ${RED}$DISPLAY_CMD${NC}"
         log_info "Pattern: ${CYAN}$current_pattern${NC}"

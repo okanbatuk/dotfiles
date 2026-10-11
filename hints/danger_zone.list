@@ -2,14 +2,11 @@
 git reset --hard#Irreversible: Overwrites all local changes and matches the remote HEAD.
 git rebase -i#Risk: Rewrites commit history; can cause complex conflicts in shared branches.
 git clean -fd#Danger: Permanently removes untracked files and directories from your workspace.
+git push --force-with-lease#Critical: Overwrites remote history with lease validation.
 git push --force#Critical: Overwrites remote history. Potential to delete colleagues work.
-gpf#Alias for force-with-lease: Still risky as it pushes local history to remote.
-gres#History manipulation: Soft reset can lead to messy staging area if not careful.
-greb#Interactive rebase alias: High risk of losing work during conflict resolution.
-gresh#Hard reset alias: Immediate loss of all uncommitted code.
-gcl#Clean alias: Deletes untracked assets that might not be backed up.
-gcanp#Amend + Force push: Double risk of rewriting local and remote history.
-gacanp#Stage + Amend + Force push: Nukes current state and forces it to remote.
+git push --all#Critical: Pushes all local branches to remote, potentially overwriting shared work.
+git branch -D#Danger: Force-deletes local branches even if they contain unmerged changes.
+git stash drop#Data Loss: Discards stashed changes permanently without applying them.
 
 # --- System High-Risk & Permissions ---
 chmod -R#Recursive permissions: Can break system security or render services unreadable.
@@ -17,20 +14,20 @@ chown -R#Recursive ownership: Can lock you out of your own files or break system
 rm -rf#The Nuke: Permanently deletes files and folders without moving to trash.
 mv /#Critical: Moving system root or top-level dirs will cause immediate system failure.
 shred#Security: Overwrites file data multiple times; absolutely impossible to recover.
-nuke#Alias for rm -rf node_modules: Dangerous if run in the wrong parent directory.
+mkfs#Critical: Formats a storage device, causing immediate and permanent data loss.
+dd if=#Critical: Low-level disk writing tool; risk of overwriting entire partitions or boot sectors.
 
 # --- Docker & Database Destruction ---
 docker system prune#Cleanup: Deletes all stopped containers, unused networks, and dangling images.
 docker volume rm#Data Loss: Permanently deletes persistent data stored in Docker volumes.
 docker-compose down -v#Cleanup: Stops containers and removes all associated volumes (data loss).
-dclean#Docker Nuke: Clears everything including non-dangling images and volumes.
-dlt#Teardown: Destroys lab environment including persistent storage.
-dlr#Reset: Full wipe and rebuild of the local development lab.
-drmi#Cleanup: Removes images; might trigger re-downloading of large layers.
 dropdb#Database: Permanently deletes the specified database and all its tables.
 
-# --- System Services & Network ---
-fwd#Firewall: Disabling UFW exposes your system to direct network attacks.
-sstop#Service Stop: Stopping critical systemd units can hang the OS or crash apps.
-cam-off#Hardware: Disables camera interface via kernel module or system toggle.
-bt-off#Hardware: Disables Bluetooth stack; will disconnect all wireless peripherals.
+# --- System Services, Network & Process Management ---
+sudo ufw disable#Firewall: Disabling UFW exposes your system to direct network attacks.
+ufw reset#Firewall: Resets all firewall rules, clearing custom security configurations.
+iptables -F#Firewall: Flushes all firewall chains, removing network packet filters.
+systemctl stop#Service Stop: Stopping critical systemd units can hang the OS or crash apps.
+sudo usbguard block-device#Hardware: Disables hardware interface or security device via kernel module or system toggle.
+sudo systemctl stop bluetooth#Hardware: Disables Bluetooth stack; will disconnect all wireless peripherals.
+killall -9#Process Kill: Forcefully terminates all processes matching a specified name.
