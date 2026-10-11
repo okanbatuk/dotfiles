@@ -142,12 +142,12 @@ update_tooling() {
     fi
 
     if command -v pnpm >/dev/null 2>&1; then
-            log_info "🟡 [PNPM] Upgrading binary and global packages..."
-            run_as_user "pnpm self-update && \
-                        pnpm update -g && \
-                        pnpm store prune"
-            log_success "🟡 [PNPM] Binary and global packages upgraded."
-        fi
+        log_info "🟡 [PNPM] Upgrading binary and global packages..."
+        run_as_user "pnpm self-update && \
+                    pnpm update -g && \
+                    pnpm store prune"
+        log_success "🟡 [PNPM] Binary and global packages upgraded."
+      fi
 
     if command -v rustup >/dev/null 2>&1; then
         log_info "🦀 [RUST] Updating stable toolchain..."

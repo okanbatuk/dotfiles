@@ -55,6 +55,31 @@ if [[ ${#missing_patterns[@]} -ne 0 ]]; then
     exit 1
 fi
 
+# --- Alias Expansion Resolution ---
+# Safely parse aliases from user configuration file if it exists
+base_cmd="${CMD_TO_CHECK%% *}"
+alias_def=""
+
+if [[ -f "$HOME/.zsh_aliases" ]]; then
+    alias_def=$(grep -E "^alias ${base_cmd}=" "$HOME/.zsh_aliases" 2>/dev/null)
+fi
+
+DISPLAY_CMD="$CMD_TO_CHECK"
+if [[ -n "$alias_def" ]]; then
+    # Extract the value after '=' and strip surrounding quotes
+    alias_value="${alias_def#*=}"
+    alias_value="${alias_value#[\'\"]}"
+    alias_value="${alias_value%[\'\"]}"
+
+    # Strip everything from '#' onwards to remove inline comments
+    alias_value="${alias_value%%#*}"
+
+    # Trim trailing whitespace that might remain after removing the comment
+    alias_value="${alias_value%"${alias_value##*[![:space:]]}"}"
+
+    DISPLAY_CMD="$CMD_TO_CHECK (alias for: $alias_value)"
+fi
+
 # --- Interceptor Logic ---
 # Iterate through each line to find matches against the current command buffer
 while read -r line; do
@@ -63,7 +88,6 @@ while read -r line; do
     current_desc="${line#*#}"
 
     # Pure Bash Trim: Removes leading/trailing whitespace without process overhead
-    # This method is immune to single/double quote issues
     current_pattern="${current_pattern#"${current_pattern%%[![:space:]]*}"}"
     current_pattern="${current_pattern%"${current_pattern##*[![:space:]]}"}"
 
@@ -73,7 +97,7 @@ while read -r line; do
     # Check if the command buffer contains the dangerous pattern
     if [[ "$CMD_TO_CHECK" == *"$current_pattern"* ]]; then
         log_warn "DESTRUCTIVE ACTION DETECTED"
-        log_info "Command: ${RED}$CMD_TO_CHECK${NC}"
+        log_info "Command: ${RED}$DISPLAY_CMD${NC}"
         log_info "Pattern: ${CYAN}$current_pattern${NC}"
 
         # Display the description if it exists and is unique
