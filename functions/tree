@@ -20,13 +20,10 @@ projtree() {
     case "$opt" in
       p) target_path=$OPTARG ;;
       d) depth=$OPTARG ;;
-      i) 
+      i)
         local clean_val=$OPTARG
-        local base_p=${target_path%/}
-
-        # Automatically strip the target path prefix and trailing slash for tab-completion compatibility
-        clean_val=${clean_val#$base_p/} 
-        clean_val=${clean_val%/}
+        # Strip path prefix and extract basename so eza can match correctly
+        clean_val=$(basename "$clean_val")
 
         if [[ -z "$additional_ignore" ]]; then
           additional_ignore="$clean_val"
@@ -34,7 +31,7 @@ projtree() {
           additional_ignore="$additional_ignore|$clean_val"
         fi
         ;;
-      h) 
+      h)
         echo "Usage: projtree [OPTIONS]"
         echo "  -p <path>   Target directory (default: .)"
         echo "  -d <depth>  Tree depth (default: 2)"
@@ -46,7 +43,7 @@ projtree() {
     esac
   done
 
-  local final_ignore="node_modules|dist|.git"
+  local final_ignore="node_modules|dist|.git|.next|.turbo|.cache|build|coverage"
   if [[ -n "$additional_ignore" ]]; then
     final_ignore="$final_ignore|$additional_ignore"
   fi
@@ -76,17 +73,15 @@ fulltree() {
     case "$opt" in
       p) target_path=$OPTARG ;;
       d) depth=$OPTARG ;;
-      i) 
+      i)
         local clean_val=$OPTARG
-        local base_p=${target_path%/}
-        # Strip path prefix to ensure eza's ignore-glob matches correctly even with tab-completion
-        clean_val=${clean_val#$base_p/} 
-        clean_val=${clean_val%/}
+        # Strip path prefix and extract basename so eza can match correctly
+        clean_val=$(basename "$clean_val")
 
-        if [[ -z "$ignore_pattern" ]]; then
-          ignore_pattern="$clean_val"
-        else
+        if [[ -n "$ignore_pattern" ]]; then
           ignore_pattern="$ignore_pattern|$clean_val"
+        else
+          ignore_pattern="$clean_val"
         fi
         ;;
       h)
