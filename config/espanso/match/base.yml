@@ -43,6 +43,9 @@ matches:
   - trigger: ":go"
     replace: "google.com"
 
+  - trigger: ":zed"
+    replace: "zeditor"
+
   # --- Config ---
   - trigger: ":zsh"
     replace: "zshconf"
@@ -56,14 +59,6 @@ matches:
   # --- Git Workflow "Magic" ---
   - trigger: ":gign"
     replace: "curl -s https://www.toptal.com/developers/gitignore/api/$|$ >> .gitignore"
-
-  - trigger: ":gh"
-    replace: "{{output}}"
-    vars:
-      - name: output
-        type: shell
-        params:
-          cmd: "git rev-parse --short HEAD 2>/dev/null || echo no-repo"
 
   # --- Backend & API Development ---
   - trigger: ":json"
@@ -133,15 +128,6 @@ matches:
         type: shell
         params:
           cmd: "date -Iseconds"
-
-  - trigger: ":cdir"
-    replace: "cd ~/Desktop/{{path}}"
-    vars:
-      - name: path
-        type: form
-        params:
-          layout: horizontal
-          label: "Path under ~/Desktop"
 
   # --- EMOJIS: Emotions & Reactions ---
   - trigger: ":scared"

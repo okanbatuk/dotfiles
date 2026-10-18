@@ -136,6 +136,7 @@ alias gs='git status' # View current branch status 📊
 alias gd='git diff' # View unstaged changes 🔍
 alias gdc='git diff --cached' # View changes already added to stage (index) 📥
 alias gcl='git clean -fd' # Remove untracked files and directories 🧹
+alias gch='git rev-parse --short HEAD | tr -d "\n" | wl-copy && echo "[INFO] Commit hash copied to clipboard!"' # Copy short commit hash to Wayland clipboard 📋
 alias gr='git restore' # Discard changes in working directory (restore file) 📄
 alias grs='git restore --staged' # Unstage files while keeping local changes 📥
 alias greb='git rebase -i HEAD~' # Start interactive rebase from HEAD (append number) 🔄
