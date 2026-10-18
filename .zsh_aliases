@@ -106,30 +106,46 @@ alias ff='fastfetch' # System information fetch 🚀
 alias alsa='alsamixer' # Open Alsamixer
 alias dps='docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"' # List running Docker containers
 
-# ---  Git Operations ---
-alias gp='git push' # Push local commits to remote repository 📤
-alias gpf='git push --force-with-lease' # Safe-force push (verifies remote state before overwriting) 🛡️
-alias gpu='git push -u origin $(git branch --show-current)' # Push current branch to origin and set upstream 📤
-alias gpl='git pull' # Fetch and merge changes from remote 📥
-alias gl='git log --oneline --graph --all' # Visual branch history with graph view 📊
-alias gc='git commit -m' # Commit staged changes with a message ✍️
-alias ga='git add' # Stage files for the next commit ➕
-alias gac='git add . && git commit -m' # Stage all changes and commit with message 🚀
-alias gcm='git commit --amend' # Open editor to modify the last commit message or contents 🛠️
-alias gcan='git commit --amend --no-edit' # Add staged changes to last commit without changing message 📎
-alias gcanp='git commit --amend --no-edit && gpf' # Amend last commit (no edit) and safe-force push ⚡
-alias gacan='git add . && git commit --amend --no-edit' # Stage all and amend last commit without editing message 📦
-alias gacanp='git add . && git commit --amend --no-edit && gpf' # Stage all, amend (no edit) and safe-force push 💥
-alias gco='git checkout' # Switch branches or restore working tree files 🔄
-alias gcb='git checkout -b' # Create a new branch and switch to it immediately 🌿
-alias gb='git branch' # List, create, or delete local branches 📋
-alias gbr='git branch --sort=-committerdate' # List branches sorted by most recent activity ⏰
-alias gam='git commit --amend -m' # Overwrite last commit with new staged files and a new message 📝
-alias gcln='git branch --merged | grep -v "\*" | xargs -n 1 git branch -d' # Delete local branches already merged into current HEAD 🧹
-alias gup='git remote update && git status -uno' # Sync remote tracking and check local status (hide untracked) 🔄
-alias gpo='git pull origin $(git branch --show-current)' # Pull from origin directly into the active branch ⏬
-alias gtag='git tag' # Manage or create annotated/lightweight tags 🏷️
-alias gfetch='git fetch --prune' # Download remote objects and purge deleted branch references ✂️
+# ---  Git Maintenance Aliases ---
+alias gs='g s'           # View current branch status 
+alias gd='g d'           # View unstaged changes 
+alias gdc='g dc'         # View staged changes 🔍
+alias gcl='g cl'         # Remove untracked files and directories permanently 🧹
+alias gr='g r'           # Discard changes in working directory 🗑️
+alias grs='g rs'         # Unstage files while keeping local changes ↩️
+alias greb='g reb'       # Start interactive rebase 🔀
+alias gsh='g sh'         # Save uncommitted changes to temporary stash 📦
+alias gsp='g sp'         # Apply and remove the latest stashed changes 📥
+alias gsl='g sl'         # List all available stashes 📋
+alias gres='g res'       # Undo last commit but keep changes staged ⏪
+alias gresh='g resh'     # Reset working tree to HEAD (destructive) 💥
+alias gclean='g clean'   # Prune remote tracking and remove gone local branches ✂️
+alias gch='g ch'         # Copy short commit hash to Wayland clipboard 📋
+
+# --- 🚀 Git Operations Aliases ---
+alias gp='g p'           # Push local commits to remote repository 📤
+alias gpf='g pf'         # Safe-force push (with lease verification) 🛡️
+alias gpu='g pu'         # Push current branch and set upstream 🚀
+alias gpl='g pl'         # Fetch and merge changes from remote 📥
+alias gl='g l'           # Visual branch history with graph view 📊
+alias gc='g c'           # Commit staged changes with a message ✍️
+alias ga='g a'           # Stage files for the next commit ➕
+alias gac='g ac'         # Stage all changes and commit with message 📦
+alias gca='g ca'         # Modify last commit message or contents 🛠️
+alias gcan='g can'       # Add staged changes to last commit without editing message 📎
+alias gcanp='g canp'     # Amend last commit and safe-force push ⚡
+alias gacan='g acan'     # Stage all and amend last commit without editing message 📦
+alias gacanp='g acanp'   # Stage all, amend, and safe-force push 💥
+alias gco='g co'         # Switch branches or restore working tree files 🔄
+alias gcb='g cb'         # Create a new branch and switch to it immediately 🌿
+alias gb='g b'           # List, create, or delete local branches 📋
+alias gbr='g bs'         # List branches sorted by most recent activity ⏰
+alias gam='g cam'        # Overwrite last commit with new staged files and message 📝
+alias gcln='g cln'       # Delete local branches already merged into current HEAD 🧹
+alias gsync='g up'       # Sync remote tracking and check local status 🔄
+alias gpo='g po'         # Pull from origin directly into the active branch ⏬
+alias gtag='g t'         # Manage or create annotated/lightweight tags 🏷️
+alias gfetch='g f'       # Download remote objects and purge deleted references ✂️
 
 # --- 🐳 Docker Ops ---
 alias dr='docker run' # Run a new docker 🐳 container

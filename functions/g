@@ -1,12 +1,13 @@
 #!/usr/bin/env zsh
 
 g() {
-  # Handle version flag check with capability summary
+  # Handle version flag check with major release summary
   if [[ "$1" == "-v" || "$1" == "--version" ]]; then
-    echo "g version 1.2.0"
+    echo "g version 2.0.0"
     echo ""
-    echo "\033[0;36m[Features]:\033[0m Modular Git wrapper with strict subcommand validation, safety guards (_g_confirm),"
-    echo "            interactive fzf menus, clipboard integration (wl-copy), and robust maintenance subcommands."
+    echo "\033[0;36m[Features]:\033[0m Unified modular Git CLI wrapper featuring strict subcommand routing,"
+    echo "            safety guards (_g_confirm), interactive fzf menus with tooltips, Wayland clipboard"
+    echo "            integration (wl-copy), and comprehensive maintenance & operations suites."
     return 0
   fi
 
@@ -131,11 +132,137 @@ g() {
       fi
       ;;
 
+    # --- 🚀 Git Operations ---
+    p|push)
+      git push "$@"
+      ;;
+    pf|push-force)
+      if _g_confirm "This will force push changes to remote with lease. Proceed?"; then
+        git push --force-with-lease "$@"
+        echo "\033[0;32m[INFO]\033[0m Force push with lease executed."
+      else
+        echo "\033[0;36m[INFO]\033[0m Operation cancelled."
+        return 0
+      fi
+      ;;
+    pu|push-upstream)
+      git push -u origin "$(git branch --show-current)" "$@"
+      ;;
+    pl|pull)
+      git pull "$@"
+      ;;
+    l|log)
+      git log --oneline --graph --all "$@"
+      ;;
+    c|commit)
+      git commit -m "$@"
+      ;;
+    a|add)
+      git add "$@"
+      ;;
+    ac|commit-all)
+      if _g_confirm "This will stage all changes and commit with message. Proceed?"; then
+        git add . && git commit -m "$@"
+        echo "\033[0;32m[INFO]\033[0m Stage all and commit executed."
+      else
+        echo "\033[0;36m[INFO]\033[0m Operation cancelled."
+        return 0
+      fi
+      ;;
+    ca|commit-amend)
+      if _g_confirm "This will amend the last commit. Proceed?"; then
+        git commit --amend "$@"
+        echo "\033[0;32m[INFO]\033[0m Commit amend executed."
+      else
+        echo "\033[0;36m[INFO]\033[0m Operation cancelled."
+        return 0
+      fi
+      ;;
+    can|commit-amend-no-edit)
+      if _g_confirm "This will amend the last commit without editing message. Proceed?"; then
+        git commit --amend --no-edit "$@"
+        echo "\033[0;32m[INFO]\033[0m Commit amend (no-edit) executed."
+      else
+        echo "\033[0;36m[INFO]\033[0m Operation cancelled."
+        return 0
+      fi
+      ;;
+    canp|commit-amend-push)
+      if _g_confirm "This will amend the last commit (no edit) and safe-force push. Proceed?"; then
+        git commit --amend --no-edit && git push --force-with-lease
+        echo "\033[0;32m[INFO]\033[0m Amend and force push executed."
+      else
+        echo "\033[0;36m[INFO]\033[0m Operation cancelled."
+        return 0
+      fi
+      ;;
+    acan|add-commit-amend)
+      if _g_confirm "This will stage all and amend the last commit (no edit). Proceed?"; then
+        git add . && git commit --amend --no-edit
+        echo "\033[0;32m[INFO]\033[0m Stage and amend executed."
+      else
+        echo "\033[0;36m[INFO]\033[0m Operation cancelled."
+        return 0
+      fi
+      ;;
+    acanp|add-commit-amend-push)
+      if _g_confirm "This will stage all, amend last commit (no edit), and safe-force push. Proceed?"; then
+        git add . && git commit --amend --no-edit && git push --force-with-lease
+        echo "\033[0;32m[INFO]\033[0m Stage, amend, and force push executed."
+      else
+        echo "\033[0;36m[INFO]\033[0m Operation cancelled."
+        return 0
+      fi
+      ;;
+    co|checkout)
+      git checkout "$@"
+      ;;
+    cb|checkout-branch)
+      git checkout -b "$@"
+      ;;
+    b|branch)
+      git branch "$@"
+      ;;
+    bs|branch-sorted)
+      git branch --sort=-committerdate "$@"
+      ;;
+    cam|commit-amend-msg)
+      if _g_confirm "This will overwrite last commit with new message. Proceed?"; then
+        git commit --amend -m "$@"
+        echo "\033[0;32m[INFO]\033[0m Commit amend message executed."
+      else
+        echo "\033[0;36m[INFO]\033[0m Operation cancelled."
+        return 0
+      fi
+      ;;
+    cln|clean-merged)
+      if _g_confirm "This will delete all local branches already merged into current HEAD. Proceed?"; then
+        git branch --merged | grep -v "\*" | xargs -r git branch -d
+        echo "\033[0;32m[INFO]\033[0m Merged local branches deleted."
+      else
+        echo "\033[0;36m[INFO]\033[0m Operation cancelled."
+        return 0
+      fi
+      ;;
+    up|sync)
+      git remote update && git status -uno
+      ;;
+    po|pull-origin)
+      git pull origin "$(git branch --show-current)" "$@"
+      ;;
+    t|tag)
+      git tag "$@"
+      ;;
+    f|fetch)
+      git fetch --prune "$@"
+      ;;
+
     # --- Interactive FZF Menu (triggered when 'g' is run without arguments) ---
     "")
       if command -v fzf >/dev/null 2>&1; then
         local selected
-        selected=$(cat <<'EOF' | fzf --height=40% --layout=reverse --prompt="Git Maintenance > "
+        selected=$(cat <<'EOF' | fzf --height=80% --layout=reverse --prompt="Git Operations & Maintenance > "
+# Maintenance
 s      (status)         -> View current branch status
 d      (diff)           -> View unstaged changes
 dc     (diff-cached)    -> View staged changes
@@ -150,11 +277,38 @@ res    (reset-soft)     -> Undo last commit but keep changes staged
 resh   (reset-hard)     -> Reset working tree to HEAD (destructive)
 ch     (commit-hash)    -> Copy short commit hash to Wayland clipboard
 clean  (prune)          -> Prune remote tracking and remove gone local branches
+
+# Operations
+p      (push)           -> Push local commits to remote repository
+pf     (push-force)     -> Safe-force push (with lease verification)
+pu     (push-upstream)  -> Push current branch and set upstream
+pl     (pull)           -> Fetch and merge changes from remote
+l      (log)            -> Visual branch history with graph view
+c      (commit)         -> Commit staged changes with message
+a      (add)            -> Stage files for the next commit
+ac     (commit-all)     -> Stage all changes and commit with message
+ca     (commit-amend)   -> Modify last commit message or contents
+can    (commit-amend-no)-> Add staged changes to last commit without editing message
+canp   (amend-push)     -> Amend last commit and safe-force push
+acan   (add-amend)      -> Stage all and amend last commit without editing message
+acanp  (add-amend-push) -> Stage all, amend, and safe-force push
+co     (checkout)       -> Switch branches or restore files
+cb     (checkout-branch)-> Create and switch to a new branch
+b      (branch)         -> List, create, or delete local branches
+bs     (branch-sorted)  -> List branches sorted by recent activity
+gam    (amend-msg)      -> Overwrite last commit with new files and message
+cln    (clean-merged)   -> Delete local branches merged into current HEAD
+up     (sync)           -> Sync remote tracking and check status
+po     (pull-origin)    -> Pull from origin into active branch
+t      (tag)            -> Manage or create tags
+f      (fetch)          -> Download remote objects and purge deleted references
 EOF
         )
         if [[ -n "$selected" ]]; then
           local action=$(echo "$selected" | awk '{print $1}')
-          g "$action"
+          if [[ "$action" != "#" && -n "$action" ]]; then
+            g "$action"
+          fi
         fi
       else
         git status
