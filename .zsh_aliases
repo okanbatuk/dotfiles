@@ -131,22 +131,6 @@ alias gpo='git pull origin $(git branch --show-current)' # Pull from origin dire
 alias gtag='git tag' # Manage or create annotated/lightweight tags 🏷️
 alias gfetch='git fetch --prune' # Download remote objects and purge deleted branch references ✂️
 
-# ---  Git Maintenance ---
-alias gs='git status' # View current branch status 📊
-alias gd='git diff' # View unstaged changes 🔍
-alias gdc='git diff --cached' # View changes already added to stage (index) 📥
-alias gcl='git clean -fd' # Remove untracked files and directories 🧹
-alias gch='git rev-parse --short HEAD | tr -d "\n" | wl-copy && echo "[INFO] Commit hash copied to clipboard!"' # Copy short commit hash to Wayland clipboard 📋
-alias gr='git restore' # Discard changes in working directory (restore file) 📄
-alias grs='git restore --staged' # Unstage files while keeping local changes 📥
-alias greb='git rebase -i HEAD~' # Start interactive rebase from HEAD (append number) 🔄
-alias gsh='git stash' # Save uncommitted changes to temporary stash 📦
-alias gsp='git stash pop' # Apply and remove the latest stashed changes 📤
-alias gsl='git stash list' # List all available stashes 📜
-alias gres='git reset --soft HEAD~1' # Undo last commit but keep changes staged ⏪
-alias gresh='git reset --hard' # Reset to HEAD (Destructive: loses uncommitted changes) ⚠️
-alias gclean='git fetch --prune && git branch -vv | grep ": gone]" | awk "{print \$1}" | xargs -r git branch -d' # Deep clean deleted remote branches ✂️
-
 # --- 🐳 Docker Ops ---
 alias dr='docker run' # Run a new docker 🐳 container
 alias ds='docker stop' # Stop a running container 🛑

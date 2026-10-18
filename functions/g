@@ -1,0 +1,170 @@
+#!/usr/bin/env zsh
+
+g() {
+  # Handle version flag check with capability summary
+  if [[ "$1" == "-v" || "$1" == "--version" ]]; then
+    echo "g version 1.2.0"
+    echo ""
+    echo "\033[0;36m[Features]:\033[0m Modular Git wrapper with strict subcommand validation, safety guards (_g_confirm),"
+    echo "            interactive fzf menus, clipboard integration (wl-copy), and robust maintenance subcommands."
+    return 0
+  fi
+
+  # Check if inside a git repository
+  if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    echo "\033[0;31m[ERROR]\033[0m Not a git repository (or any of the parent directories)" >&2
+    return 1
+  fi
+
+  # Helper function for safety confirmation prompts
+  _g_confirm() {
+    local prompt_msg="$1"
+    echo -e "\033[0;33m[WARNING]\033[0m $prompt_msg"
+    echo -n "Are you sure you want to proceed? [y/N]: "
+    read -r confirmation
+    [[ "$confirmation" =~ ^[Yy]$ ]]
+  }
+
+  local cmd="$1"
+  shift 2>/dev/null
+
+  case "$cmd" in
+    # ---  Git Maintenance ---
+    s|status)
+      git status "$@"
+      ;;
+    d|diff)
+      git diff "$@"
+      ;;
+    dc|diff-cached)
+      git diff --cached "$@"
+      ;;
+    cl|clean-files)
+      if _g_confirm "This will permanently delete untracked files and directories!"; then
+        git clean -fd "$@"
+        echo "\033[0;32m[INFO]\033[0m Untracked files cleaned."
+      else
+        echo "\033[0;36m[INFO]\033[0m Operation cancelled."
+        return 0
+      fi
+      ;;
+    r|restore)
+      if _g_confirm "This will permanently discard local changes in working directory!"; then
+        git restore "$@"
+        echo "\033[0;32m[INFO]\033[0m Working directory changes restored."
+      else
+        echo "\033[0;36m[INFO]\033[0m Operation cancelled."
+        return 0
+      fi
+      ;;
+    rs|restore-staged)
+      if [[ -z "$1" ]]; then
+        if _g_confirm "Unstage all staged changes?"; then
+          git restore --staged .
+          echo "\033[0;32m[INFO]\033[0m All staged changes unstaged."
+        else
+          echo "\033[0;36m[INFO]\033[0m Operation cancelled."
+          return 0
+        fi
+      else
+        git restore --staged "$@"
+        echo "\033[0;32m[INFO]\033[0m Staged changes restored for specified paths."
+      fi
+      ;;
+    reb|rebase)
+      if _g_confirm "Interactive rebase modifies commit history. Proceed?"; then
+        if [[ -z "$1" ]]; then
+          git rebase -i HEAD~2
+        else
+          git rebase -i "HEAD~$1"
+        fi
+      else
+        echo "\033[0;36m[INFO]\033[0m Operation cancelled."
+        return 0
+      fi
+      ;;
+    sh|stash)
+      git stash "$@"
+      ;;
+    sp|stash-pop)
+      git stash pop "$@"
+      ;;
+    sl|stash-list)
+      git stash list "$@"
+      ;;
+    res|reset-soft)
+      if _g_confirm "This will undo the last commit while keeping your changes staged."; then
+        git reset --soft HEAD~1 "$@"
+        echo "\033[0;32m[INFO]\033[0m Soft reset executed."
+      else
+        echo "\033[0;36m[INFO]\033[0m Operation cancelled."
+        return 0
+      fi
+      ;;
+    resh|reset-hard)
+      if _g_confirm "This will discard all uncommitted changes permanently!"; then
+        git reset --hard "$@"
+        echo "\033[0;32m[INFO]\033[0m Hard reset executed."
+      else
+        echo "\033[0;36m[INFO]\033[0m Operation cancelled."
+        return 0
+      fi
+      ;;
+    clean)
+      if _g_confirm "This will prune remote tracking and remove all gone local branches!"; then
+        echo "\033[0;36m[INFO]\033[0m Pruning remote tracking and removing gone local branches..."
+        git fetch --prune && git branch -vv | grep ": gone]" | awk '{print $1}' | xargs -r git branch -d
+      else
+        echo "\033[0;36m[INFO]\033[0m Operation cancelled."
+        return 0
+      fi
+      ;;
+    ch|commit-hash)
+      local hash
+      hash=$(git rev-parse --short HEAD 2>/dev/null)
+      if [[ -n "$hash" ]]; then
+        echo -n "$hash" | wl-copy
+        echo "\033[0;32m[INFO]\033[0m Commit hash ($hash) copied to clipboard! 📋"
+      else
+        echo "\033[0;31m[ERROR]\033[0m Failed to retrieve commit hash." >&2
+        return 1
+      fi
+      ;;
+
+    # --- Interactive FZF Menu (triggered when 'g' is run without arguments) ---
+    "")
+      if command -v fzf >/dev/null 2>&1; then
+        local selected
+        selected=$(cat <<'EOF' | fzf --height=40% --layout=reverse --prompt="Git Maintenance > "
+s      (status)         -> View current branch status
+d      (diff)           -> View unstaged changes
+dc     (diff-cached)    -> View staged changes
+cl     (clean-files)    -> Remove untracked files and directories
+r      (restore)        -> Discard changes in working directory
+rs     (restore-staged) -> Unstage files while keeping local changes
+reb    (rebase)         -> Start interactive rebase
+sh     (stash)          -> Save uncommitted changes to temporary stash
+sp     (stash-pop)      -> Apply and remove the latest stashed changes
+sl     (stash-list)     -> List all available stashes
+res    (reset-soft)     -> Undo last commit but keep changes staged
+resh   (reset-hard)     -> Reset working tree to HEAD (destructive)
+ch     (commit-hash)    -> Copy short commit hash to Wayland clipboard
+clean  (prune)          -> Prune remote tracking and remove gone local branches
+EOF
+        )
+        if [[ -n "$selected" ]]; then
+          local action=$(echo "$selected" | awk '{print $1}')
+          g "$action"
+        fi
+      else
+        git status
+      fi
+      ;;
+
+    # Strict Fallback: Throw an error for unknown subcommands instead of blindly passing to git
+    *)
+      echo "\033[0;31m[ERROR]\033[0m Unknown subcommand: '$cmd'. Run 'g' without arguments for the interactive menu." >&2
+      return 1
+      ;;
+  esac
+}
