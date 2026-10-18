@@ -2,7 +2,9 @@
 
 # Interactive and workspace-aware pnpm wrapper script for Zsh
 pm() {
-  # Internal interactive confirmation prompt for root/recursive actions
+  # --- Helper Functions ---
+
+  # Prompt an interactive confirmation guard before executing sensitive root or global actions
   confirm_root_action() {
     local action_description="$1"
     local raw_cmd="$2"
@@ -25,38 +27,80 @@ pm() {
     esac
   }
 
-  # Display help menu
+  # Retrieve the name of the root package from package.json, fallback to "Root"
+  get_root_name() {
+    jq -r '.name // "Root"' package.json 2>/dev/null
+  }
+
+  # List all sub-packages in the workspace using pnpm JSON output, filtering out empty lines
+  get_sub_packages() {
+    pnpm ls -r --depth -1 --json 2>/dev/null | jq -r '.[].name' | grep -v '^$'
+  }
+
+  # Build and display an interactive fzf menu containing both the Root package and sub-packages
+  select_target_with_root() {
+    local header="$1"
+    local root_name
+    root_name=$(get_root_name)
+
+    local targets
+    targets=$(echo -e "$root_name (Root)\n$(get_sub_packages)" | awk '!seen[$0]++')
+
+    echo "$targets" | fzf --header="$header"
+  }
+
+  # Build and display an interactive fzf menu containing exclusively workspace sub-packages
+  select_sub_package() {
+    local header="$1"
+    get_sub_packages | fzf --header="$header"
+  }
+
+# --- Display Help Menu ---
   if [[ "$1" == "-h" || "$1" == "--help" ]]; then
     echo -e "Usage: pm [action|target] [arguments]\n"
     echo -e "Options:"
-    echo -e "  pm                            Interactive mode: Select workspace target and script via fzf"
+    echo -e "  pm                            Interactive mode: Select target and script via fzf"
     echo -e "  pm -h, --help                 Show this help message"
-    echo -e "  pm build|test|lint|type       Run script across all workspace packages (pnpm -r <cmd>)"
-    echo -e "  pm add|i [-D] <pkg>           Add dependency to workspace root (pnpm add -w [-D] <pkg>)"
+    echo -e "  pm build|test|lint|type       Run script recursively (-r) or natively based on directory"
+    echo -e "  pm add|i [-D] <pkg>           Add dependency to workspace root (requires confirmation guard)"
     echo -e "  pm add|i                      Interactive dependency installation to a specific target"
     echo -e "  pm <target> add|i [-D] <pkg>  Add dependency to specific target (e.g. pm web i -D tailwindcss)"
-    echo -e "  pm update|up <pkg>            Update specified package (pnpm update <pkg>)"
-    echo -e "  pm exec|x <cmd>               Execute CLI binary at workspace root (pnpm exec <cmd>)"
-    echo -e "  pm dlx <pkg>                  Execute package without installing (pnpm dlx <pkg>)"
+    echo -e "  pm update|up                  Interactively choose update target (All, Root, or Sub-package)"
+    echo -e "  pm update|up <pkg>            Update specified package natively or across workspace"
+    echo -e "  pm exec|x <cmd>               Execute CLI binary at workspace root or locally"
+    echo -e "  pm dlx <pkg>                  Execute package without installing (with root safety guard)"
     echo -e "  pm dev|start                  Interactively select a target and run script"
-    echo -e "  pm <target> exec|x <cmd>      Execute CLI binary on specific target (e.g. pm web x sanity typegen generate)"
+    echo -e "  pm <target> exec|x <cmd>      Execute CLI binary on specific target (e.g. pm web x sanity gen)"
     echo -e "  pm <target> dlx <tool>        Run dlx on specific target (e.g. pm web dlx shadcn@latest add button)"
     echo -e "  pm <target> <cmd>             Run script on specific target (e.g. pm web dev -> pnpm --filter web dev)"
     return 0
   fi
 
-  # 1. No arguments provided: Full interactive mode via fzf
+  # --- 1. No arguments provided: Full interactive mode ---
   if [[ $# -eq 0 ]]; then
-    local selected_target
-    selected_target=$(pnpm ls -r --depth -1 --json 2>/dev/null | jq -r '.[].name' | fzf --header="1/2 - Select Workspace Target")
+    if [[ -f "pnpm-workspace.yaml" ]]; then
+      local selected_target
+      selected_target=$(select_sub_package "1/2 - Select Workspace Target")
+      [[ -z "$selected_target" ]] && return 0
 
-    [[ -z "$selected_target" ]] && return 0
+      local script_cmd
+      script_cmd=$(jq -r '.scripts | keys[]' "$(pnpm --filter "$selected_target" exec pwd)/package.json" 2>/dev/null | fzf --header="2/2 - Select Script ($selected_target)")
 
-    local script_cmd
-    script_cmd=$(jq -r '.scripts | keys[]' "$(pnpm --filter "$selected_target" exec pwd)/package.json" 2>/dev/null | fzf --header="2/2 - Select Script ($selected_target)")
+      if [[ -n "$script_cmd" ]]; then
+        pnpm --filter "$selected_target" "$script_cmd"
+      fi
+    else
+      if [[ ! -f "package.json" ]]; then
+        echo -e "\033[1;31m❌ Error: No package.json found in current directory.\033[0m"
+        return 1
+      fi
 
-    if [[ -n "$script_cmd" ]]; then
-      pnpm --filter "$selected_target" "$script_cmd"
+      local script_cmd
+      script_cmd=$(jq -r '.scripts | keys[]' "package.json" 2>/dev/null | fzf --header="Select Script to Run")
+
+      if [[ -n "$script_cmd" ]]; then
+        pnpm run "$script_cmd"
+      fi
     fi
     return 0
   fi
@@ -64,85 +108,154 @@ pm() {
   local action="$1"
   shift
 
+  # --- Command Routing ---
   case "$action" in
-    # Run commands recursively across all workspace packages (-r)
     build|test|lint)
-      pnpm -r "$action" "$@"
+      if [[ -f "pnpm-workspace.yaml" ]]; then
+        pnpm -r "$action" "$@"
+      else
+        pnpm run "$action" "$@"
+      fi
       ;;
 
-    # Short alias for workspace typecheck
+    # Short alias for typecheck
     type|typecheck)
-      pnpm -r typecheck "$@"
+      if [[ -f "pnpm-workspace.yaml" ]]; then
+        pnpm -r typecheck "$@"
+      else
+        pnpm run typecheck "$@"
+      fi
       ;;
 
-    # Root package installation handling
+    # Package installation handling
     add|i|install)
-      if [[ $# -eq 0 ]]; then
-        # Interactive mode when 'pm add' or 'pm i' is called without parameters
-        local selected_target
-        selected_target=$(pnpm ls -r --depth -1 --json 2>/dev/null | jq -r '.[].name' | fzf --header="Select target workspace package:")
+      if [[ -f "pnpm-workspace.yaml" ]]; then
+        if [[ $# -eq 0 ]]; then
+          local selected_target
+          selected_target=$(select_sub_package "Select target workspace package:")
+          [[ -z "$selected_target" ]] && return 0
 
-        [[ -z "$selected_target" ]] && return 0
-
-        echo -n "Enter package name (append -D for devDependency): "
-        read -r new_dep < /dev/tty
-        if [[ -n "$new_dep" ]]; then
-          pnpm --filter "$selected_target" add ${=new_dep}
+          echo -n "Enter package name (append -D for devDependency): "
+          read -r new_dep < /dev/tty
+          if [[ -n "$new_dep" ]]; then
+            pnpm --filter "$selected_target" add ${=new_dep}
+          fi
+        else
+          confirm_root_action "Adding dependency to ROOT package.json" "add -w $*" || return 1
+          pnpm add -w "$@"
         fi
       else
-        # 🛡️ INTERNAL GUARD: Prompt before adding dependencies to workspace ROOT
-        confirm_root_action "Adding dependency to ROOT package.json" "add -w $*" || return 1
-        pnpm add -w "$@"
+        if [[ $# -eq 0 ]]; then
+          echo -n "Enter package name (append -D for devDependency): "
+          read -r new_dep < /dev/tty
+          if [[ -n "$new_dep" ]]; then
+            pnpm add ${=new_dep}
+          fi
+        else
+          pnpm add "$@"
+        fi
       fi
       ;;
 
     # Update dependencies
     up|update)
-      pnpm update "$@"
+      if [[ -f "pnpm-workspace.yaml" ]]; then
+        local root_name
+        root_name=$(get_root_name)
+
+        local targets
+        targets=$(echo -e "All Workspaces\n$root_name (Root)\n$(get_sub_packages)" | awk '!seen[$0]++')
+
+        local selected
+        selected=$(echo "$targets" | fzf --header="Select Update Target")
+        [[ -z "$selected" ]] && return 0
+
+        if [[ "$selected" == "All Workspaces" ]]; then
+          pnpm update "$@"
+        elif [[ "$selected" == "$root_name (Root)" ]]; then
+          pnpm update -w "$@"
+        else
+          pnpm --filter "$selected" update "$@"
+        fi
+      else
+        pnpm update "$@"
+      fi
       ;;
 
     # Direct execution aliases at root
     x|exec)
-      # 🛡️ INTERNAL GUARD: Prompt before executing binary at WORKSPACE ROOT
-      confirm_root_action "Executing binary at WORKSPACE ROOT" "exec $*" || return 1
-      pnpm exec "$@"
+      if [[ -f "pnpm-workspace.yaml" ]]; then
+        local selected
+        selected=$(select_target_with_root "Select Execution Target:")
+        [[ -z "$selected" ]] && return 0
+
+        local root_name
+        root_name=$(get_root_name)
+
+        if [[ "$selected" == "$root_name (Root)" ]]; then
+          confirm_root_action "Executing binary at WORKSPACE ROOT" "pnpm exec $*" || return 1
+          pnpm exec "$@"
+        else
+          pnpm --filter "$selected" exec "$@"
+        fi
+      else
+        pnpm exec "$@"
+      fi
       ;;
 
     dlx)
-      pnpm dlx "$@"
+      if [[ -f "pnpm-workspace.yaml" ]]; then
+        local selected
+        selected=$(select_target_with_root "Select DLX Target:")
+        [[ -z "$selected" ]] && return 0
+
+        local root_name
+        root_name=$(get_root_name)
+
+        if [[ "$selected" == "$root_name (Root)" ]]; then
+          confirm_root_action "Running DLX package at WORKSPACE ROOT" "pnpm dlx $*" || return 1
+          pnpm dlx "$@"
+        else
+          pnpm --filter "$selected" dlx "$@"
+        fi
+      else
+        pnpm dlx "$@"
+      fi
       ;;
 
     # Interactive dev/start script runner
     dev|start)
-      local selected_target
-      selected_target=$(pnpm ls -r --depth -1 --json 2>/dev/null | jq -r '.[].name' | fzf --header="Select target to run '$action':")
-      [[ -n "$selected_target" ]] && pnpm --filter "$selected_target" "$action" "$@"
+      if [[ -f "pnpm-workspace.yaml" ]]; then
+        local selected_target
+        selected_target=$(select_sub_package "Select target to run '$action':")
+        [[ -n "$selected_target" ]] && pnpm --filter "$selected_target" "$action" "$@"
+      else
+        pnpm run "$action" "$@"
+      fi
       ;;
 
-    # Fallback: Treat first argument as target workspace package (e.g., 'pm web ...')
+
+    # Fallback: Treat first argument as target workspace package (e.g., 'pm web build')
     *)
-      if [[ $# -gt 0 ]]; then
-        local sub_action="$1"
-        shift
-        case "$sub_action" in
-          add|i|install)
-            # Route: pm web i -D tailwindcss
-            pnpm --filter "$action" add "$@"
-            ;;
-          exec|x)
-            # Route: pm web x sanity typegen generate -> pnpm --filter web exec sanity typegen generate
-            pnpm --filter "$action" exec "$@"
-            ;;
-          dlx)
-            # Route: pm web dlx shadcn@latest add button -> pnpm --filter web dlx "$@"
-            pnpm --filter "$action" dlx "$@"
-            ;;
-          *)
-            pnpm --filter "$action" "$sub_action" "$@"
-            ;;
-        esac
+      if [[ -f "pnpm-workspace.yaml" ]]; then
+        if [[ $# -gt 0 ]]; then
+          local sub_action="$1"
+          shift
+          case "$sub_action" in
+            add|i|install) pnpm --filter "$action" add "$@" ;;
+            exec|x) pnpm --filter "$action" exec "$@" ;;
+            dlx) pnpm --filter "$action" dlx "$@" ;;
+            *) pnpm --filter "$action" "$sub_action" "$@" ;;
+          esac
+        else
+          pnpm "$action"
+        fi
       else
-        pnpm "$action"
+        # Standalone mode: If user tried a workspace-style target prefix (e.g. 'pm web build'),
+        # warn them that this is not a workspace.
+        echo -e "\033[1;31m❌ Error: Not a pnpm workspace (pnpm-workspace.yaml not found).\033[0m"
+        echo -e "   Cannot target sub-package '$action' in a standalone project."
+        return 1
       fi
       ;;
   esac
