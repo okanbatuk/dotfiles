@@ -59,7 +59,7 @@ pm() {
   if [[ "$1" == "-h" || "$1" == "--help" ]]; then
     echo -e "Usage: pm [action|target] [arguments]\n"
     echo -e "Options:"
-    echo -e "  pm                            Interactive mode: Select target and script via fzf"
+    echo -e "  pm                            Interactive mode: Select target(s) and script/install via fzf"
     echo -e "  pm -h, --help                 Show this help message"
     echo -e "  pm build|test|lint|type       Run script recursively (-r) or natively based on directory"
     echo -e "  pm add|i [-D] <pkg>           Add dependency to workspace root (requires confirmation guard)"
@@ -79,28 +79,37 @@ pm() {
   # --- 1. No arguments provided: Full interactive mode ---
   if [[ $# -eq 0 ]]; then
     if [[ -f "pnpm-workspace.yaml" ]]; then
-      local selected_target
-      selected_target=$(select_sub_package "1/2 - Select Workspace Target")
-      [[ -z "$selected_target" ]] && return 0
+      # Workspace mode: Give options for All Workspaces or specific targets using multi-select enabled fzf (-m)
+      local targets
+      targets=$(echo -e "All Workspaces\n$(get_sub_packages)" | awk '!seen[$0]++')
 
-      local script_cmd
-      script_cmd=$(jq -r '.scripts | keys[]' "$(pnpm --filter "$selected_target" exec pwd)/package.json" 2>/dev/null | fzf --header="2/2 - Select Script ($selected_target)")
+      local selected_targets
+      selected_targets=$(echo "$targets" | fzf -m --header="Select Workspace Target(s) [Tab for multi-select, Enter to confirm]")
+      [[ -z "$selected_targets" ]] && return 0
 
-      if [[ -n "$script_cmd" ]]; then
-        pnpm --filter "$selected_target" "$script_cmd"
+      # If "All Workspaces" is chosen or multiple workspaces are selected
+      if echo "$selected_targets" | grep -q "All Workspaces"; then
+        echo -e "\033[1;36m🔄 Running pnpm install across all workspaces...\033[0m"
+        pnpm install
+        return 0
       fi
+
+      # Read selected targets line by line
+      while IFS= read -r target; do
+        [[ -z "$target" ]] && continue
+        echo -e "\033[1;36m📦 Installing dependencies for workspace: $target\033[0m"
+        pnpm --filter "$target" install
+      done <<< "$selected_targets"
+
     else
+      # Standalone mode: No workspace, run pnpm install directly without any prompt
       if [[ ! -f "package.json" ]]; then
         echo -e "\033[1;31m❌ Error: No package.json found in current directory.\033[0m"
         return 1
       fi
 
-      local script_cmd
-      script_cmd=$(jq -r '.scripts | keys[]' "package.json" 2>/dev/null | fzf --header="Select Script to Run")
-
-      if [[ -n "$script_cmd" ]]; then
-        pnpm run "$script_cmd"
-      fi
+      echo -e "\033[1;36m🔄 Running pnpm install (Standalone Project)...\033[0m"
+      pnpm install
     fi
     return 0
   fi
