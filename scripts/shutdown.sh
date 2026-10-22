@@ -83,7 +83,22 @@ clean_user_space() {
         log_success "✅ Old screenshots purged from $SS_DIR."
     fi
 
-    # 2. Dotfiles Temporary Directory Cleanup
+    # 2. Screencast Cleanup
+    local screencast_dir="${SCREENCAST_DIR:-$REAL_HOME/Videos/Screencasts}"
+    if [ -d "$screencast_dir" ]; then
+        log_info "🎥 Cleaning old screencasts in $screencast_dir..."
+
+        if command -v fd &>/dev/null; then
+            log_debug "Using fd for screencast cleanup..."
+            run_as_user "fd -H -t f '^Screencast' '$screencast_dir' --changed-before 24h -x rm -f"
+        else
+            log_debug "fd not found, falling back to find..."
+            run_as_user "find '$screencast_dir' -type f -name 'Screencast*' -mmin +1440 -delete"
+        fi
+        log_success "✅ Old screencasts purged from $screencast_dir."
+    fi
+
+    # 3. Dotfiles Temporary Directory Cleanup
     local dotfiles_tmp="$DOTFILES_DIR/tmp"
     if [ -d "$dotfiles_tmp" ]; then
         log_info "🧹 Clearing dotfiles temporary workspace..."
