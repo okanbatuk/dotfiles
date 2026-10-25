@@ -12,5 +12,5 @@ Environment=TERM=xterm-256color
 Environment=REAL_USER=myrn
 Environment=HOME=/home/myrn
 Environment=DOTFILES_DIR=/home/myrn/dotfiles
-Environment=PATH=/home/myrn/.local/share/fnm:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+Environment=PATH=/home/myrn/.local/share/fnm:/home/myrn/.local/share/pnpm/bin:/home/myrn/.bun/bin:/home/myrn/.cargo/bin:/home/myrn/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 ExecStart=/home/myrn/scripts/.update.sh --light
