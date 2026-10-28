@@ -1,26 +1,28 @@
-# 📝 Interactive Logging Tool (ilog)
-# Mode-based structure compatible with dckr function logic
+# 📝 Interactive Logging Tool (ilog) with Action Selector, Hierarchical FZF, and Manual Mode
 ilog() {
   local mode=""
   local target_file=""
   local p_path=""
   local s_name=""
-  local DEFAULT_PATH="$DOTFILES_DIR/logs/custom"
+  local LOGS_ROOT="$DOTFILES_DIR/logs"
+  local DESKTOP_LOGS="$HOME/Desktop/.logs"
   local OPTIND opt
 
-  # Parse options
+  # Parse options (if provided explicitly)
   while getopts "r:c:p:s:h" opt; do
     case "$opt" in
-      r) mode="record"; target_file=$OPTARG ;; # Set mode to Record
-      c) mode="clean"; target_file=$OPTARG ;;  # Set mode to Clean
-      p) p_path=$OPTARG ;;                     # Optional custom path
-      s) s_name=$OPTARG ;;                     # Optional save name
+      r) mode="record"; target_file=$OPTARG ;;
+      c) mode="clean"; target_file=$OPTARG ;;
+      p) p_path=$OPTARG ;;
+      s) s_name=$OPTARG ;;
       h)
         echo "Usage: ilog [OPTIONS]"
-        echo "  -r <name>      Record session (starts script command)"
-        echo "  -c <file>      Clean log file (removes ANSI noise)"
-        echo "  -p <path>      Custom directory path (default: $DEFAULT_PATH)"
-        echo "  -s <name>      Custom output filename (only for clean mode)"
+        echo "  ilog                    Interactive main menu (Record / Clean)"
+        echo "  -r <name>               Record interactive session directly"
+        echo "  -c [file]               Clean log file (Hierarchical fzf if omitted)"
+        echo "  -p <path>               Custom output directory / category override"
+        echo "  -s <name>               Custom output filename (.txt)"
+        echo "  -h                      Show this help message"
         return 0
         ;;
       *) ilog -h; return 1 ;;
@@ -28,13 +30,34 @@ ilog() {
   done
   shift $((OPTIND-1))
 
-  # Determine the final directory
-  local final_dir="${p_path:-$DEFAULT_PATH}"
+  # --- INTERACTIVE ACTION SELECTOR (If mode is not set via flags) ---
+  if [[ -z "$mode" ]]; then
+      if ! command -v fzf &>/dev/null; then
+          echo "❌ Error: fzf is required for interactive menu."
+          return 1
+      fi
+
+      echo "🎯 Select ilog action..."
+      local selected_action
+      selected_action=$(printf "record\nclean" | fzf --height 20% --reverse --prompt="Choose Action > ")
+      [[ -z "$selected_action" ]] && echo "⚠️ Action cancelled." && return 0
+
+      mode="$selected_action"
+
+      if [[ "$mode" == "record" ]]; then
+          echo -n "📝 Enter session record name: "
+          read -r target_file
+          [[ -z "$target_file" ]] && echo "⚠️ Record name cannot be empty." && return 1
+      fi
+  fi
 
   # --- MODES ---
   case "$mode" in
     record)
-      # 1. RECORD MODE
+      # Determine recording output directory
+      local final_dir="${p_path:+${DESKTOP_LOGS}/${p_path}}"
+      final_dir="${final_dir:-$DESKTOP_LOGS/custom}"
+
       mkdir -p "$final_dir"
       local log_full_path="$final_dir/${target_file}_$(date +%Y%m%d_%H%M).log"
       echo "⏺️  Recording started: $log_full_path"
@@ -42,13 +65,54 @@ ilog() {
       ;;
 
     clean)
-      # 2. CLEAN MODE
-      if [[ ! -f "$target_file" ]]; then
-          echo "❌ Error: File '$target_file' not found."
-          return 1
+      local subfolder=""
+
+      # --- Check for Manual Mode vs Interactive FZF Hierarchical Mode ---
+      if [[ -n "$target_file" ]]; then
+          # 1. MANUAL MODE: File path explicitly provided via arguments
+          if [[ ! -f "$target_file" ]]; then
+              echo "❌ Error: File '$target_file' not found."
+              return 1
+          fi
+          if [[ -n "$p_path" ]]; then
+              subfolder="$p_path"
+          else
+              subfolder=$(basename "$(dirname "$target_file")")
+          fi
+      else
+          # 2. INTERACTIVE HIERARCHICAL FZF MODE
+          if ! command -v fzf &>/dev/null; then
+              echo "❌ Error: fzf is required for interactive selection."
+              return 1
+          fi
+
+          if [[ ! -d "$LOGS_ROOT" ]]; then
+              echo "❌ Error: Logs root directory not found at $LOGS_ROOT."
+              return 1
+          fi
+
+          # Stage 1: Select category folder from ~/dotfiles/logs (e.g., maintenance, storage, updates)
+          echo "📁 Select log category folder..."
+          local selected_folder_path
+          selected_folder_path=$(find "$LOGS_ROOT" -mindepth 1 -maxdepth 1 -type d | sed "s|$LOGS_ROOT/||" | fzf --height 30% --reverse --prompt="Select Category > ")
+          [[ -z "$selected_folder_path" ]] && echo "⚠️ No folder selected." && return 0
+
+          subfolder="$selected_folder_path"
+          local target_dir="$LOGS_ROOT/$subfolder"
+
+          # Stage 2: Select log file within the chosen category, sorted by newest first
+          echo "📄 Select log file in '$subfolder' (Sorted by newest)..."
+          target_file=$(find "$target_dir" -maxdepth 1 -type f -printf '%T@ %p\n' 2>/dev/null | sort -nr | cut -d' ' -f2- | while read -r f; do basename "$f"; done | fzf --height 40% --reverse --prompt="Select Log File > ")
+          [[ -z "$target_file" ]] && echo "⚠️ No file selected." && return 0
+
+          target_file="$target_dir/$target_file"
       fi
 
-      # Determine output filename logic
+      # Dynamically ensure output target directory exists under ~/Desktop/.logs/<subfolder>
+      local final_output_dir="$DESKTOP_LOGS/$subfolder"
+      mkdir -p "$final_output_dir"
+
+      # Determine output filename
       local output_name
       if [[ -n "$s_name" ]]; then
           output_name="${s_name%.*}.txt"
@@ -57,10 +121,9 @@ ilog() {
           output_name="${base_fn%.*}.txt"
       fi
 
-      mkdir -p "$final_dir"
-      local output_full_path="$final_dir/$output_name"
+      local output_full_path="$final_output_dir/$output_name"
 
-      # Execute core cleaning engine (Perl)
+      # Execute core cleaning engine (Perl to strip ANSI escape sequences and carriage returns)
       perl -pe "s/\e([^\[\]]|\[.*?[a-zA-Z]|\].*?\a)//g; s/\r//g;" "$target_file" > "$output_full_path"
       echo "✨ Cleaned log saved to: $output_full_path"
       ;;
@@ -71,14 +134,14 @@ ilog() {
   esac
 }
 
-# --- Zsh Completion (Short options enabled) ---
+# --- Zsh Completion Support ---
 _ilog_completion() {
     _arguments -s -w \
-        '-r[Record session name]:name:' \
-        '-c[Clean log file]:file:_files' \
-        '-p[Custom path]:path:_files -/' \
+        '-r[Record interactive session]:name:' \
+        '-c[Clean log file (interactive or manual)]:file:_files' \
+        '-p[Custom subfolder or path]:path:' \
         '-s[Custom save name]:name:' \
-        '-h[Help]'
+        '-h[Show help]'
 }
 
 compdef _ilog_completion ilog

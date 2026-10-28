@@ -52,12 +52,12 @@ cleanup_system() {
         sudo pamac clean --keep 2 --no-confirm 2>/dev/null || true
     fi
 
-    # 5. User Space Cleanup (User Level - Single Execution)
+    # 4. User Space Cleanup (User Level - Single Execution)
     log_info "🧹 Cleaning all user caches ($REAL_USER)..."
     log_debug "Target directory: $REAL_HOME/.cache"
     run_as_user "rm -rf $REAL_HOME/.cache/* 2>/dev/null"
 
-    # 6. Temporary Files (Safe Cleanup)
+    # 5. Temporary Files (Safe Cleanup)
     log_info "🧹 Cleaning old temporary files..."
     log_debug "Using systemd-tmpfiles for safe cleanup of /tmp"
     sudo systemd-tmpfiles --clean 2>/dev/null || true
@@ -116,6 +116,20 @@ clean_user_space() {
         log_debug "Dotfiles tmp directory not found at $dotfiles_tmp. Skipping."
     fi
 
+    # 4. Desktop Logs Directory Cleanup
+    local desktop_logs_dir="$REAL_HOME/Desktop/.logs"
+    if [ -d "$desktop_logs_dir" ]; then
+        log_info "🧹 Wiping Desktop logs directory ($desktop_logs_dir)..."
+        if command -v fd &>/dev/null; then
+            run_as_user "fd -H --mindepth 1 . '$desktop_logs_dir' -x rm -rf"
+        else
+            run_as_user "find '$desktop_logs_dir' -mindepth 1 -delete"
+        fi
+        log_success "✅ Desktop .logs directory wiped clean."
+    else
+        log_debug "Desktop .logs directory not found at $desktop_logs_dir. Skipping."
+    fi
+
     log_success "✅ User space cleanup completed for $REAL_USER."
 }
 
@@ -136,7 +150,11 @@ clean_dev_tools() {
         log_debug "Uninstalling unused Flatpak runtimes (System level)"
         sudo flatpak uninstall --unused -y 2>/dev/null || true
         log_debug "Clearing Flatpak app caches in $REAL_HOME/.var/app"
-        run_as_user "rm -rf $REAL_HOME/.var/app/*/cache 2>/dev/null"
+        if command -v fd &>/dev/null; then
+            run_as_user "fd -H -t d 'cache' '$REAL_HOME/.var/app' --max-depth 2 -x rm -rf"
+        else
+            run_as_user "setopt localoptions nullglob; rm -rf $REAL_HOME/.var/app/*/cache 2>/dev/null"
+        fi
         log_success "✅ Flatpak runtimes and app caches optimized."
     fi
 }
