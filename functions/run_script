@@ -23,7 +23,32 @@ function _run_script() {
 
 # Shutdown with confirmation
 sd() { _run_script ".shutdown.sh" }
-sdy() { _run_script ".shutdown.sh" "y" }
+
+sdy() {
+    # Define local color palette matching confirm.sh styling
+    local BLUE='\033[1;34m'
+    local GREEN='\033[1;32m'
+    local CYAN='\033[1;36m'
+    local RED='\033[1;31m'
+    local YELLOW='\033[1;33m'
+    local NC='\033[0m' # No Color
+
+    echo -e "\n${BLUE}>>> System Maintenance & Shutdown Triggered${NC}"
+    echo -e "${CYAN}This will execute system cleanup routines and power off the machine.${NC}\n"
+
+    # Interactive confirmation prompt with TTY safeguard
+    echo -n -e "${YELLOW}[?]${NC} Proceed with shutdown cleanup? (y/N): "
+    read -r reply </dev/tty
+    echo -e "" # Visual spacing
+
+    if [[ "$reply" =~ ^[Yy]$ ]]; then
+        echo -e "${GREEN}[SUCCESS]${NC} Authorization granted. Starting cleanup..."
+        _run_script ".shutdown.sh" "y"
+    else
+        echo -e "${CYAN}[INFO]${NC} Operation aborted by user. System remains online."
+    fi
+}
+
 sdn() { _run_script ".shutdown.sh" "n" }
 
 # Disk Management
